@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Pool Service Update</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(160deg, #0d6efd11 0%, #0dcaf022 100%);
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      color: #1e293b;
+    }
+
+    .card {
+      max-width: 540px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0369a1, #0ea5e9);
+      padding: 28px 24px 22px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .header svg { margin-bottom: 10px; }
+
+    .header h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .header p {
+      font-size: 0.88rem;
+      opacity: 0.88;
+      margin-top: 4px;
+    }
+
+    form { padding: 24px 20px; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #0369a1;
+      margin: 22px 0 10px;
+    }
+
+    .section-label:first-of-type { margin-top: 4px; }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+
+    label .opt {
+      font-weight: 400;
+      color: #9ca3af;
+      font-size: 0.82rem;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: #1e293b;
+      background: #f8fafc;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #0ea5e9;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.15);
+    }
+
+    textarea { resize: vertical; min-height: 90px; }
+
+    .field { margin-bottom: 14px; }
+
+    /* Chemical balance grid */
+    .chem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .chem-grid .field { margin-bottom: 0; }
+
+    .chem-grid label { font-size: 0.82rem; }
+
+    input[type="number"] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 8px 0;
+    }
+
+    /* Submit button */
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      margin-top: 24px;
+      background: linear-gradient(135deg, #0369a1, #0ea5e9);
+      color: #fff;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      box-shadow: 0 4px 14px rgba(14,165,233,0.35);
+      transition: opacity 0.18s, transform 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-submit:active { opacity: 0.88; transform: scale(0.98); }
+
+    /* Honeypot — hidden from real users */
+    .hp-field { display: none !important; }
+
+    /* Success / error banners */
+    .banner {
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .banner.success { background: #dcfce7; color: #15803d; display: block; }
+    .banner.error   { background: #fee2e2; color: #b91c1c; display: block; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      padding: 14px 20px 18px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <!-- Pool / water icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+      <path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+      <path d="M2 7c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+    </svg>
+    <h1>Weekly Pool Service Update</h1>
+    <p>Fill in today's service details below</p>
+  </div>
+
+  <form
+    id="serviceForm"
+    action="https://formspree.io/f/mgolblzq"
+    method="POST"
+  >
+    <!-- ── Honeypot spam trap ── -->
+    <input class="hp-field" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+    <!-- Redirect after submit (optional — Formspree will use its own thank-you page if omitted) -->
+    <!-- <input type="hidden" name="_next" value="https://yoursite.com/thanks" /> -->
+
+    <!-- ── SERVICE INFO ── -->
+    <p class="section-label">Service Info</p>
+
+    <div class="field">
+      <label for="date">Date of Service</label>
+      <input type="date" id="date" name="date" required />
+    </div>
+
+    <div class="field">
+      <label for="customer_name">Customer Name</label>
+      <input type="text" id="customer_name" name="customer_name"
+             placeholder="Jane Smith" required autocomplete="name" />
+    </div>
+
+    <div class="field">
+      <label for="customer_phone">Customer Phone</label>
+      <input type="tel" id="customer_phone" name="customer_phone"
+             placeholder="(555) 000-0000" autocomplete="tel" />
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── CHEMICALS ── -->
+    <p class="section-label">Chemicals Added</p>
+
+    <div class="field">
+      <label for="chemicals">Chemicals Added <span class="opt">(product, amount)</span></label>
+      <textarea id="chemicals" name="chemicals"
+                placeholder="e.g.&#10;Chlorine tablets — 3 lbs&#10;Algaecide — 1 qt&#10;pH Down — 2 lbs"></textarea>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── CHEMICAL BALANCE ── -->
+    <p class="section-label">Pool Chemical Balance</p>
+
+    <div class="chem-grid">
+      <div class="field">
+        <label for="ph">pH</label>
+        <input type="number" id="ph" name="ph" step="0.1" min="0" max="14"
+               placeholder="7.4" inputmode="decimal" />
+      </div>
+      <div class="field">
+        <label for="chlorine">Free Chlorine (ppm)</label>
+        <input type="number" id="chlorine" name="chlorine" step="0.1" min="0"
+               placeholder="2.0" inputmode="decimal" />
+      </div>
+      <div class="field">
+        <label for="alkalinity">Total Alkalinity (ppm)</label>
+        <input type="number" id="alkalinity" name="alkalinity" step="1" min="0"
+               placeholder="100" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label for="cyanuric">Cyanuric Acid (ppm)</label>
+        <input type="number" id="cyanuric" name="cyanuric" step="1" min="0"
+               placeholder="50" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label for="calcium">Calcium Hardness (ppm)</label>
+        <input type="number" id="calcium" name="calcium" step="1" min="0"
+               placeholder="250" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label for="salt">Salt (ppm) <span class="opt">if SWG</span></label>
+        <input type="number" id="salt" name="salt" step="10" min="0"
+               placeholder="3200" inputmode="numeric" />
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── NOTES ── -->
+    <p class="section-label">Notes <span class="opt" style="text-transform:none;letter-spacing:0">— optional</span></p>
+
+    <div class="field">
+      <label for="notes">Additional Notes</label>
+      <textarea id="notes" name="notes"
+                placeholder="Equipment issues, water clarity, next visit reminders…"></textarea>
+    </div>
+
+    <!-- Feedback banners (shown after JS-submit) -->
+    <div id="success-banner" class="banner success">
+      ✅ Service record submitted successfully!
+    </div>
+    <div id="error-banner" class="banner error">
+      ⚠️ Something went wrong. Please check your connection and try again.
+    </div>
+
+    <button type="submit" class="btn-submit">Submit Service Record</button>
+  </form>
+
+  <p class="footer-note">Secure form · Data sent to your Formspree account</p>
+</div>
+
+<script>
+  // Pre-fill today's date
+  (function () {
+    const d = document.getElementById('date');
+    if (d && !d.value) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm   = String(today.getMonth() + 1).padStart(2, '0');
+      const dd   = String(today.getDate()).padStart(2, '0');
+      d.value = `${yyyy}-${mm}-${dd}`;
+    }
+  })();
+
+  // Async AJAX submit (keeps user on page, shows success/error)
+  document.getElementById('serviceForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const form    = e.target;
+    const btn     = form.querySelector('.btn-submit');
+    const success = document.getElementById('success-banner');
+    const error   = document.getElementById('error-banner');
+
+    // Hide previous banners
+    success.style.display = 'none';
+    error.style.display   = 'none';
+
+    // Basic honeypot check in JS as well
+    const hp = form.querySelector('input[name="_gotcha"]');
+    if (hp && hp.value) return;
+
+    btn.textContent = 'Submitting…';
+    btn.disabled    = true;
+
+    try {
+      const res = await fetch(form.action, {
+        method:  'POST',
+        body:    new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        success.style.display = 'block';
+        form.reset();
+        // Re-fill today's date after reset
+        const d = document.getElementById('date');
+        if (d) {
+          const today = new Date();
+          d.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        }
+        btn.textContent = '✓ Submitted';
+        setTimeout(() => { btn.textContent = 'Submit Service Record'; btn.disabled = false; }, 3000);
+      } else {
+        throw new Error('Server error');
+      }
+    } catch (_) {
+      error.style.display = 'block';
+      btn.textContent     = 'Submit Service Record';
+      btn.disabled        = false;
+    }
+  });
+</script>
+
+</body>
+</html>
