@@ -308,6 +308,7 @@
         }
         .submit-btn:active { transform: translateY(0); }
 
+        /* Section subtitle */
         .section-sub {
             font-size: 12px;
             color: #6b7280;
@@ -331,7 +332,6 @@
     </style>
 </head>
 <body>
-
 <div class="header">
     <h1>Pool Service Log</h1>
     <p>Aquamarine Pool Services</p>
@@ -353,15 +353,21 @@
             <div class="card-title">Customer Information</div>
             <div class="card-divider"></div>
 
-            <div class="form-group">
-                <label for="customerName">Customer Name *</label>
-                <input type="text" id="customerName" name="customer_name" placeholder="Type customer name" required autocomplete="off">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="customerFirst">First Name *</label>
+                    <input type="text" id="customerFirst" name="customer_first" placeholder="First name" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="customerLast">Last Name *</label>
+                    <input type="text" id="customerLast" name="customer_last" placeholder="Last name" required autocomplete="off">
+                </div>
             </div>
 
             <div class="grid-2">
                 <div class="form-group">
                     <label for="customerPhone">Phone</label>
-                    <input type="tel" id="customerPhone" name="customer_phone" placeholder="Phone number" autocomplete="off">
+                    <input type="tel" id="customerPhone" name="customer_phone" placeholder="10-digit number" autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="10">
                 </div>
                 <div class="form-group">
                     <label for="customerAddress">Address</label>
@@ -547,7 +553,7 @@
 
             <div class="form-group">
                 <label for="notes">Notes (optional)</label>
-                <textarea id="notes" name="notes" placeholder="Anything else - issues spotted, customer requests, parts needed, etc."></textarea>
+                <textarea id="notes" name="notes" placeholder="Anything else — issues spotted, customer requests, parts needed, etc."></textarea>
             </div>
         </div>
 
@@ -578,10 +584,12 @@
     const serviceDateInput = document.getElementById('serviceDate');
     const poolForm = document.getElementById('poolForm');
 
+    // Set today's date
     const today = new Date().toISOString().split('T')[0];
     serviceDateInput.value = today;
     serviceDateInput.defaultValue = today;
 
+    // ---- Chemical Rows ----
     function createChemRow(preselect) {
         const row = document.createElement('div');
         row.className = 'chem-row';
@@ -641,6 +649,7 @@
         return row;
     }
 
+    // Start with 3 rows (common chems pre-selected to speed things up)
     chemRowsContainer.appendChild(createChemRow('Liquid Chlorine'));
     chemRowsContainer.appendChild(createChemRow('Muriatic Acid'));
     chemRowsContainer.appendChild(createChemRow());
@@ -650,14 +659,23 @@
         chemRowsContainer.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
+    // ---- Equipment Checklist ----
     document.querySelectorAll('.equip-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+            // Prevent double-toggle if checkbox itself was clicked
+            if (e.target.type === 'checkbox') return;
             const cb = item.querySelector('input[type="checkbox"]');
             cb.checked = !cb.checked;
             item.classList.toggle('checked', cb.checked);
         });
+        // Sync visual state when checkbox is toggled directly
+        const cb = item.querySelector('input[type="checkbox"]');
+        cb.addEventListener('change', () => {
+            item.classList.toggle('checked', cb.checked);
+        });
     });
 
+    // ---- Gather data before submit ----
     function gatherChemicals() {
         const rows = chemRowsContainer.querySelectorAll('.chem-row');
         const lines = [];
@@ -686,10 +704,18 @@
         equipmentSummary.value = items.join(', ');
     }
 
+    // ---- Phone Number Cleanup ----
+    function cleanPhone() {
+        const phoneInput = document.getElementById('customerPhone');
+        phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+    }
+
+    // ---- Form Submit ----
     poolForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         gatherChemicals();
         gatherEquipment();
+        cleanPhone();
 
         const formData = new FormData(poolForm);
         const successAlert = document.getElementById('successAlert');
@@ -709,16 +735,19 @@
                 poolForm.reset();
                 serviceDateInput.value = today;
 
+                // Reset chemical rows
                 chemRowsContainer.innerHTML = '';
                 chemRowsContainer.appendChild(createChemRow('Liquid Chlorine'));
                 chemRowsContainer.appendChild(createChemRow('Muriatic Acid'));
                 chemRowsContainer.appendChild(createChemRow());
 
+                // Reset equipment checkboxes
                 document.querySelectorAll('.equip-item').forEach(item => {
                     item.classList.remove('checked');
                     item.querySelector('input[type="checkbox"]').checked = false;
                 });
 
+                // Re-check default radio buttons
                 document.getElementById('typeWeekly').checked = true;
                 document.getElementById('clarityClear').checked = true;
 
