@@ -5,640 +5,735 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pool Service Form</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f5f7fa;
-            padding: 0;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f0f2f5;
+            color: #1a1a2e;
+            min-height: 100vh;
         }
 
         .header {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             padding: 24px 20px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-
-        .header::before {
-            content: "≈";
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 48px;
-            opacity: 0.2;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.95;
-        }
+        .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
 
         .container {
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 0 16px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .form-section {
-            margin-bottom: 28px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1f2937;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        input[type="tel"],
-        textarea,
-        input[type="number"] {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            background: #ffffff;
-        }
-
-        input[type="text"]:focus,
-        input[type="date"]:focus,
-        input[type="tel"]:focus,
-        textarea:focus,
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #2563eb;
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-        }
-
-        .search-container {
-            position: relative;
-            margin-bottom: 18px;
-        }
-
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1.5px solid #d1d5db;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 250px;
-            overflow-y: auto;
-            display: none;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-results.active {
-            display: block;
-        }
-
-        .search-result-item {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f3f4f6;
-            cursor: pointer;
-            font-size: 14px;
-            color: #374151;
-            transition: background 0.15s ease;
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-item:hover {
-            background: #f3f4f6;
-        }
-
-        .search-result-name {
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .search-result-phone {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 3px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-
-        button {
-            flex: 1;
-            padding: 14px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            padding: 16px;
-            font-size: 15px;
-            width: 100%;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #2563eb;
-            border: 2px solid #2563eb;
-            padding: 12px;
-            font-size: 13px;
-        }
-
-        .btn-secondary:hover {
-            background: #f0f4ff;
-        }
-
-        .btn-secondary:active {
-            background: #e0e8ff;
-        }
-
-        .honeypot {
-            display: none;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
         }
 
         .alert {
-            padding: 14px 16px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: 10px;
             margin-bottom: 16px;
             font-size: 14px;
+            font-weight: 500;
             display: none;
-            animation: slideIn 0.3s ease-out;
+        }
+        .alert-success { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #1a1a2e;
+            margin-bottom: 6px;
         }
 
-        .alert.success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #6ee7b7;
+        .card-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #2563eb, transparent);
+            margin-bottom: 20px;
+            border-radius: 2px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+
+        label {
             display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #374151;
+            margin-bottom: 6px;
         }
 
-        .alert.error {
-            background: #fee2e2;
-            color: #7f1d1d;
-            border: 1px solid #fca5a5;
-            display: block;
+        input[type="text"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
+            color: #1a1a2e;
+            -webkit-appearance: none;
         }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        textarea { resize: vertical; min-height: 80px; }
 
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 14px;
         }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .container {
-                margin: 16px auto;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-
-            input[type="text"],
-            input[type="date"],
-            input[type="tel"],
-            textarea,
-            input[type="number"] {
-                padding: 16px;
-                font-size: 16px;
-            }
-
-            button {
-                padding: 16px;
-                font-size: 14px;
-            }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
 
-        .form-group input[type="number"] {
-            text-align: center;
+        .ideal-range {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+            font-style: italic;
         }
 
-        .field-group {
-            background: #f9fafb;
+        /* Service Type Pills */
+        .service-type-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+        .service-type-group input[type="radio"] { display: none; }
+        .service-type-group label.pill {
+            display: inline-block;
+            padding: 10px 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .service-type-group input[type="radio"]:checked + label.pill {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        .service-type-group label.pill:hover {
+            border-color: #2563eb;
+        }
+
+        /* Chemicals Applied Section */
+        .chem-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 70px 34px;
+            gap: 8px;
+            align-items: end;
+            margin-bottom: 10px;
+        }
+        .chem-row select, .chem-row input {
+            padding: 10px 8px;
+            font-size: 14px;
+        }
+        .chem-row .chem-unit { padding: 10px 4px; font-size: 13px; }
+
+        .remove-chem {
+            width: 34px;
+            height: 42px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .remove-chem:hover { background: #fca5a5; }
+
+        .add-chem-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            background: white;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 4px;
+        }
+        .add-chem-btn:hover { background: #eff6ff; }
+
+        .chem-header {
+            display: grid;
+            grid-template-columns: 1fr 80px 70px 34px;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .chem-header span {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+        }
+
+        /* Equipment Checklist */
+        .equip-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .equip-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .equip-item:hover { border-color: #93c5fd; }
+        .equip-item.checked {
+            background: #eff6ff;
+            border-color: #2563eb;
+        }
+        .equip-item input[type="checkbox"] { display: none; }
+        .equip-check {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .equip-item.checked .equip-check {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        .equip-item.checked .equip-check::after {
+            content: '';
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+            margin-top: -2px;
+        }
+        .equip-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .filter-pressure-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .filter-pressure-row label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+        .filter-pressure-row input {
+            width: 100px;
+        }
+        .filter-pressure-row .unit-text {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .submit-btn {
+            width: 100%;
             padding: 16px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+        .submit-btn:active { transform: translateY(0); }
+
+        .section-sub {
+            font-size: 12px;
+            color: #6b7280;
             margin-bottom: 12px;
         }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .grid-2, .equip-grid { grid-template-columns: 1fr; }
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+            .chem-row { grid-template-columns: 1fr 70px 60px 30px; gap: 6px; }
+            .chem-header { grid-template-columns: 1fr 70px 60px 30px; gap: 6px; }
+            .chem-row select, .chem-row input { padding: 10px 6px; font-size: 13px; }
+            .header h1 { font-size: 22px; }
+            .card { padding: 18px; }
+            .service-type-group label.pill { padding: 8px 14px; font-size: 12px; }
+            .filter-pressure-row { flex-wrap: wrap; }
+        }
+
+        .hidden-field { display: none !important; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Pool Service Log</h1>
-        <p>Record your pool maintenance details</p>
+
+<div class="header">
+    <h1>Pool Service Log</h1>
+    <p>Aquamarine Pool Services</p>
+</div>
+
+<div class="container">
+    <div id="successAlert" class="alert alert-success">
+        Form submitted successfully!
+    </div>
+    <div id="errorAlert" class="alert alert-error">
+        Error submitting form. Please try again.
     </div>
 
-    <div class="container">
-        <div class="alert" id="successAlert">
-            Form submitted successfully! We'll be in touch soon.
+    <form id="poolForm" action="https://formspree.io/f/mgolblzq" method="POST">
+        <input type="text" name="_gotcha" class="hidden-field">
+
+        <!-- CUSTOMER INFORMATION -->
+        <div class="card">
+            <div class="card-title">Customer Information</div>
+            <div class="card-divider"></div>
+
+            <div class="form-group">
+                <label for="customerName">Customer Name *</label>
+                <input type="text" id="customerName" name="customer_name" placeholder="Type customer name" required autocomplete="off">
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="customerPhone">Phone</label>
+                    <input type="tel" id="customerPhone" name="customer_phone" placeholder="Phone number" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">Address</label>
+                    <input type="text" id="customerAddress" name="customer_address" placeholder="Address" autocomplete="off">
+                </div>
+            </div>
         </div>
-        <div class="alert alert-error" id="errorAlert">
-            Error submitting form. Please try again.
+
+        <!-- SERVICE DETAILS -->
+        <div class="card">
+            <div class="card-title">Service Details</div>
+            <div class="card-divider"></div>
+
+            <div class="form-group">
+                <label>Service Type *</label>
+                <div class="service-type-group">
+                    <input type="radio" id="typeWeekly" name="service_type" value="Weekly Maintenance" checked>
+                    <label class="pill" for="typeWeekly">Weekly Maintenance</label>
+
+                    <input type="radio" id="typeChemOnly" name="service_type" value="Chemical Only">
+                    <label class="pill" for="typeChemOnly">Chemical Only</label>
+
+                    <input type="radio" id="typeOpening" name="service_type" value="Opening">
+                    <label class="pill" for="typeOpening">Opening</label>
+
+                    <input type="radio" id="typeClosing" name="service_type" value="Closing">
+                    <label class="pill" for="typeClosing">Closing</label>
+
+                    <input type="radio" id="typeRepair" name="service_type" value="Repair / Service Call">
+                    <label class="pill" for="typeRepair">Repair / Service Call</label>
+
+                    <input type="radio" id="typeOther" name="service_type" value="Other">
+                    <label class="pill" for="typeOther">Other</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceDate">Service Date *</label>
+                <input type="date" id="serviceDate" name="date" required>
+            </div>
         </div>
 
-        <form id="poolForm" method="POST" action="https://formspree.io/f/mgolblzq">
-            <!-- Customer Section -->
-            <div class="card">
-                <div class="form-section">
-                    <div class="section-title">Customer Information</div>
+        <!-- CHEMICALS APPLIED -->
+        <div class="card">
+            <div class="card-title">Chemicals Applied</div>
+            <div class="card-divider"></div>
+            <div class="section-sub">Add each chemical used. Pick from the list or choose "Other" to type in.</div>
 
-                    <!-- Search Existing Customer -->
-                    <div class="form-group">
-                        <label>Search Existing Customer</label>
-                        <div class="search-container">
-                            <input 
-                                type="text" 
-                                id="customerSearch" 
-                                placeholder="Type a customer name..."
-                                autocomplete="off"
-                            >
-                            <div class="search-results" id="searchResults"></div>
-                        </div>
-                    </div>
+            <div class="chem-header">
+                <span>Chemical</span>
+                <span>Amount</span>
+                <span>Unit</span>
+                <span></span>
+            </div>
 
-                    <!-- New Customer Button -->
-                    <button type="button" class="btn-secondary" id="newCustomerBtn" style="width: 100%; margin-bottom: 16px;">
-                        ＋ New Customer / Manual Entry
-                    </button>
+            <div id="chemRows"></div>
 
-                    <!-- Customer Fields -->
-                    <div class="form-group">
-                        <label for="customerName">Customer Name *</label>
-                        <input 
-                            type="text" 
-                            id="customerName" 
-                            name="customer_name" 
-                            required
-                            placeholder="Enter customer name"
-                        >
-                    </div>
+            <button type="button" class="add-chem-btn" id="addChemBtn">
+                + Add Another Chemical
+            </button>
 
-                    <div class="form-group">
-                        <label for="customerPhone">Customer Phone</label>
-                        <input 
-                            type="tel" 
-                            id="customerPhone" 
-                            name="customer_phone"
-                            placeholder="Enter phone number"
-                        >
-                    </div>
+            <textarea name="chemicals_applied" id="chemicalsSummary" class="hidden-field"></textarea>
+        </div>
 
-                    <div class="form-group">
-                        <label for="customerAddress">Customer Address</label>
-                        <input 
-                            type="text" 
-                            id="customerAddress" 
-                            name="customer_address"
-                            placeholder="Enter address"
-                        >
-                    </div>
+        <!-- EQUIPMENT CHECK -->
+        <div class="card">
+            <div class="card-title">Equipment Check</div>
+            <div class="card-divider"></div>
+            <div class="section-sub">Tap to mark items inspected or serviced.</div>
+
+            <div class="equip-grid" id="equipGrid">
+                <div class="equip-item" data-name="Pump Running">
+                    <input type="checkbox" name="equip_pump_running">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Pump Running</span>
+                </div>
+                <div class="equip-item" data-name="Skimmer Baskets Cleaned">
+                    <input type="checkbox" name="equip_skimmer_baskets">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Skimmer Baskets Cleaned</span>
+                </div>
+                <div class="equip-item" data-name="Pump Basket Cleaned">
+                    <input type="checkbox" name="equip_pump_basket">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Pump Basket Cleaned</span>
+                </div>
+                <div class="equip-item" data-name="Filter Checked">
+                    <input type="checkbox" name="equip_filter_checked">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Filter Checked</span>
+                </div>
+                <div class="equip-item" data-name="Heater Running">
+                    <input type="checkbox" name="equip_heater">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Heater Running</span>
+                </div>
+                <div class="equip-item" data-name="Salt Cell Checked">
+                    <input type="checkbox" name="equip_salt_cell">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Salt Cell Checked</span>
+                </div>
+                <div class="equip-item" data-name="Vacuumed / Brushed">
+                    <input type="checkbox" name="equip_vacuumed">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Vacuumed / Brushed</span>
+                </div>
+                <div class="equip-item" data-name="Water Level OK">
+                    <input type="checkbox" name="equip_water_level">
+                    <div class="equip-check"></div>
+                    <span class="equip-label">Water Level OK</span>
                 </div>
             </div>
 
-            <!-- Service Details Section -->
-            <div class="card">
-                <div class="form-section">
-                    <div class="section-title">Service Details</div>
+            <div class="filter-pressure-row">
+                <label for="filterPressure">Filter Pressure</label>
+                <input type="number" id="filterPressure" name="filter_pressure" placeholder="PSI" step="1" min="0">
+                <span class="unit-text">PSI</span>
+            </div>
 
-                    <!-- Date -->
-                    <div class="form-group">
-                        <label for="serviceDate">Service Date *</label>
-                        <input 
-                            type="date" 
-                            id="serviceDate" 
-                            name="date" 
-                            required
-                        >
-                    </div>
+            <textarea name="equipment_summary" id="equipmentSummary" class="hidden-field"></textarea>
+        </div>
 
-                    <!-- Chemicals Added -->
-                    <div class="form-group">
-                        <label for="chemicals">Chemicals Added</label>
-                        <textarea 
-                            id="chemicals" 
-                            name="chemicals"
-                            placeholder="List chemicals added to pool (e.g., chlorine, alkalinity increaser, acid)"
-                        ></textarea>
-                    </div>
+        <!-- CHEMICAL BALANCE (READINGS) -->
+        <div class="card">
+            <div class="card-title">Water Chemistry Readings</div>
+            <div class="card-divider"></div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="ph">pH Level</label>
+                    <input type="number" id="ph" name="ph" step="0.1" min="0" max="14" placeholder="e.g. 7.4">
+                    <div class="ideal-range">Ideal: 7.2 - 7.6</div>
                 </div>
-
-                <!-- Chemical Balance Grid -->
-                <div class="form-section">
-                    <div class="section-title">Chemical Balance</div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label for="ph">pH Level</label>
-                            <input 
-                                type="number" 
-                                id="ph" 
-                                name="ph"
-                                placeholder="7.2-7.6"
-                                step="0.1"
-                                min="0"
-                                max="14"
-                            >
-                        </div>
-                        <div class="form-group">
-                            <label for="chlorine">Free Chlorine (ppm)</label>
-                            <input 
-                                type="number" 
-                                id="chlorine" 
-                                name="chlorine"
-                                placeholder="1-3"
-                                step="0.1"
-                                min="0"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label for="alkalinity">Total Alkalinity (ppm)</label>
-                            <input 
-                                type="number" 
-                                id="alkalinity" 
-                                name="alkalinity"
-                                placeholder="80-120"
-                                step="1"
-                                min="0"
-                            >
-                        </div>
-                        <div class="form-group">
-                            <label for="cyanuric">Cyanuric Acid (ppm)</label>
-                            <input 
-                                type="number" 
-                                id="cyanuric" 
-                                name="cyanuric"
-                                placeholder="30-50"
-                                step="1"
-                                min="0"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label for="calcium">Calcium Hardness (ppm)</label>
-                            <input 
-                                type="number" 
-                                id="calcium" 
-                                name="calcium"
-                                placeholder="200-400"
-                                step="1"
-                                min="0"
-                            >
-                        </div>
-                        <div class="form-group">
-                            <label for="salt">Salt (ppm)</label>
-                            <input 
-                                type="number" 
-                                id="salt" 
-                                name="salt"
-                                placeholder="Salt level"
-                                step="1"
-                                min="0"
-                            >
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="chlorine">Free Chlorine (ppm)</label>
+                    <input type="number" id="chlorine" name="chlorine" step="0.1" min="0" placeholder="e.g. 2.0">
+                    <div class="ideal-range">Ideal: 1 - 3 ppm</div>
                 </div>
+                <div class="form-group">
+                    <label for="alkalinity">Total Alkalinity (ppm)</label>
+                    <input type="number" id="alkalinity" name="alkalinity" step="1" min="0" placeholder="e.g. 100">
+                    <div class="ideal-range">Ideal: 80 - 120 ppm</div>
+                </div>
+                <div class="form-group">
+                    <label for="cyanuric">Cyanuric Acid (ppm)</label>
+                    <input type="number" id="cyanuric" name="cyanuric" step="1" min="0" placeholder="e.g. 40">
+                    <div class="ideal-range">Ideal: 30 - 50 ppm</div>
+                </div>
+                <div class="form-group">
+                    <label for="calcium">Calcium Hardness (ppm)</label>
+                    <input type="number" id="calcium" name="calcium" step="1" min="0" placeholder="e.g. 300">
+                    <div class="ideal-range">Ideal: 200 - 400 ppm</div>
+                </div>
+                <div class="form-group">
+                    <label for="salt">Salt (ppm)</label>
+                    <input type="number" id="salt" name="salt" step="1" min="0" placeholder="e.g. 3200">
+                    <div class="ideal-range">Ideal: 2700 - 3400 ppm</div>
+                </div>
+            </div>
+        </div>
 
-                <!-- Notes -->
-                <div class="form-section">
-                    <div class="form-group">
-                        <label for="notes">Additional Notes (optional)</label>
-                        <textarea 
-                            id="notes" 
-                            name="notes"
-                            placeholder="Any additional observations or maintenance performed"
-                        ></textarea>
-                    </div>
+        <!-- POOL CONDITION -->
+        <div class="card">
+            <div class="card-title">Pool Condition</div>
+            <div class="card-divider"></div>
+
+            <div class="form-group">
+                <label>Water Clarity</label>
+                <div class="service-type-group">
+                    <input type="radio" id="clarityClear" name="water_clarity" value="Clear" checked>
+                    <label class="pill" for="clarityClear">Clear</label>
+
+                    <input type="radio" id="clarityHazy" name="water_clarity" value="Hazy">
+                    <label class="pill" for="clarityHazy">Hazy</label>
+
+                    <input type="radio" id="clarityCloudy" name="water_clarity" value="Cloudy">
+                    <label class="pill" for="clarityCloudy">Cloudy</label>
+
+                    <input type="radio" id="clarityGreen" name="water_clarity" value="Green">
+                    <label class="pill" for="clarityGreen">Green</label>
                 </div>
             </div>
 
-            <!-- Honeypot field -->
-            <input type="text" name="_gotcha" class="honeypot">
-
-            <!-- Submit Button -->
-            <div class="container" style="padding: 0 16px;">
-                <button type="submit" class="btn-submit">Submit Service Report</button>
+            <div class="form-group">
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" name="notes" placeholder="Anything else - issues spotted, customer requests, parts needed, etc."></textarea>
             </div>
-        </form>
-    </div>
+        </div>
 
-    <script>
-        const customerData = [{"name": "Aaron Lammas", "phone": "+15132604026", "address": "5519 socialville foster rd Mason Ohio"}, {"name": "Adam Lane", "phone": "+15733665833", "address": ""}, {"name": "Adam Langhouse", "phone": "+15135825300", "address": "10641 brandywine ln Cincinnati Ohio 45242"}, {"name": "Adam Carney", "phone": "+14135442296", "address": ""}, {"name": "Agnus Boswell", "phone": "+15133139301", "address": ""}, {"name": "AJ Jones", "phone": "+15133249201", "address": "6773 Little River Ln Loveland Ohio 45140"}, {"name": "Alejandro Almaguar", "phone": "+15137399791", "address": ""}, {"name": "Alex Brunner", "phone": "+15136050307", "address": ""}, {"name": "Alex Glahn", "phone": "+15135042408", "address": "2570 allegro ln Loveland Ohio 45140"}, {"name": "Alexis", "phone": "+15138081812", "address": ""}, {"name": "Alexus Hight", "phone": "+15138081812", "address": ""}, {"name": "Allan Jobe", "phone": "+15137023730", "address": "8805 old Indian hill rd Cincinnati OH"}, {"name": "Alma Robinson", "phone": "+15136075016", "address": ""}, {"name": "Alonda Malone", "phone": "+15137029916", "address": "7981 Woodglen Dr West Chester OH 45069"}, {"name": "Amanda Wheeler", "phone": "+15133704402", "address": "1405 blackstone pl Loveland Ohio 45140"}, {"name": "Amine Bitar", "phone": "+15137035197", "address": ""}, {"name": "Amy Hemming", "phone": "+15135827723", "address": ""}, {"name": "Amy Lewis", "phone": "+16143254958", "address": "1133 heritage ridge Milford Ohio 45150"}, {"name": "Amy Schneide", "phone": "+16308887233", "address": "9841 Kensington lane Mason OH 45040"}, {"name": "Ana Vissing", "phone": "+15136166997", "address": "7281 brixton ln Cincinnati Ohio 45255"}, {"name": "Andrea Barr", "phone": "+15132655381", "address": ""}, {"name": "Andrew Browning", "phone": "+15134329036", "address": "12037 wesken ln Cincinnati Ohio 45241"}, {"name": "Andrew Castellanos", "phone": "+15134399549", "address": "6941 Kenwood Rd Cincinnati Ohio 45243"}, {"name": "Andrew Gentzkow", "phone": "+13175026428", "address": "6457 Wardwood Drive Loveland 45140"}, {"name": "Andy Gress", "phone": "+17402582507", "address": "7440 N Timberlane Dr Cincinnati OH"}, {"name": "Angel Mena", "phone": "+15134533180", "address": ""}, {"name": "Angela", "phone": "+15137033882", "address": ""}, {"name": "Anna Baker", "phone": "+15138729385", "address": "7197 Braemer Ln West Chester OH 45069"}, {"name": "Anna Logan", "phone": "+15136002394", "address": "1991 Lady Ellen Dr Cincinnati Ohio 45230"}, {"name": "Anoop Brar", "phone": "+15135388057", "address": "8545 Ivy Trails Dr Cincinnati OH 45244"}, {"name": "Anthony Bujanowski", "phone": "+14192508669", "address": ""}, {"name": "Artisan Homes", "phone": "", "address": ""}, {"name": "Ashleigh Andrews", "phone": "+15135781547", "address": "11989 Rich Rd Loveland OH 45140"}, {"name": "Ashley Lau", "phone": "+13303282002", "address": ""}, {"name": "Audrey Kandil", "phone": "+15132647081", "address": "11311 Avant Ln Cincinnati Ohio 45249"}, {"name": "Austin Houchens", "phone": "+15132748767", "address": "2319 Firth St Batavia Ohio 45103"}, {"name": "Barbara Snyder", "phone": "+15132565859", "address": "5906 milburne dr Milford Ohio 45150"}, {"name": "Becca Schall", "phone": "+15134707676", "address": "1041 Chatterton Dr Cincinnati Ohio 45231"}, {"name": "Ben Apple", "phone": "+12627513324", "address": "10520 tanagerhills dr Cincinnati Ohio 45249"}, {"name": "Ben Bloch", "phone": "+17192384778", "address": ""}, {"name": "Ben Thomas", "phone": "+17042235681", "address": ""}, {"name": "Ben Vidourek", "phone": "+15133487467", "address": ""}, {"name": "Bert Hehman", "phone": "+18596304196", "address": "263 ridgepointe dr Cold spring Kentucky 41076"}, {"name": "Beth Severid", "phone": "+14065790625", "address": "1428 young rd Amelia Ohio 45102"}, {"name": "Bev Deangelis", "phone": "+15132357900", "address": ""}, {"name": "Bill Reina", "phone": "+15132600908", "address": "7895 finley lane Cincinnati Ohio 45242"}, {"name": "Bill VanAlsten", "phone": "+15132405736", "address": "7436 Wetherington Drive West Chester OHIO 45069"}, {"name": "Blake Englehart", "phone": "+14404881566", "address": "8363 Cannon Knoll Ct West Chester Township OH 45069"}, {"name": "Blake Harpenau", "phone": "+15134486858", "address": ""}, {"name": "Bob Decker", "phone": "+15134609100", "address": "11536 stablewatch ct Cincinnati Ohio 45249"}, {"name": "Bob Hacker", "phone": "+18599821002", "address": ""}, {"name": "Bob Reichert", "phone": "+15136593830", "address": ""}, {"name": "Bob Schwarber", "phone": "+15136331818", "address": "5758 green acres ct Cincinnati Ohio 45248"}, {"name": "Bobby Lyons", "phone": "+15133174899", "address": ""}, {"name": "Brad Ison", "phone": "+15139267792", "address": ""}, {"name": "Brandon Connie", "phone": "+17134928332", "address": ""}, {"name": "Brandon Hodges", "phone": "+15132578459", "address": "7835 wood stone drive"}, {"name": "Brent Sheppard", "phone": "+15135826692", "address": ""}, {"name": "Bri Houchens", "phone": "+19375159170", "address": ""}, {"name": "Brian Campbell", "phone": "+13216151338", "address": "10610 Schlottman Rd Loveland OH 45140"}, {"name": "Brian Lucas", "phone": "+15132373749", "address": ""}, {"name": "Brian Skale", "phone": "+15136580014", "address": "5092 shattuc ave Cincinnati Ohio 45208"}, {"name": "Brianna Coleman", "phone": "+15135191379", "address": ""}, {"name": "Bridget Harrell", "phone": "+15135188764", "address": ""}, {"name": "Brittany Gruber", "phone": "+15137205504", "address": "7180 anderson woods dr Cincinnati Ohio 45244"}, {"name": "Brittany Shelby", "phone": "+15136758199", "address": "66 memory ln Fort Thomas KY 41075"}, {"name": "Cameron Watson", "phone": "+15136785729", "address": "8065 S Clippinger Dr Cincinnati OH 45243"}, {"name": "Candice Ridgeley", "phone": "+16122986030", "address": "1364 Wilson Dunham hill rd New Richmond OH 45157"}, {"name": "Candy Goldsberry", "phone": "+15133070711", "address": "2420 peaceful ln Batavia Ohio 45103"}, {"name": "Candy Patrick", "phone": "+15133841983", "address": ""}, {"name": "Casey Hasting", "phone": "", "address": ""}, {"name": "Cate Cronin", "phone": "+13309063184", "address": "390 timrick pl Monroe Ohio 45050"}, {"name": "Celia Cappozzo", "phone": "", "address": "9074 ridgeway close Cincinnati Ohio"}, {"name": "Charlie Long", "phone": "+15133179000", "address": "2557 apple ridge ln Cincinnati OH 45236"}, {"name": "Cheryl Adams", "phone": "+17738293170", "address": ""}, {"name": "Cheryl Meyer", "phone": "+15135031656", "address": "5479 long lake ct Cincinnati Ohio 45247"}, {"name": "Chris Castleman", "phone": "+15133090897", "address": "5400 longlake ct Cincinnati Ohio 45247"}, {"name": "Chris Hopper", "phone": "+15136754847", "address": "1123 Breckenridge Ln Hebron KY 41048"}, {"name": "Chris Luntzford", "phone": "+15136550673", "address": "5916 McPicken Dr Milford OH 45150"}, {"name": "Chris Oistoich", "phone": "+15132591253", "address": ""}, {"name": "Chrissy Van Winkle", "phone": "+15136687283", "address": "7051 Clawson Ridge Ct Liberty township Ohio 45011"}, {"name": "Christy Berling", "phone": "+15133092679", "address": ""}, {"name": "Christy Cornelius", "phone": "+15133055342", "address": ""}, {"name": "Claudia Eihausen", "phone": "", "address": ""}, {"name": "Cody Papa", "phone": "+17248561262", "address": ""}, {"name": "Coleman Jones", "phone": "+15134052643", "address": ""}, {"name": "Connie Cultice", "phone": "+19376050358", "address": "4207 silver streak dr Cincinnati Ohio 45245"}, {"name": "Cory Heller", "phone": "+19542403013", "address": ""}, {"name": "Courtney Orr", "phone": "+15133350003", "address": "3439 S Club Crest Ave Cincinnati Ohio 45209"}, {"name": "Craig Alexander", "phone": "+15136043611", "address": ""}, {"name": "Curt Jackson", "phone": "+15133828543", "address": "8625 eagle ridge dr West Chester Ohio 45069"}, {"name": "Cynthia RoPati", "phone": "+13306979271", "address": "3644 langhorst ct Cincinnati Ohio 45236"}, {"name": "Dan Lauterbur", "phone": "+15136077141", "address": "5025 aldine dr Cincinnati Ohio 45242"}, {"name": "Dave Buck", "phone": "+15135353719", "address": "7960 Bridle Rd Cincinnati OH 45244"}, {"name": "Dave Thomas", "phone": "+15139344472", "address": "966 saramy ct Lebanon Ohio 45036"}, {"name": "David Kimble", "phone": "+15132586690", "address": "6361 branch hill miamiville rd Loveland Ohio 45140"}, {"name": "David Lopez", "phone": "+17327944617", "address": ""}, {"name": "David Mayberry", "phone": "+15134046375", "address": ""}, {"name": "David Thomas", "phone": "+15139344472", "address": "966 Saramy Ct Lebanon OH 45036"}, {"name": "Deanna Fauver", "phone": "+15135800036", "address": ""}, {"name": "Debra Ballinger", "phone": "+19372489874", "address": "5549 garrett dr Milford Ohio 45150"}, {"name": "Denna Argo", "phone": "+15138260009", "address": "166 congress run rd Cincinnati OH 45215"}, {"name": "Dennis Wanderer", "phone": "+15137035264", "address": "4795 Day Rd Cincinnati OH 45252"}, {"name": "Destiny Hodges", "phone": "+13193294962", "address": ""}, {"name": "Devina Campbell", "phone": "+15137662221", "address": "432 schiller dr Fayetteville Ohio 45118"}, {"name": "Diane Mason", "phone": "+17196504240", "address": "4966 morgans run ct Morrow Ohio 45152"}, {"name": "Don Kellerman", "phone": "+15135829102", "address": "5490 mount Zion rd Milford Ohio 45150"}, {"name": "Doug Miller", "phone": "+15134175339", "address": "4204 OH state route 134 Lynchburg Ohio 45142"}, {"name": "Douglas Feeney", "phone": "+15132604309", "address": "8624 old stone ct Cincinnati Ohio 45249"}, {"name": "Dr. Khan", "phone": "+15133098958", "address": "5775 Sugarun Ln Cincinnati OH 45243"}, {"name": "Dre Kirkpatrick", "phone": "+12564780521", "address": ""}, {"name": "Drew Roberts", "phone": "+15135458347", "address": ""}, {"name": "Dwayne Dixie", "phone": "+15136593091", "address": "944 Klondyke Rd Milford Ohio 45150"}, {"name": "Ed Lindenschmidt", "phone": "+15132071040", "address": "8805 old Indian hill rd Cincinnati OH"}, {"name": "Edward Barry", "phone": "+15134054068", "address": "7795 hopkins rd Maineville Ohio 45039"}, {"name": "Eliza Stone", "phone": "+15135044054", "address": "8269 Windsail ct Maineville OH 45039"}, {"name": "Ellen Brooks", "phone": "+17038436996", "address": "7274 frey rd Goshen Ohio 45122"}, {"name": "Emily Cassleman", "phone": "+18596401901", "address": "2820 beaver rd Union Kentucky 41091"}, {"name": "Emily Dawson", "phone": "+15133170908", "address": "2041 whispering pines dr Cincinnati Ohio 45230"}, {"name": "Emily Grant", "phone": "+17017395444", "address": ""}, {"name": "Emily Lash", "phone": "+14045476646", "address": "6615 W Knollwood Circle Loveland Ohio 45140"}, {"name": "Eric Hendrix", "phone": "+15136028845", "address": "7211 Bridges Rd Cincinnati Ohio 45230"}, {"name": "Eric Moore", "phone": "+15133757841", "address": "313 burns ave Cincinnati Ohio 45215"}, {"name": "Eric Musekamp", "phone": "+15132562845", "address": "6900 marblehead dr Cincinnati Ohio 45243"}, {"name": "Eric Weil", "phone": "", "address": "11736 Edgewood rd Harrison OH 45030"}, {"name": "Erika Dever", "phone": "+14152059764", "address": ""}, {"name": "Erin Growe", "phone": "+15026493615", "address": "8925 Appleknoll Ln Cincinnati Ohio 45236"}, {"name": "Erin Kirby", "phone": "+15138461660", "address": ""}, {"name": "Esmail Hajazifar", "phone": "+19377289445", "address": ""}, {"name": "Evan Fishback", "phone": "+15137602010", "address": "1327 boat run ln New Richmond Ohio 45157"}, {"name": "Frank Dupps", "phone": "+19377768941", "address": ""}, {"name": "Frank Fouts", "phone": "+19377086790", "address": "6985 Wilmington Rd Oregonia Ohio 45054"}, {"name": "Fredrick Chisman", "phone": "+15132955183", "address": "1427 wade rd Milford Ohio 45150"}, {"name": "Garry Harris", "phone": "+15132910293", "address": ""}, {"name": "Gary Gruber", "phone": "+15136162938", "address": ""}, {"name": "Gary Smallwood", "phone": "+18595478083", "address": ""}, {"name": "Gene Herbstreit", "phone": "+15138014379", "address": "7501 Hunters Creek Lane Cincinnati Ohio 45247"}, {"name": "Geoff Kuzio", "phone": "", "address": "3016 erie ave Cincinnati Ohio 45208"}, {"name": "George Frankenstein", "phone": "+15136172653", "address": "6312 starvue Dr Cincinnati Ohio 45248"}, {"name": "Gina Felptz", "phone": "+19099972756", "address": "1925 oh 131 Milford Ohio 45150"}, {"name": "Ginger Roy", "phone": "", "address": ""}, {"name": "Grace Brooks", "phone": "+15132406058", "address": ""}, {"name": "Grant Slusher", "phone": "+15138009600", "address": ""}, {"name": "Greg Polen", "phone": "+15134659476", "address": ""}, {"name": "Hang Trinh", "phone": "+15132239707", "address": "1350 jennings ct Mason OH 45040"}, {"name": "Hank Dingus", "phone": "+15133830058", "address": "5538 scarlet maple court Milford Ohio 45150"}, {"name": "Hannah White", "phone": "+15136357386", "address": "727 Louanne Ln Loveland OH 45140"}, {"name": "Heather Ackels", "phone": "+15134157707", "address": "7441 cornell rd Cincinnati Ohio 45242"}, {"name": "Heidi Fausz", "phone": "+15134987323", "address": "2 locust hill rd Cincinnati Ohio 45245"}, {"name": "Hope Evens", "phone": "+15137032440", "address": ""}, {"name": "Jack Fish", "phone": "+15024320497", "address": ""}, {"name": "Jack Shrage", "phone": "+18597603123", "address": ""}, {"name": "Jackie & Tim", "phone": "+15136807334", "address": ""}, {"name": "Jacob Bertrand", "phone": "+19514154924", "address": ""}, {"name": "Jacob Shepherd", "phone": "", "address": ""}, {"name": "Jake Buchanan", "phone": "+15136148767", "address": "7084 Salem rd Cincinnati OH 45230"}, {"name": "Jake Johnston", "phone": "+15136752612", "address": ""}, {"name": "Jake Schumacher", "phone": "", "address": ""}, {"name": "James Hackett", "phone": "+15419124991", "address": ""}, {"name": "James Schmidt", "phone": "+15135057734", "address": ""}, {"name": "James Terri's", "phone": "+15132058710", "address": "1653 Fairway Crest Loveland Ohio 45140"}, {"name": "Jamie Bowam", "phone": "+18593802228", "address": ""}, {"name": "Jan A", "phone": "+15133137502", "address": "907 Country Club Dr Cincinnati OH 45245"}, {"name": "Jason Daus", "phone": "+15133077419", "address": ""}, {"name": "Jason Eddy", "phone": "+16785446856", "address": "3291 Golden Fox Trail Lebanon Ohio 45036"}, {"name": "Jason Katz", "phone": "+15135620963", "address": "8917 summer crest Cincinnati Ohio 45251"}, {"name": "Jason Meade", "phone": "+13035233283", "address": "795 cedar Dr Loveland OH 45140"}, {"name": "Jason Scott", "phone": "+15027092812", "address": "264 ridgepointe Dr Cold spring KY 41076"}, {"name": "Jay Grandfield", "phone": "+19378296110", "address": ""}, {"name": "JD Heskamp", "phone": "+15135456771", "address": "21 Bridgwater Drive"}, {"name": "Jeff Franscico", "phone": "+18127170234", "address": ""}, {"name": "Jeff Hershiser", "phone": "+18133477104", "address": "1245 Ridgewood Dr Loveland Oh"}, {"name": "Jeff Myers", "phone": "+18597607643", "address": ""}, {"name": "Jeff Schmidt", "phone": "+15134791415", "address": ""}, {"name": "Jeni Burnside", "phone": "+12406786946", "address": "619 Fleming Rd Cincinnati Ohio 45231"}, {"name": "Jenni Logan", "phone": "+15135188786", "address": ""}, {"name": "Jennifer Mallot", "phone": "+15132250512", "address": ""}, {"name": "Jennifer Soto", "phone": "+15133401941", "address": ""}, {"name": "Jenny Logan", "phone": "+15135188786", "address": ""}, {"name": "Jeremy Cortner", "phone": "+15135158807", "address": ""}, {"name": "Jeremy St. John", "phone": "+15133444362", "address": ""}, {"name": "Jerri Schultz", "phone": "+15134176322", "address": ""}, {"name": "Jerry Gaulding", "phone": "+15133259477", "address": ""}, {"name": "Jerry Steel", "phone": "+18597573299", "address": "208 kentucky dr Newport Kentucky 41071"}, {"name": "Jessica Cicchinelli", "phone": "+18595123182", "address": ""}, {"name": "Jessica Gilbert", "phone": "+17404347601", "address": "1742 hunters wood ct Milford Ohio 45150"}, {"name": "Jessica Swingle", "phone": "+15138334473", "address": ""}, {"name": "Jewell Gaulding", "phone": "", "address": ""}, {"name": "Jim Gillispie", "phone": "+15136595194", "address": ""}, {"name": "Jim Teuschel", "phone": "+14692337426", "address": "6188 branch Hill Miamiville Ohio 45140"}, {"name": "Joe Arway", "phone": "+15136157108", "address": "9560 Country Trail Loveland OH 45140"}, {"name": "Joe Harcum", "phone": "+15137468732", "address": "7545 Shoal Creek West Chester Ohio"}, {"name": "Joe Kitching", "phone": "+15138856190", "address": ""}, {"name": "Joe Surface", "phone": "+16157150328", "address": "5774 brookstone Dr Cincinnati OH 45230"}, {"name": "John Dubroq", "phone": "+15137031490", "address": ""}, {"name": "John Garlich", "phone": "+18597508863", "address": ""}, {"name": "John Rathje", "phone": "+15139191589", "address": ""}, {"name": "John Roth", "phone": "+15132054859", "address": "4362 Grinnell Dr Cincinnati OH 45236"}, {"name": "Johnathon Pennington", "phone": "+18652357767", "address": "3228 May Apple Dr Batavia OH 45103"}, {"name": "Jon Williamson", "phone": "+15135264010", "address": "1377 Oder Drive Fayetteville OH"}, {"name": "Jordan Jacobs", "phone": "+15023301135", "address": "4958 caraway dr Cincinnati Ohio 45244"}, {"name": "Joseph Brooks", "phone": "+15132053362", "address": ""}, {"name": "Joseph White", "phone": "+15136596871", "address": "2349 indian mound avenue Cincinnati Ohio 45212"}, {"name": "Josh Appleman", "phone": "+18593934454", "address": ""}, {"name": "Josh Clark", "phone": "+15134903412", "address": ""}, {"name": "Joshua Bradley", "phone": "+15132659520", "address": ""}, {"name": "Joy Morrman", "phone": "+15134440869", "address": ""}, {"name": "Judy Chessin", "phone": "+19372196577", "address": ""}, {"name": "Judy Phillips", "phone": "+15132381167", "address": "1828 River Heights Ln Villa Hills Ohio 41017"}, {"name": "Julie Guenther", "phone": "+15135433926", "address": ""}, {"name": "Julie Sutton", "phone": "+18438107438", "address": "6648 red pine Dr Middletown Ohio 45044"}, {"name": "Julie/Chris White", "phone": "+15134054348", "address": "3400 Legendary Trails Cincinnati Ohio 45245"}, {"name": "Justin Deatrick", "phone": "+15132534699", "address": "10741 hampton glen ln Loveland Ohio 45140"}, {"name": "Kandice Ridgley", "phone": "+16122986030", "address": "1364 Wilson Dunham Hill Rd New Richmond Ohio 45157"}, {"name": "Karen Barkley", "phone": "+15748506007", "address": "7661 Piney Meadow Ln Cincinnati Ohio 45244"}, {"name": "Karen Hart", "phone": "+15133167220", "address": ""}, {"name": "Karen McKenzie", "phone": "+15132372575", "address": "7444 Shaker Run Ln West Chester OH 45069"}, {"name": "Karry Noe", "phone": "", "address": ""}, {"name": "Kate Wilson", "phone": "+18596202260", "address": ""}, {"name": "Kathleen Flannery", "phone": "+15135099734", "address": ""}, {"name": "Kathy Frisbee", "phone": "+15132368171", "address": ""}, {"name": "Kathy Keeny", "phone": "+15132316666", "address": "7909 asbury hills dr Cincinnati Ohio 45255"}, {"name": "Kathy Shewak", "phone": "+18595475350", "address": "630 W 3rd St Covington KY"}, {"name": "Katie Flaugh", "phone": "+15133190053", "address": ""}, {"name": "Katie Herms", "phone": "+18594660038", "address": "8542 Saint Ives pl Cincinnati OH"}, {"name": "Katy Bialczak", "phone": "+15134047333", "address": ""}, {"name": "Kayla Flynn", "phone": "", "address": ""}, {"name": "Keeley Dedman", "phone": "+15132664900", "address": ""}, {"name": "Keith Hamilton", "phone": "+15133018866", "address": ""}, {"name": "Keith Leadin", "phone": "+15133493743", "address": ""}, {"name": "Kelley Godey", "phone": "+15134038934", "address": "4472 ravenwood ct Cincinnati OH"}, {"name": "Kelley Shoemaker", "phone": "+15138236519", "address": ""}, {"name": "Kelly Edelman", "phone": "+15134008099", "address": "11363 brittany woods ln Cincinnati Ohio 45249"}, {"name": "Kelly Fisher", "phone": "+15136469665", "address": ""}, {"name": "Kelly Giurdanella", "phone": "+17083342009", "address": "4001 Silverstone Ln"}, {"name": "Kelly Watson", "phone": "+14109198762", "address": ""}, {"name": "Kelly Welling", "phone": "+15133794416", "address": ""}, {"name": "Kenneth Simonson", "phone": "+15135502002", "address": "5619 colerain avenue Cincinnati Ohio"}, {"name": "Kenzi Logan", "phone": "+15136529337", "address": ""}, {"name": "Kevin Lockner", "phone": "+15134181991", "address": ""}, {"name": "Kevin Rooney", "phone": "+15134708541", "address": ""}, {"name": "Kim Bryant", "phone": "+15138866546", "address": "449 bornholm pl Cincinnati Ohio 45244"}, {"name": "Kim Gittinger", "phone": "+15138489210", "address": ""}, {"name": "Kim Kettler", "phone": "+15136009279", "address": ""}, {"name": "Kirby Ross", "phone": "+16064021376", "address": "34 crow hill rd Fort Thomas Ohio 41075"}, {"name": "Kristen Caniglia", "phone": "+15132541234", "address": "701 lake view drive Cincinnati Ohio 45244"}, {"name": "Kristy Triplet", "phone": "+18599912897", "address": "2910 Shawhan Rd Morrow Ohio 45152"}, {"name": "Kurt Finch", "phone": "", "address": ""}, {"name": "Kyelie Helmer", "phone": "+15137167863", "address": "743 reynard ave Cincinnati Ohio 45231"}, {"name": "Kyle Fierst", "phone": "", "address": "4266 yellow prairie Lebanon OH"}, {"name": "Kyle Plumbley", "phone": "+15134771205", "address": "6286 Lesourdsville West Chester Rd Hamilton OH 45011"}, {"name": "Lance Tarvin", "phone": "+18599915270", "address": ""}, {"name": "Larry Gillger", "phone": "+15133352636", "address": ""}, {"name": "Laura Dominguez-Anton", "phone": "+15134533180", "address": ""}, {"name": "Laurie Shepherd", "phone": "+15134135576", "address": ""}, {"name": "Len Texter", "phone": "+15135046632", "address": "8355 old hickory dr Cincinnati Ohio 45243"}, {"name": "Leon Locke", "phone": "+15133007792", "address": ""}, {"name": "Lila Marcus", "phone": "", "address": ""}, {"name": "Linda Channing", "phone": "+19253242084", "address": ""}, {"name": "Lindsey Browning", "phone": "+15133743429", "address": "3912 Kenton Ct Cincinnati Ohio 45245"}, {"name": "Lindsey Shoemaker", "phone": "+15135090262", "address": ""}, {"name": "Lisa Cleveland", "phone": "+15133092265", "address": ""}, {"name": "Logan Brooks", "phone": "+15134309835", "address": "10349 stablehand dr Cincinnati OH 45242"}, {"name": "Luci Feie", "phone": "", "address": "4064 Waterford way Cincinnati Ohio 45245"}, {"name": "Lucia Aleman", "phone": "+15133480751", "address": "334 palm springs dr Fairfield Ohio 45014"}, {"name": "Luis", "phone": "+15132760703", "address": "3936 river rd Fairfield Ohio 45014"}, {"name": "Madeline Kim", "phone": "", "address": "4107 woodmont dr Batavia Ohio 45103"}, {"name": "Madison Browning", "phone": "+15134329036", "address": "12037 wesken ln Cincinnati Ohio 45241"}, {"name": "Margie Cronin", "phone": "+15137030477", "address": "7 little creek ln Cincinnati Ohio 45246"}, {"name": "Maria Blake", "phone": "+19372319515", "address": "3296 OH-131 Fayetteville Ohio 45118"}, {"name": "Mark Andolina", "phone": "+15136009805", "address": "9750 fox hollow lane Cincinnati OH 45243"}, {"name": "Mark Evans", "phone": "+15137096098", "address": "6788 foxfield dr Mason Ohio 45040"}, {"name": "Mark Ruehlmann", "phone": "+15137025718", "address": "8300 Carolines Trail Cincinnati Ohio 45242"}];
-        const searchInput = document.getElementById('customerSearch');
-        const searchResults = document.getElementById('searchResults');
-        const customerNameField = document.getElementById('customerName');
-        const customerPhoneField = document.getElementById('customerPhone');
-        const customerAddressField = document.getElementById('customerAddress');
-        const newCustomerBtn = document.getElementById('newCustomerBtn');
-        const poolForm = document.getElementById('poolForm');
-        const serviceDateInput = document.getElementById('serviceDate');
+        <button type="submit" class="submit-btn">Submit Service Report</button>
+    </form>
+</div>
 
-        // Set today's date
-        const today = new Date().toISOString().split('T')[0];
-        serviceDateInput.value = today;
-        serviceDateInput.defaultValue = today;
+<script>
+    const chemOptions = [
+        'Liquid Chlorine',
+        'Cal-Hypo Shock',
+        'Dichlor Shock',
+        'Muriatic Acid',
+        'Sodium Bicarbonate',
+        'Cyanuric Acid (Stabilizer)',
+        'Calcium Chloride',
+        'Algaecide',
+        'Salt',
+        'Other'
+    ];
 
-        // Customer search functionality
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            searchResults.innerHTML = '';
+    const unitOptions = ['lbs', 'oz', 'gal', 'qt', 'bags'];
 
-            if (query.length < 2) {
-                searchResults.classList.remove('active');
-                return;
+    const chemRowsContainer = document.getElementById('chemRows');
+    const addChemBtn = document.getElementById('addChemBtn');
+    const chemicalsSummary = document.getElementById('chemicalsSummary');
+    const equipmentSummary = document.getElementById('equipmentSummary');
+    const serviceDateInput = document.getElementById('serviceDate');
+    const poolForm = document.getElementById('poolForm');
+
+    const today = new Date().toISOString().split('T')[0];
+    serviceDateInput.value = today;
+    serviceDateInput.defaultValue = today;
+
+    function createChemRow(preselect) {
+        const row = document.createElement('div');
+        row.className = 'chem-row';
+
+        const select = document.createElement('select');
+        select.className = 'chem-select';
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = 'Select chemical...';
+        select.appendChild(defaultOpt);
+        chemOptions.forEach(chem => {
+            const opt = document.createElement('option');
+            opt.value = chem;
+            opt.textContent = chem;
+            if (preselect && chem === preselect) opt.selected = true;
+            select.appendChild(opt);
+        });
+
+        select.addEventListener('change', function() {
+            if (this.value === 'Other') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'chem-select';
+                input.placeholder = 'Type chemical...';
+                input.setAttribute('data-custom', 'true');
+                row.replaceChild(input, this);
+                input.focus();
             }
+        });
 
-            const matches = customerData.filter(c => 
-                c.name.toLowerCase().includes(query)
-            ).slice(0, 8);
+        const amountInput = document.createElement('input');
+        amountInput.type = 'number';
+        amountInput.className = 'chem-amount';
+        amountInput.placeholder = 'Qty';
+        amountInput.step = '0.25';
+        amountInput.min = '0';
 
-            if (matches.length === 0) {
-                searchResults.classList.remove('active');
-                return;
+        const unitSelect = document.createElement('select');
+        unitSelect.className = 'chem-unit';
+        unitOptions.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u;
+            opt.textContent = u;
+            unitSelect.appendChild(opt);
+        });
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-chem';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.addEventListener('click', () => row.remove());
+
+        row.appendChild(select);
+        row.appendChild(amountInput);
+        row.appendChild(unitSelect);
+        row.appendChild(removeBtn);
+        return row;
+    }
+
+    chemRowsContainer.appendChild(createChemRow('Liquid Chlorine'));
+    chemRowsContainer.appendChild(createChemRow('Muriatic Acid'));
+    chemRowsContainer.appendChild(createChemRow());
+
+    addChemBtn.addEventListener('click', () => {
+        chemRowsContainer.appendChild(createChemRow());
+        chemRowsContainer.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    document.querySelectorAll('.equip-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const cb = item.querySelector('input[type="checkbox"]');
+            cb.checked = !cb.checked;
+            item.classList.toggle('checked', cb.checked);
+        });
+    });
+
+    function gatherChemicals() {
+        const rows = chemRowsContainer.querySelectorAll('.chem-row');
+        const lines = [];
+        rows.forEach(row => {
+            const chemEl = row.querySelector('.chem-select');
+            const amountEl = row.querySelector('.chem-amount');
+            const unitEl = row.querySelector('.chem-unit');
+            let chemName = chemEl ? chemEl.value : '';
+            const amount = amountEl ? amountEl.value : '';
+            const unit = unitEl ? unitEl.value : '';
+            if (chemName && chemName !== 'Other') {
+                lines.push(amount ? (chemName + ': ' + amount + ' ' + unit) : chemName);
             }
+        });
+        chemicalsSummary.value = lines.join('\n');
+    }
 
-            matches.forEach(customer => {
-                const div = document.createElement('div');
-                div.className = 'search-result-item';
-                div.innerHTML = `
-                    <div class="search-result-name">${customer.name}</div>
-                    <div class="search-result-phone">${customer.phone || 'No phone'}</div>
-                `;
-                div.addEventListener('click', () => {
-                    customerNameField.value = customer.name;
-                    customerPhoneField.value = customer.phone || '';
-                    customerAddressField.value = customer.address || '';
-                    searchInput.value = '';
-                    searchResults.classList.remove('active');
-                    customerNameField.focus();
-                });
-                searchResults.appendChild(div);
+    function gatherEquipment() {
+        const items = [];
+        document.querySelectorAll('.equip-item').forEach(item => {
+            const cb = item.querySelector('input[type="checkbox"]');
+            if (cb.checked) items.push(item.getAttribute('data-name'));
+        });
+        const psi = document.getElementById('filterPressure').value;
+        if (psi) items.push('Filter Pressure: ' + psi + ' PSI');
+        equipmentSummary.value = items.join(', ');
+    }
+
+    poolForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        gatherChemicals();
+        gatherEquipment();
+
+        const formData = new FormData(poolForm);
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        successAlert.style.display = 'none';
+        errorAlert.style.display = 'none';
+
+        try {
+            const response = await fetch(poolForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
             });
 
-            searchResults.classList.add('active');
-        });
+            if (response.ok) {
+                successAlert.style.display = 'block';
+                poolForm.reset();
+                serviceDateInput.value = today;
 
-        // Clear search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (e.target !== searchInput) {
-                searchResults.classList.remove('active');
-            }
-        });
+                chemRowsContainer.innerHTML = '';
+                chemRowsContainer.appendChild(createChemRow('Liquid Chlorine'));
+                chemRowsContainer.appendChild(createChemRow('Muriatic Acid'));
+                chemRowsContainer.appendChild(createChemRow());
 
-        // New customer button
-        newCustomerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            customerNameField.value = '';
-            customerPhoneField.value = '';
-            customerAddressField.value = '';
-            searchInput.value = '';
-            searchResults.classList.remove('active');
-            customerNameField.focus();
-        });
-
-        // Form submission
-        poolForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const formData = new FormData(poolForm);
-            const successAlert = document.getElementById('successAlert');
-            const errorAlert = document.getElementById('errorAlert');
-
-            successAlert.style.display = 'none';
-            errorAlert.style.display = 'none';
-
-            try {
-                const response = await fetch(poolForm.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                document.querySelectorAll('.equip-item').forEach(item => {
+                    item.classList.remove('checked');
+                    item.querySelector('input[type="checkbox"]').checked = false;
                 });
 
-                if (response.ok) {
-                    successAlert.style.display = 'block';
-                    poolForm.reset();
-                    serviceDateInput.value = today;
+                document.getElementById('typeWeekly').checked = true;
+                document.getElementById('clarityClear').checked = true;
 
-                    // Scroll to top to see message
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                    // Clear message after 5 seconds
-                    setTimeout(() => {
-                        successAlert.style.display = 'none';
-                    }, 5000);
-                } else {
-                    errorAlert.style.display = 'block';
-                    errorAlert.textContent = 'Error submitting form. Please try again.';
-                }
-            } catch (error) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => { successAlert.style.display = 'none'; }, 5000);
+            } else {
                 errorAlert.style.display = 'block';
-                errorAlert.textContent = 'Error submitting form. Please check your connection.';
+                errorAlert.textContent = 'Error submitting form. Please try again.';
             }
-        });
-    </script>
+        } catch (error) {
+            errorAlert.style.display = 'block';
+            errorAlert.textContent = 'Error submitting form. Please check your connection.';
+        }
+    });
+</script>
+
 </body>
 </html>
