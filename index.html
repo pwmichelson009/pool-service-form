@@ -1,768 +1,606 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pool Service Form</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f0f2f5;
-            color: #1a1a2e;
-            min-height: 100vh;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            padding: 24px 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
-        .header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px 16px 40px;
-        }
-
-        .alert {
-            padding: 14px 18px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            font-weight: 500;
-            display: none;
-        }
-        .alert-success { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .alert-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-
-        .card {
-            background: white;
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #1a1a2e;
-            margin-bottom: 6px;
-        }
-
-        .card-divider {
-            height: 2px;
-            background: linear-gradient(90deg, #2563eb, transparent);
-            margin-bottom: 20px;
-            border-radius: 2px;
-        }
-
-        .form-group { margin-bottom: 18px; }
-
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #374151;
-            margin-bottom: 6px;
-        }
-
-        input[type="text"],
-        input[type="tel"],
-        input[type="date"],
-        input[type="number"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 15px;
-            font-family: inherit;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background: white;
-            color: #1a1a2e;
-            -webkit-appearance: none;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-
-        textarea { resize: vertical; min-height: 80px; }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-        }
-
-        .ideal-range {
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 4px;
-            font-style: italic;
-        }
-
-        /* Service Type Pills */
-        .service-type-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 18px;
-        }
-        .service-type-group input[type="radio"] { display: none; }
-        .service-type-group label.pill {
-            display: inline-block;
-            padding: 10px 18px;
-            border: 2px solid #d1d5db;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-        .service-type-group input[type="radio"]:checked + label.pill {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-        .service-type-group label.pill:hover {
-            border-color: #2563eb;
-        }
-
-        /* Chemicals Applied Section */
-        .chem-row {
-            display: grid;
-            grid-template-columns: 1fr 80px 70px 34px;
-            gap: 8px;
-            align-items: end;
-            margin-bottom: 10px;
-        }
-        .chem-row select, .chem-row input {
-            padding: 10px 8px;
-            font-size: 14px;
-        }
-        .chem-row .chem-unit { padding: 10px 4px; font-size: 13px; }
-
-        .remove-chem {
-            width: 34px;
-            height: 42px;
-            background: #fee2e2;
-            color: #dc2626;
-            border: none;
-            border-radius: 10px;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .remove-chem:hover { background: #fca5a5; }
-
-        .add-chem-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 18px;
-            background: white;
-            color: #2563eb;
-            border: 2px solid #2563eb;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 4px;
-        }
-        .add-chem-btn:hover { background: #eff6ff; }
-
-        .chem-header {
-            display: grid;
-            grid-template-columns: 1fr 80px 70px 34px;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .chem-header span {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #6b7280;
-        }
-
-        /* Equipment Checklist */
-        .equip-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .equip-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 14px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-        .equip-item:hover { border-color: #93c5fd; }
-        .equip-item.checked {
-            background: #eff6ff;
-            border-color: #2563eb;
-        }
-        .equip-item input[type="checkbox"] { display: none; }
-        .equip-check {
-            width: 22px;
-            height: 22px;
-            border: 2px solid #d1d5db;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .equip-item.checked .equip-check {
-            background: #2563eb;
-            border-color: #2563eb;
-        }
-        .equip-item.checked .equip-check::after {
-            content: '';
-            width: 6px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2.5px 2.5px 0;
-            transform: rotate(45deg);
-            margin-top: -2px;
-        }
-        .equip-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .filter-pressure-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 14px;
-        }
-        .filter-pressure-row label {
-            margin-bottom: 0;
-            white-space: nowrap;
-        }
-        .filter-pressure-row input {
-            width: 100px;
-        }
-        .filter-pressure-row .unit-text {
-            font-size: 13px;
-            color: #6b7280;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-        }
-        .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-        }
-        .submit-btn:active { transform: translateY(0); }
-
-        /* Section subtitle */
-        .section-sub {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 12px;
-        }
-
-        /* Mobile */
-        @media (max-width: 600px) {
-            .grid-2, .equip-grid { grid-template-columns: 1fr; }
-            .grid-3 { grid-template-columns: 1fr 1fr; }
-            .chem-row { grid-template-columns: 1fr 70px 60px 30px; gap: 6px; }
-            .chem-header { grid-template-columns: 1fr 70px 60px 30px; gap: 6px; }
-            .chem-row select, .chem-row input { padding: 10px 6px; font-size: 13px; }
-            .header h1 { font-size: 22px; }
-            .card { padding: 18px; }
-            .service-type-group label.pill { padding: 8px 14px; font-size: 12px; }
-            .filter-pressure-row { flex-wrap: wrap; }
-        }
-
-        .hidden-field { display: none !important; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aquamarine Pool — Service Work Record</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+    .header {
+      background: #0a6ebd;
+      color: white;
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+    .header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.5px; }
+    .header p { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      background: #ff8c00;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .card {
+      background: white;
+      border-radius: 14px;
+      margin: 18px 14px 0;
+      padding: 20px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #0a6ebd;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8f0fa;
+    }
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    .required-star { color: #e53e3e; margin-left: 2px; }
+    .hint { font-size: 0.73rem; color: #888; font-weight: 400; margin-left: 4px; }
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #dde3ea;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: #222;
+      background: #fafbfc;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #0a6ebd;
+      box-shadow: 0 0 0 3px rgba(10,110,189,0.12);
+      background: white;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 380px) { .row-2 { grid-template-columns: 1fr; } }
+    .service-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .service-label .required-star { color: #e53e3e; }
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .svc-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #f5f8fc;
+      border: 2px solid #dde3ea;
+      border-radius: 12px;
+      padding: 14px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .svc-btn .svc-icon { font-size: 1.6rem; line-height: 1; }
+    .svc-btn .svc-label { font-size: 0.78rem; font-weight: 600; color: #444; line-height: 1.2; }
+    .svc-btn.selected { background: #0a6ebd; border-color: #0a6ebd; }
+    .svc-btn.selected .svc-label { color: white; }
+    .svc-error { font-size: 0.75rem; color: #e53e3e; margin-top: 6px; display: none; }
+    .svc-error.show { display: block; }
+    .extra-fields {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 2px solid #e8f0fa;
+    }
+    .extra-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #0a6ebd;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+    .equip-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .equip-row input { flex: 1; }
+    .equip-remove {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: #fee2e2; border: none; border-radius: 8px;
+      color: #dc2626; font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; line-height: 1;
+    }
+    .add-equip-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: 2px dashed #c5d5e8;
+      border-radius: 10px; padding: 10px 14px;
+      color: #0a6ebd; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; width: 100%; margin-top: 4px;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .add-equip-btn:hover { background: #f0f7ff; border-color: #0a6ebd; }
+    .open-check-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-bottom: 12px;
+    }
+    .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 340px) { .check-grid { grid-template-columns: 1fr; } }
+    .check-item {
+      display: flex; align-items: center; gap: 8px;
+      background: #f5f8fc; border: 1.5px solid #dde3ea;
+      border-radius: 8px; padding: 9px 10px;
+      cursor: pointer; transition: border-color 0.12s, background 0.12s;
+    }
+    .check-item:has(input:checked) { border-color: #0a6ebd; background: #e8f0fa; }
+    .check-item input[type="checkbox"] {
+      width: 17px; height: 17px; accent-color: #0a6ebd; flex-shrink: 0;
+    }
+    .check-item span { font-size: 0.82rem; color: #333; line-height: 1.2; }
+    .photo-label {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      border: 2px dashed #c5d5e8; border-radius: 10px; padding: 18px;
+      color: #6b8cae; font-size: 0.88rem; font-weight: 500;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      text-align: center;
+    }
+    .photo-label:hover { border-color: #0a6ebd; background: #f0f7ff; }
+    .photo-label svg { flex-shrink: 0; }
+    #photoInput { display: none; }
+    #photoPreview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    #photoPreview img {
+      width: 80px; height: 80px; object-fit: cover;
+      border-radius: 8px; border: 2px solid #dde3ea;
+    }
+    .submit-btn {
+      display: block; width: 100%; padding: 16px;
+      background: #0a6ebd; color: white;
+      font-size: 1.05rem; font-weight: 700;
+      border: none; border-radius: 12px;
+      cursor: pointer; letter-spacing: 0.3px;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 4px;
+    }
+    .submit-btn:hover { background: #0858a0; }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { background: #93b8da; cursor: not-allowed; }
+    #successScreen {
+      display: none; text-align: center; padding: 40px 24px;
+    }
+    .check-circle {
+      width: 72px; height: 72px; background: #e6f4ea;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; margin: 0 auto 18px;
+    }
+    .check-circle svg { color: #2e7d32; }
+    #successScreen h2 { font-size: 1.4rem; color: #1a1a1a; margin-bottom: 8px; }
+    #successScreen p { color: #555; font-size: 0.9rem; line-height: 1.5; }
+    .submit-another {
+      display: inline-block; margin-top: 24px; padding: 12px 28px;
+      background: #0a6ebd; color: white; border-radius: 10px;
+      font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer;
+    }
+    .field-error { font-size: 0.75rem; color: #e53e3e; margin-top: 5px; display: none; }
+    .field.has-error input,
+    .field.has-error select,
+    .field.has-error textarea { border-color: #e53e3e; }
+    .field.has-error .field-error { display: block; }
+  </style>
 </head>
 <body>
 <div class="header">
-    <h1>Pool Service Log</h1>
-    <p>Aquamarine Pool Services</p>
+  <div class="badge">Service Work</div>
+  <h1>Aquamarine Pool Company</h1>
+  <p>Record a service job for invoicing</p>
 </div>
-
-<div class="container">
-    <div id="successAlert" class="alert alert-success">
-        Form submitted successfully!
+<div id="successScreen" class="card">
+  <div class="check-circle">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Job Logged!</h2>
+  <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
+  <button class="submit-another" onclick="resetForm()">Submit Another Job</button>
+</div>
+<form id="serviceForm" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+  <input type="hidden" name="form_type" value="SERVICE_WORK" />
+  <input type="hidden" name="_subject" value="Service Work Submission - Aquamarine Pool" />
+  <div class="card">
+    <div class="card-title">Job Info</div>
+    <div class="field" id="field-date">
+      <label>Date of Service <span class="required-star">*</span></label>
+      <input type="date" name="date_of_service" id="date_of_service" required />
+      <div class="field-error">Please enter the date.</div>
     </div>
-    <div id="errorAlert" class="alert alert-error">
-        Error submitting form. Please try again.
+    <div class="field" id="field-crew">
+      <label>Your Name <span class="required-star">*</span> <span class="hint">(who did the work)</span></label>
+      <input type="text" name="crew_member" id="crew_member" placeholder="e.g. Jake" required autocomplete="given-name" />
+      <div class="field-error">Please enter your name.</div>
     </div>
-
-    <form id="poolForm" action="https://formspree.io/f/mgolblzq" method="POST">
-        <input type="text" name="_gotcha" class="hidden-field">
-
-        <!-- CUSTOMER INFORMATION -->
-        <div class="card">
-            <div class="card-title">Customer Information</div>
-            <div class="card-divider"></div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="customerFirst">First Name *</label>
-                    <input type="text" id="customerFirst" name="customer_first" placeholder="First name" required autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="customerLast">Last Name *</label>
-                    <input type="text" id="customerLast" name="customer_last" placeholder="Last name" required autocomplete="off">
-                </div>
+    <div class="field" id="field-customer">
+      <label>Customer Name <span class="required-star">*</span></label>
+      <input type="text" name="customer_name" id="customer_name" placeholder="e.g. Scott Mitchell" required autocomplete="off" />
+      <div class="field-error">Please enter the customer name.</div>
+    </div>
+    <div class="field">
+      <label>Customer Address <span class="hint">(optional)</span></label>
+      <input type="text" name="customer_address" placeholder="e.g. 123 Elm St, Mason OH" autocomplete="off" />
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Service Details</div>
+    <div class="field" id="field-service-type">
+      <span class="service-label">What type of job? <span class="required-star">*</span></span>
+      <input type="hidden" name="service_type" id="service_type" />
+      <div class="service-grid" id="service-grid">
+        <button type="button" class="svc-btn" data-value="Pool Opening">
+          <span class="svc-icon">&#127774;</span><span class="svc-label">Pool Opening</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Pool Closing">
+          <span class="svc-icon">&#10052;&#65039;</span><span class="svc-label">Pool Closing</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Filter Replacement / Cleaning">
+          <span class="svc-icon">&#128309;</span><span class="svc-label">Filter Replacement / Cleaning</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Pump Repair / Replacement">
+          <span class="svc-icon">&#9881;&#65039;</span><span class="svc-label">Pump Repair / Replacement</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Salt Cell Replacement / Cleaning">
+          <span class="svc-icon">&#129538;</span><span class="svc-label">Salt Cell Replacement / Cleaning</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Heater Repair / Replacement">
+          <span class="svc-icon">&#128293;</span><span class="svc-label">Heater Repair / Replacement</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Spot Cleaning">
+          <span class="svc-icon">&#129529;</span><span class="svc-label">Spot Cleaning</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Algae Treatment">
+          <span class="svc-icon">&#128994;</span><span class="svc-label">Algae Treatment</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Plumbing Repair">
+          <span class="svc-icon">&#128295;</span><span class="svc-label">Plumbing Repair</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Liner Repair / Replacement">
+          <span class="svc-icon">&#127946;</span><span class="svc-label">Liner Repair / Replacement</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Pool Inspection">
+          <span class="svc-icon">&#128269;</span><span class="svc-label">Pool Inspection</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Service Call / Troubleshooting">
+          <span class="svc-icon">&#128222;</span><span class="svc-label">Service Call / Troubleshooting</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Equipment Install">
+          <span class="svc-icon">&#128736;&#65039;</span><span class="svc-label">Equipment Install</span>
+        </button>
+        <button type="button" class="svc-btn" data-value="Other">
+          <span class="svc-icon">&#128221;</span><span class="svc-label">Other (describe below)</span>
+        </button>
+        <div class="extra-fields" id="extra-equipment" style="display:none; grid-column:1/-1;">
+          <div class="extra-title">Equipment Details</div>
+          <div class="field">
+            <label>Equipment <span class="hint">(brand, model, HP, size)</span></label>
+            <div id="equip-list">
+              <div class="equip-row">
+                <input type="text" name="equipment_item[]" placeholder="e.g. Hayward 1.5 HP pump, Pentair C4030 filter" />
+              </div>
             </div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="customerPhone">Phone</label>
-                    <input type="tel" id="customerPhone" name="customer_phone" placeholder="10-digit number" autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="10">
-                </div>
-                <div class="form-group">
-                    <label for="customerAddress">Address</label>
-                    <input type="text" id="customerAddress" name="customer_address" placeholder="Address" autocomplete="off">
-                </div>
-            </div>
-        </div>
-
-        <!-- SERVICE DETAILS -->
-        <div class="card">
-            <div class="card-title">Service Details</div>
-            <div class="card-divider"></div>
-
-            <div class="form-group">
-                <label>Service Type *</label>
-                <div class="service-type-group">
-                    <input type="radio" id="typeWeekly" name="service_type" value="Weekly Maintenance" checked>
-                    <label class="pill" for="typeWeekly">Weekly Maintenance</label>
-
-                    <input type="radio" id="typeChemOnly" name="service_type" value="Chemical Only">
-                    <label class="pill" for="typeChemOnly">Chemical Only</label>
-
-                    <input type="radio" id="typeOpening" name="service_type" value="Opening">
-                    <label class="pill" for="typeOpening">Opening</label>
-
-                    <input type="radio" id="typeClosing" name="service_type" value="Closing">
-                    <label class="pill" for="typeClosing">Closing</label>
-
-                    <input type="radio" id="typeRepair" name="service_type" value="Repair / Service Call">
-                    <label class="pill" for="typeRepair">Repair / Service Call</label>
-
-                    <input type="radio" id="typeOther" name="service_type" value="Other">
-                    <label class="pill" for="typeOther">Other</label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="serviceDate">Service Date *</label>
-                <input type="date" id="serviceDate" name="date" required>
-            </div>
-        </div>
-
-        <!-- CHEMICALS APPLIED -->
-        <div class="card">
-            <div class="card-title">Chemicals Applied</div>
-            <div class="card-divider"></div>
-            <div class="section-sub">Add each chemical used. Pick from the list or choose "Other" to type in.</div>
-
-            <div class="chem-header">
-                <span>Chemical</span>
-                <span>Amount</span>
-                <span>Unit</span>
-                <span></span>
-            </div>
-
-            <div id="chemRows"></div>
-
-            <button type="button" class="add-chem-btn" id="addChemBtn">
-                + Add Another Chemical
+            <button type="button" class="add-equip-btn" id="addEquipBtn">
+              <span style="font-size:1.1rem;">+</span> Add another piece of equipment
             </button>
-
-            <textarea name="chemicals_applied" id="chemicalsSummary" class="hidden-field"></textarea>
+          </div>
+          <div class="field">
+            <label>Repair or Replace?</label>
+            <div style="display:flex; gap:10px;">
+              <label class="check-item" style="flex:1">
+                <input type="radio" name="repair_or_replace" value="Repair" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" />
+                <span>Repair</span>
+              </label>
+              <label class="check-item" style="flex:1">
+                <input type="radio" name="repair_or_replace" value="Replace" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" />
+                <span>Replace</span>
+              </label>
+              <label class="check-item" style="flex:1">
+                <input type="radio" name="repair_or_replace" value="Clean / Service" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" />
+                <span>Clean / Service</span>
+              </label>
+            </div>
+          </div>
         </div>
-
-        <!-- EQUIPMENT CHECK -->
-        <div class="card">
-            <div class="card-title">Equipment Check</div>
-            <div class="card-divider"></div>
-            <div class="section-sub">Tap to mark items inspected or serviced.</div>
-
-            <div class="equip-grid" id="equipGrid">
-                <div class="equip-item" data-name="Pump Running">
-                    <input type="checkbox" name="equip_pump_running">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Pump Running</span>
-                </div>
-                <div class="equip-item" data-name="Skimmer Baskets Cleaned">
-                    <input type="checkbox" name="equip_skimmer_baskets">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Skimmer Baskets Cleaned</span>
-                </div>
-                <div class="equip-item" data-name="Pump Basket Cleaned">
-                    <input type="checkbox" name="equip_pump_basket">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Pump Basket Cleaned</span>
-                </div>
-                <div class="equip-item" data-name="Filter Checked">
-                    <input type="checkbox" name="equip_filter_checked">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Filter Checked</span>
-                </div>
-                <div class="equip-item" data-name="Heater Running">
-                    <input type="checkbox" name="equip_heater">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Heater Running</span>
-                </div>
-                <div class="equip-item" data-name="Salt Cell Checked">
-                    <input type="checkbox" name="equip_salt_cell">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Salt Cell Checked</span>
-                </div>
-                <div class="equip-item" data-name="Vacuumed / Brushed">
-                    <input type="checkbox" name="equip_vacuumed">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Vacuumed / Brushed</span>
-                </div>
-                <div class="equip-item" data-name="Water Level OK">
-                    <input type="checkbox" name="equip_water_level">
-                    <div class="equip-check"></div>
-                    <span class="equip-label">Water Level OK</span>
-                </div>
-            </div>
-
-            <div class="filter-pressure-row">
-                <label for="filterPressure">Filter Pressure</label>
-                <input type="number" id="filterPressure" name="filter_pressure" placeholder="PSI" step="1" min="0">
-                <span class="unit-text">PSI</span>
-            </div>
-
-            <textarea name="equipment_summary" id="equipmentSummary" class="hidden-field"></textarea>
+        <div class="extra-fields" id="extra-opening" style="display:none; grid-column:1/-1;">
+          <div class="extra-title">Opening Checklist</div>
+          <div class="open-check-grid">
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Cover removed and stored" /><span>Cover removed &amp; stored</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Plugs removed" /><span>Plugs removed</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Baskets cleaned" /><span>Baskets cleaned</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Equipment started up" /><span>Equipment started up</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Filter backwashed / cleaned" /><span>Filter backwashed</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Chemicals added" /><span>Chemicals added</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Water tested" /><span>Water tested</span></label>
+            <label class="check-item"><input type="checkbox" name="opening[]" value="Equipment running normal" /><span>Equipment running normal</span></label>
+          </div>
+          <div class="field">
+            <label>Issues Found at Opening <span class="hint">(optional)</span></label>
+            <textarea name="opening_issues" placeholder="e.g. Pump seal leaking, cracked return fitting, algae present..." style="min-height:72px;"></textarea>
+          </div>
         </div>
-
-        <!-- CHEMICAL BALANCE (READINGS) -->
-        <div class="card">
-            <div class="card-title">Water Chemistry Readings</div>
-            <div class="card-divider"></div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="ph">pH Level</label>
-                    <input type="number" id="ph" name="ph" step="0.1" min="0" max="14" placeholder="e.g. 7.4">
-                    <div class="ideal-range">Ideal: 7.2 - 7.6</div>
-                </div>
-                <div class="form-group">
-                    <label for="chlorine">Free Chlorine (ppm)</label>
-                    <input type="number" id="chlorine" name="chlorine" step="0.1" min="0" placeholder="e.g. 2.0">
-                    <div class="ideal-range">Ideal: 1 - 3 ppm</div>
-                </div>
-                <div class="form-group">
-                    <label for="alkalinity">Total Alkalinity (ppm)</label>
-                    <input type="number" id="alkalinity" name="alkalinity" step="1" min="0" placeholder="e.g. 100">
-                    <div class="ideal-range">Ideal: 80 - 120 ppm</div>
-                </div>
-                <div class="form-group">
-                    <label for="cyanuric">Cyanuric Acid (ppm)</label>
-                    <input type="number" id="cyanuric" name="cyanuric" step="1" min="0" placeholder="e.g. 40">
-                    <div class="ideal-range">Ideal: 30 - 50 ppm</div>
-                </div>
-                <div class="form-group">
-                    <label for="calcium">Calcium Hardness (ppm)</label>
-                    <input type="number" id="calcium" name="calcium" step="1" min="0" placeholder="e.g. 300">
-                    <div class="ideal-range">Ideal: 200 - 400 ppm</div>
-                </div>
-                <div class="form-group">
-                    <label for="salt">Salt (ppm)</label>
-                    <input type="number" id="salt" name="salt" step="1" min="0" placeholder="e.g. 3200">
-                    <div class="ideal-range">Ideal: 2700 - 3400 ppm</div>
-                </div>
-            </div>
+        <div class="extra-fields" id="extra-closing" style="display:none; grid-column:1/-1;">
+          <div class="extra-title">Closing Checklist</div>
+          <div class="open-check-grid">
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Lines blown out" /><span>Lines blown out</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Plugs installed" /><span>Plugs installed</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Equipment winterized" /><span>Equipment winterized</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Filter drained and prepped" /><span>Filter drained &amp; prepped</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Cover installed" /><span>Cover installed</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Closing chemicals added" /><span>Closing chemicals added</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Water level lowered" /><span>Water level lowered</span></label>
+            <label class="check-item"><input type="checkbox" name="closing[]" value="Accessories stored" /><span>Accessories stored</span></label>
+          </div>
+          <div class="field">
+            <label>Issues to Note at Closing <span class="hint">(optional)</span></label>
+            <textarea name="closing_issues" placeholder="e.g. Cover has a tear, heater not draining well..." style="min-height:72px;"></textarea>
+          </div>
         </div>
-
-        <!-- POOL CONDITION -->
-        <div class="card">
-            <div class="card-title">Pool Condition</div>
-            <div class="card-divider"></div>
-
-            <div class="form-group">
-                <label>Water Clarity</label>
-                <div class="service-type-group">
-                    <input type="radio" id="clarityClear" name="water_clarity" value="Clear" checked>
-                    <label class="pill" for="clarityClear">Clear</label>
-
-                    <input type="radio" id="clarityHazy" name="water_clarity" value="Hazy">
-                    <label class="pill" for="clarityHazy">Hazy</label>
-
-                    <input type="radio" id="clarityCloudy" name="water_clarity" value="Cloudy">
-                    <label class="pill" for="clarityCloudy">Cloudy</label>
-
-                    <input type="radio" id="clarityGreen" name="water_clarity" value="Green">
-                    <label class="pill" for="clarityGreen">Green</label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="notes">Notes (optional)</label>
-                <textarea id="notes" name="notes" placeholder="Anything else — issues spotted, customer requests, parts needed, etc."></textarea>
-            </div>
-        </div>
-
-        <button type="submit" class="submit-btn">Submit Service Report</button>
-    </form>
-</div>
-
+      </div>
+      <div class="svc-error" id="svc-error">Please select a service type.</div>
+    </div>
+    <div class="field">
+      <label>Time on Job</label>
+      <select name="time_on_job">
+        <option value="" disabled selected>Select...</option>
+        <option>Under 30 min</option>
+        <option>30 - 60 min</option>
+        <option>1 - 1.5 hrs</option>
+        <option>1.5 - 2 hrs</option>
+        <option>2 - 3 hrs</option>
+        <option>3 - 4 hrs</option>
+        <option>4+ hrs (full day)</option>
+      </select>
+    </div>
+    <div class="field" id="field-description">
+      <label>Description of Work Done <span class="required-star">*</span></label>
+      <textarea name="description" id="description" placeholder="What was done? Be specific - this becomes the invoice line item." required></textarea>
+      <div class="field-error">Please describe the work.</div>
+    </div>
+    <div class="field">
+      <label>Parts / Materials Used <span class="hint">(optional)</span></label>
+      <textarea name="parts_materials" placeholder="e.g. Pentair DE filter grid set, 1.5 inch PVC elbow, O-ring kit..." style="min-height: 72px;"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Chemicals Added</div>
+    <div class="field">
+      <div class="check-grid">
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Chlorine / Shock" /><span>Chlorine / Shock</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Algaecide" /><span>Algaecide</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Muriatic Acid" /><span>Muriatic Acid</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Alkalinity Up" /><span>Alkalinity Up</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="pH Up" /><span>pH Up</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="pH Down" /><span>pH Down</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Calcium Up" /><span>Calcium Up</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Stabilizer / CYA" /><span>Stabilizer / CYA</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Enzyme / Clarifier" /><span>Enzyme / Clarifier</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Salt" /><span>Salt</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Phosphate Remover" /><span>Phosphate Remover</span></label>
+        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Winterizing Kit" /><span>Winterizing Kit</span></label>
+      </div>
+    </div>
+    <div class="field" style="margin-top: 12px;">
+      <label>Chemical Details / Amounts <span class="hint">(optional)</span></label>
+      <textarea name="chemical_details" placeholder="e.g. 2 lbs shock, 1 qt algaecide, 2 bags salt..." style="min-height: 60px;"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Photos <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional)</span></div>
+    <label class="photo-label" for="photoInput">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      Tap to add photos
+    </label>
+    <input type="file" id="photoInput" name="photos" accept="image/*" multiple capture="environment" />
+    <div id="photoPreview"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Notes</div>
+    <div class="field">
+      <label>Additional Notes <span class="hint">(anything Peter should know)</span></label>
+      <textarea name="notes" placeholder="e.g. Equipment making a grinding noise, customer wants a callback, gate code changed..."></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <button type="submit" class="submit-btn" id="submitBtn">Submit Service Record</button>
+  </div>
+</form>
 <script>
-    const chemOptions = [
-        'Liquid Chlorine',
-        'Cal-Hypo Shock',
-        'Dichlor Shock',
-        'Muriatic Acid',
-        'Sodium Bicarbonate',
-        'Cyanuric Acid (Stabilizer)',
-        'Calcium Chloride',
-        'Algaecide',
-        'Salt',
-        'Other'
+  var equipmentJobs = ['Pump Repair / Replacement','Filter Replacement / Cleaning','Salt Cell Replacement / Cleaning','Heater Repair / Replacement','Equipment Install'];
+  var svcBtns = document.querySelectorAll('.svc-btn');
+  var serviceGrid = document.getElementById('service-grid');
+  for (var i = 0; i < svcBtns.length; i++) {
+    svcBtns[i].addEventListener('click', function(e) {
+      var btn = e.currentTarget;
+      var val = btn.getAttribute('data-value');
+      for (var j = 0; j < svcBtns.length; j++) svcBtns[j].classList.remove('selected');
+      btn.classList.add('selected');
+      document.getElementById('service_type').value = val;
+      var svcErr = document.getElementById('svc-error');
+      if (svcErr) svcErr.style.display = 'none';
+      document.getElementById('field-service-type').classList.remove('has-error');
+      var panelIds = ['extra-equipment','extra-opening','extra-closing'];
+      for (var k = 0; k < panelIds.length; k++) {
+        var p = document.getElementById(panelIds[k]);
+        if (p) p.style.display = 'none';
+      }
+      var panel = null;
+      if (equipmentJobs.indexOf(val) > -1) panel = document.getElementById('extra-equipment');
+      else if (val === 'Pool Opening') panel = document.getElementById('extra-opening');
+      else if (val === 'Pool Closing') panel = document.getElementById('extra-closing');
+      if (panel) {
+        var allBtns = Array.prototype.slice.call(serviceGrid.querySelectorAll('.svc-btn'));
+        var idx = allBtns.indexOf(btn);
+        var pairEnd = (idx % 2 === 0) ? idx + 1 : idx;
+        var afterEl = (pairEnd < allBtns.length) ? allBtns[pairEnd] : allBtns[allBtns.length - 1];
+        afterEl.insertAdjacentElement('afterend', panel);
+        panel.style.display = 'block';
+        panel.style.gridColumn = '1 / -1';
+      }
+    });
+  }
+  function updateRemoveBtns() {
+    var rows = document.querySelectorAll('.equip-row');
+    rows.forEach(function(row) {
+      var existing = row.querySelector('.equip-remove');
+      if (rows.length > 1 && !existing) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'equip-remove';
+        btn.innerHTML = '&times;';
+        btn.addEventListener('click', function() { row.remove(); updateRemoveBtns(); });
+        row.appendChild(btn);
+      } else if (rows.length === 1 && existing) {
+        existing.remove();
+      }
+    });
+  }
+  var addEquipBtn = document.getElementById('addEquipBtn');
+  if (addEquipBtn) {
+    addEquipBtn.addEventListener('click', function() {
+      var list = document.getElementById('equip-list');
+      var row = document.createElement('div');
+      row.className = 'equip-row';
+      row.innerHTML = '<input type="text" name="equipment_item[]" placeholder="e.g. Pentair VS pump 2 HP, Jandy salt cell..." />';
+      list.appendChild(row);
+      updateRemoveBtns();
+      row.querySelector('input').focus();
+    });
+  }
+  var dateField = document.getElementById('date_of_service');
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  dateField.value = yyyy + '-' + mm + '-' + dd;
+  document.getElementById('photoInput').addEventListener('change', function() {
+    var preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    Array.from(this.files).slice(0, 5).forEach(function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+  var form = document.getElementById('serviceForm');
+  var submitBtn = document.getElementById('submitBtn');
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var required = [
+      { id: 'date_of_service', fieldId: 'field-date' },
+      { id: 'crew_member', fieldId: 'field-crew' },
+      { id: 'customer_name', fieldId: 'field-customer' },
+      { id: 'description', fieldId: 'field-description' },
     ];
-
-    const unitOptions = ['lbs', 'oz', 'gal', 'qt', 'bags'];
-
-    const chemRowsContainer = document.getElementById('chemRows');
-    const addChemBtn = document.getElementById('addChemBtn');
-    const chemicalsSummary = document.getElementById('chemicalsSummary');
-    const equipmentSummary = document.getElementById('equipmentSummary');
-    const serviceDateInput = document.getElementById('serviceDate');
-    const poolForm = document.getElementById('poolForm');
-
-    // Set today's date
-    const today = new Date().toISOString().split('T')[0];
-    serviceDateInput.value = today;
-    serviceDateInput.defaultValue = today;
-
-    // ---- Chemical Rows ----
-    function createChemRow(preselect) {
-        const row = document.createElement('div');
-        row.className = 'chem-row';
-
-        const select = document.createElement('select');
-        select.className = 'chem-select';
-        const defaultOpt = document.createElement('option');
-        defaultOpt.value = '';
-        defaultOpt.textContent = 'Select chemical...';
-        select.appendChild(defaultOpt);
-        chemOptions.forEach(chem => {
-            const opt = document.createElement('option');
-            opt.value = chem;
-            opt.textContent = chem;
-            if (preselect && chem === preselect) opt.selected = true;
-            select.appendChild(opt);
-        });
-
-        select.addEventListener('change', function() {
-            if (this.value === 'Other') {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'chem-select';
-                input.placeholder = 'Type chemical...';
-                input.setAttribute('data-custom', 'true');
-                row.replaceChild(input, this);
-                input.focus();
-            }
-        });
-
-        const amountInput = document.createElement('input');
-        amountInput.type = 'number';
-        amountInput.className = 'chem-amount';
-        amountInput.placeholder = 'Qty';
-        amountInput.step = '0.25';
-        amountInput.min = '0';
-
-        const unitSelect = document.createElement('select');
-        unitSelect.className = 'chem-unit';
-        unitOptions.forEach(u => {
-            const opt = document.createElement('option');
-            opt.value = u;
-            opt.textContent = u;
-            unitSelect.appendChild(opt);
-        });
-
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'remove-chem';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.addEventListener('click', () => row.remove());
-
-        row.appendChild(select);
-        row.appendChild(amountInput);
-        row.appendChild(unitSelect);
-        row.appendChild(removeBtn);
-        return row;
-    }
-
-    // Start with 3 rows (common chems pre-selected to speed things up)
-    chemRowsContainer.appendChild(createChemRow('Liquid Chlorine'));
-    chemRowsContainer.appendChild(createChemRow('Muriatic Acid'));
-    chemRowsContainer.appendChild(createChemRow());
-
-    addChemBtn.addEventListener('click', () => {
-        chemRowsContainer.appendChild(createChemRow());
-        chemRowsContainer.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    var valid = true;
+    required.forEach(function(item) {
+      var el = document.getElementById(item.id);
+      var fieldEl = document.getElementById(item.fieldId);
+      if (!el.value.trim()) {
+        fieldEl.classList.add('has-error');
+        valid = false;
+      } else {
+        fieldEl.classList.remove('has-error');
+      }
     });
-
-    // ---- Equipment Checklist ----
-    document.querySelectorAll('.equip-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            // Prevent double-toggle if checkbox itself was clicked
-            if (e.target.type === 'checkbox') return;
-            const cb = item.querySelector('input[type="checkbox"]');
-            cb.checked = !cb.checked;
-            item.classList.toggle('checked', cb.checked);
-        });
-        // Sync visual state when checkbox is toggled directly
-        const cb = item.querySelector('input[type="checkbox"]');
-        cb.addEventListener('change', () => {
-            item.classList.toggle('checked', cb.checked);
-        });
+    if (!document.getElementById('service_type').value) {
+      var svcErr = document.getElementById('svc-error');
+      if (svcErr) svcErr.style.display = 'block';
+      document.getElementById('field-service-type').classList.add('has-error');
+      valid = false;
+    }
+    if (!valid) {
+      var firstError = document.querySelector('.has-error');
+      if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+    var data = new FormData(form);
+    fetch(form.action, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(resp) {
+      if (resp.ok) {
+        form.style.display = 'none';
+        var success = document.getElementById('successScreen');
+        success.style.display = 'block';
+        success.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        alert('Submission failed. Please check your connection and try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Service Record';
+      }
+    }).catch(function() {
+      alert('Network error - check your connection and try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Service Record';
     });
-
-    // ---- Gather data before submit ----
-    function gatherChemicals() {
-        const rows = chemRowsContainer.querySelectorAll('.chem-row');
-        const lines = [];
-        rows.forEach(row => {
-            const chemEl = row.querySelector('.chem-select');
-            const amountEl = row.querySelector('.chem-amount');
-            const unitEl = row.querySelector('.chem-unit');
-            let chemName = chemEl ? chemEl.value : '';
-            const amount = amountEl ? amountEl.value : '';
-            const unit = unitEl ? unitEl.value : '';
-            if (chemName && chemName !== 'Other') {
-                lines.push(amount ? (chemName + ': ' + amount + ' ' + unit) : chemName);
-            }
-        });
-        chemicalsSummary.value = lines.join('\n');
-    }
-
-    function gatherEquipment() {
-        const items = [];
-        document.querySelectorAll('.equip-item').forEach(item => {
-            const cb = item.querySelector('input[type="checkbox"]');
-            if (cb.checked) items.push(item.getAttribute('data-name'));
-        });
-        const psi = document.getElementById('filterPressure').value;
-        if (psi) items.push('Filter Pressure: ' + psi + ' PSI');
-        equipmentSummary.value = items.join(', ');
-    }
-
-    // ---- Phone Number Cleanup ----
-    function cleanPhone() {
-        const phoneInput = document.getElementById('customerPhone');
-        phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
-    }
-
-    // ---- Form Submit ----
-    poolForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        gatherChemicals();
-        gatherEquipment();
-        cleanPhone();
-
-        const formData = new FormData(poolForm);
-        const successAlert = document.getElementById('successAlert');
-        const errorAlert = document.getElementById('errorAlert');
-        successAlert.style.display = 'none';
-        errorAlert.style.display = 'none';
-
-        try {
-            const response = await fetch(poolForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: { 'Accept': 'application/json' }
-            });
-
-            if (response.ok) {
-                successAlert.style.display = 'block';
-                poolForm.reset();
-                serviceDateInput.value = today;
-
-                // Reset chemical rows
-                chemRowsContainer.innerHTML = '';
-                chemRowsContainer.appendChild(createChemRow('Liquid Chlorine'));
-                chemRowsContainer.appendChild(createChemRow('Muriatic Acid'));
-                chemRowsContainer.appendChild(createChemRow());
-
-                // Reset equipment checkboxes
-                document.querySelectorAll('.equip-item').forEach(item => {
-                    item.classList.remove('checked');
-                    item.querySelector('input[type="checkbox"]').checked = false;
-                });
-
-                // Re-check default radio buttons
-                document.getElementById('typeWeekly').checked = true;
-                document.getElementById('clarityClear').checked = true;
-
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => { successAlert.style.display = 'none'; }, 5000);
-            } else {
-                errorAlert.style.display = 'block';
-                errorAlert.textContent = 'Error submitting form. Please try again.';
-            }
-        } catch (error) {
-            errorAlert.style.display = 'block';
-            errorAlert.textContent = 'Error submitting form. Please check your connection.';
-        }
+  });
+  function resetForm() {
+    form.reset();
+    dateField.value = yyyy + '-' + mm + '-' + dd;
+    document.getElementById('photoPreview').innerHTML = '';
+    document.querySelectorAll('.has-error').forEach(function(el) { el.classList.remove('has-error'); });
+    document.querySelectorAll('.svc-btn').forEach(function(b) { b.classList.remove('selected'); });
+    ['extra-equipment','extra-opening','extra-closing'].forEach(function(id) {
+      var p = document.getElementById(id);
+      if (p) p.style.display = 'none';
     });
+    document.getElementById('successScreen').style.display = 'none';
+    form.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 </script>
-
 </body>
 </html>
