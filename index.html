@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aquamarine Pool — Service Work Record</title>
+  <title>Aquamarine Pool â Service Work Record</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -451,156 +451,39 @@
   </div>
 </form>
 <script>
-  var equipmentJobs = ['Pump Repair / Replacement','Filter Replacement / Cleaning','Salt Cell Replacement / Cleaning','Heater Repair / Replacement','Equipment Install'];
-  var svcBtns = document.querySelectorAll('.svc-btn');
-  var serviceGrid = document.getElementById('service-grid');
-  for (var i = 0; i < svcBtns.length; i++) {
-    svcBtns[i].addEventListener('click', function(e) {
-      var btn = e.currentTarget;
-      var val = btn.getAttribute('data-value');
-      for (var j = 0; j < svcBtns.length; j++) svcBtns[j].classList.remove('selected');
-      btn.classList.add('selected');
-      document.getElementById('service_type').value = val;
-      var svcErr = document.getElementById('svc-error');
-      if (svcErr) svcErr.style.display = 'none';
-      document.getElementById('field-service-type').classList.remove('has-error');
-      var panelIds = ['extra-equipment','extra-opening','extra-closing'];
-      for (var k = 0; k < panelIds.length; k++) {
-        var p = document.getElementById(panelIds[k]);
-        if (p) p.style.display = 'none';
-      }
-      var panel = null;
-      if (equipmentJobs.indexOf(val) > -1) panel = document.getElementById('extra-equipment');
-      else if (val === 'Pool Opening') panel = document.getElementById('extra-opening');
-      else if (val === 'Pool Closing') panel = document.getElementById('extra-closing');
-      if (panel) {
-        var allBtns = Array.prototype.slice.call(serviceGrid.querySelectorAll('.svc-btn'));
-        var idx = allBtns.indexOf(btn);
-        var pairEnd = (idx % 2 === 0) ? idx + 1 : idx;
-        var afterEl = (pairEnd < allBtns.length) ? allBtns[pairEnd] : allBtns[allBtns.length - 1];
-        afterEl.insertAdjacentElement('afterend', panel);
-        panel.style.display = 'block';
-        panel.style.gridColumn = '1 / -1';
-      }
-    });
-  }
-  function updateRemoveBtns() {
-    var rows = document.querySelectorAll('.equip-row');
-    rows.forEach(function(row) {
-      var existing = row.querySelector('.equip-remove');
-      if (rows.length > 1 && !existing) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'equip-remove';
-        btn.innerHTML = '&times;';
-        btn.addEventListener('click', function() { row.remove(); updateRemoveBtns(); });
-        row.appendChild(btn);
-      } else if (rows.length === 1 && existing) {
-        existing.remove();
-      }
-    });
-  }
-  var addEquipBtn = document.getElementById('addEquipBtn');
-  if (addEquipBtn) {
-    addEquipBtn.addEventListener('click', function() {
-      var list = document.getElementById('equip-list');
-      var row = document.createElement('div');
-      row.className = 'equip-row';
-      row.innerHTML = '<input type="text" name="equipment_item[]" placeholder="e.g. Pentair VS pump 2 HP, Jandy salt cell..." />';
-      list.appendChild(row);
-      updateRemoveBtns();
-      row.querySelector('input').focus();
-    });
-  }
-  var dateField = document.getElementById('date_of_service');
-  var today = new Date();
-  var yyyy = today.getFullYear();
-  var mm = String(today.getMonth() + 1).padStart(2, '0');
-  var dd = String(today.getDate()).padStart(2, '0');
-  dateField.value = yyyy + '-' + mm + '-' + dd;
-  document.getElementById('photoInput').addEventListener('change', function() {
-    var preview = document.getElementById('photoPreview');
-    preview.innerHTML = '';
-    Array.from(this.files).slice(0, 5).forEach(function(file) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var img = document.createElement('img');
-        img.src = e.target.result;
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-  var form = document.getElementById('serviceForm');
-  var submitBtn = document.getElementById('submitBtn');
+const APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  if (!form) return;
+  form.id = 'serviceForm';
+
   form.addEventListener('submit', function(e) {
     e.preventDefault();
-    var required = [
-      { id: 'date_of_service', fieldId: 'field-date' },
-      { id: 'crew_member', fieldId: 'field-crew' },
-      { id: 'customer_name', fieldId: 'field-customer' },
-      { id: 'description', fieldId: 'field-description' },
-    ];
-    var valid = true;
-    required.forEach(function(item) {
-      var el = document.getElementById(item.id);
-      var fieldEl = document.getElementById(item.fieldId);
-      if (!el.value.trim()) {
-        fieldEl.classList.add('has-error');
-        valid = false;
-      } else {
-        fieldEl.classList.remove('has-error');
-      }
-    });
-    if (!document.getElementById('service_type').value) {
-      var svcErr = document.getElementById('svc-error');
-      if (svcErr) svcErr.style.display = 'block';
-      document.getElementById('field-service-type').classList.add('has-error');
-      valid = false;
-    }
-    if (!valid) {
-      var firstError = document.querySelector('.has-error');
-      if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-    var data = new FormData(form);
-    fetch(form.action, {
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    formData.forEach(function(value, key) { params.append(key, value); });
+
+    const btn = form.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+    fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      body: data,
-      headers: { 'Accept': 'application/json' }
-    }).then(function(resp) {
-      if (resp.ok) {
-        form.style.display = 'none';
-        var success = document.getElementById('successScreen');
-        success.style.display = 'block';
-        success.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        alert('Submission failed. Please check your connection and try again.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Service Record';
-      }
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    }).then(function() {
+      form.style.display = 'none';
+      const msg = document.createElement('div');
+      msg.style = 'text-align:center;padding:40px;font-size:1.3rem;color:#0a6ebd;font-weight:bold;';
+      msg.textContent = '✅ Service record submitted successfully!';
+      form.parentNode.insertBefore(msg, form.nextSibling);
     }).catch(function() {
-      alert('Network error - check your connection and try again.');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Service Record';
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+      alert('Submission failed. Please check your connection and try again.');
     });
   });
-  function resetForm() {
-    form.reset();
-    dateField.value = yyyy + '-' + mm + '-' + dd;
-    document.getElementById('photoPreview').innerHTML = '';
-    document.querySelectorAll('.has-error').forEach(function(el) { el.classList.remove('has-error'); });
-    document.querySelectorAll('.svc-btn').forEach(function(b) { b.classList.remove('selected'); });
-    ['extra-equipment','extra-opening','extra-closing'].forEach(function(id) {
-      var p = document.getElementById(id);
-      if (p) p.style.display = 'none';
-    });
-    document.getElementById('successScreen').style.display = 'none';
-    form.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+});
 </script>
 </body>
 </html>
