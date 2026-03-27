@@ -311,7 +311,7 @@
   <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
   <button class="submit-another" onclick="resetForm()">Submit Another Job</button>
 </div>
-<form id="serviceForm" action="https://formspree.io/f/mgolblzq" method="POST">
+<form id="serviceForm" action="https://script.google.com/macros/s/AKfycbxsX43q3n05_IEtOMPMdZnWNW3gXXtIebxuuSQXxOs3KQtLmF3ldjRNBBeZFAQw3CdPtA/exec" method="POST">
   <input type="hidden" name="form_type" value="SERVICE_WORK" />
   <input type="hidden" name="_subject" value="🔧 Service Work Submission — Aquamarine Pool" />
   <input type="hidden" name="job_category" id="job_category" />
@@ -806,21 +806,15 @@
     submitBtn.textContent = 'Submitting…';
     try {
       const data = new FormData(form);
-      const resp = await fetch(form.action, {
+      await fetch(form.action, {
         method: 'POST',
         body: data,
-        headers: { 'Accept': 'application/json' }
+        mode: 'no-cors'
       });
-      if (resp.ok) {
-        form.style.display = 'none';
-        const success = document.getElementById('successScreen');
-        success.style.display = 'block';
-        success.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        alert('Submission failed. Please check your connection and try again.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Service Record';
-      }
+      form.style.display = 'none';
+      const success = document.getElementById('successScreen');
+      success.style.display = 'block';
+      success.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       alert('Network error — check your connection and try again.');
       submitBtn.disabled = false;
