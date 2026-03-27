@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aquamarine Pool â Service Work Record</title>
+  <title>Aquamarine Pool — Service Work Record</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f0f4f8;
-      min-height: 100vh
+      min-height: 100vh;
       padding-bottom: 40px;
     }
     .header {
@@ -93,45 +93,33 @@
     textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 380px) { .row-2 { grid-template-columns: 1fr; } }
-    .service-label {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 10px;
-      display: block;
-    }
-    .service-label .required-star { color: #e53e3e; }
-    .service-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 4px;
-    }
-    .svc-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: #f5f8fc;
-      border: 2px solid #dde3ea;
-      border-radius: 12px;
-      padding: 14px 8px;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: center;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .svc-btn .svc-icon { font-size: 1.6rem; line-height: 1; }
-    .svc-btn .svc-label { font-size: 0.78rem; font-weight: 600; color: #444; line-height: 1.2; }
-    .svc-btn.selected { background: #0a6ebd; border-color: #0a6ebd; }
-    .svc-btn.selected .svc-label { color: white; }
     .svc-error { font-size: 0.75rem; color: #e53e3e; margin-top: 6px; display: none; }
     .svc-error.show { display: block; }
+    .svc-group { margin-bottom: 10px; }
+    .svc-group-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #0a6ebd;
+      padding: 0 2px 5px; display: block;
+    }
+    .svc-check-list { display: flex; flex-direction: column; gap: 6px; }
+    .svc-check-item {
+      display: flex; align-items: center; gap: 10px;
+      background: #f5f8fc; border: 1.5px solid #dde3ea;
+      border-radius: 9px; padding: 11px 12px;
+      cursor: pointer; transition: border-color 0.12s, background 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .svc-check-item:has(input:checked) { border-color: #0a6ebd; background: #e8f0fa; }
+    .svc-check-item input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: #0a6ebd; flex-shrink: 0;
+    }
+    .svc-check-item span { font-size: 0.88rem; font-weight: 500; color: #222; line-height: 1.2; }
     .extra-fields {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 2px solid #e8f0fa;
+      margin-top: 8px;
+      padding: 14px 14px 14px 16px;
+      border-left: 3px solid #0a6ebd;
+      background: #f4f8fd;
+      border-radius: 0 10px 10px 0;
     }
     .extra-title {
       font-size: 0.8rem;
@@ -176,6 +164,65 @@
       width: 17px; height: 17px; accent-color: #0a6ebd; flex-shrink: 0;
     }
     .check-item span { font-size: 0.82rem; color: #333; line-height: 1.2; }
+    /* Job category toggle */
+    .job-type-card {
+      background: white; border-radius: 14px;
+      margin: 18px 14px 0; padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .job-type-label {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #0a6ebd; margin-bottom: 12px;
+      padding-bottom: 8px; border-bottom: 2px solid #e8f0fa; display: block;
+    }
+    .job-type-toggle {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .jt-btn {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 6px;
+      border: 2.5px solid #dde3ea; border-radius: 12px;
+      padding: 16px 10px; cursor: pointer; background: #f5f8fc;
+      transition: all 0.15s; text-align: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .jt-btn .jt-icon { font-size: 1.8rem; line-height: 1; }
+    .jt-btn .jt-name { font-size: 0.9rem; font-weight: 700; color: #444; }
+    .jt-btn .jt-sub  { font-size: 0.72rem; color: #888; font-weight: 400; margin-top: 2px; }
+    .jt-btn.weekly.selected  { background: #e8f7f0; border-color: #1a9a5c; }
+    .jt-btn.weekly.selected .jt-name { color: #1a9a5c; }
+    .jt-btn.service.selected { background: #fff4e5; border-color: #e07b00; }
+    .jt-btn.service.selected .jt-name { color: #e07b00; }
+    .jt-error { font-size: 0.75rem; color: #e53e3e; margin-top: 8px; display: none; }
+    /* Chemical steppers */
+    .chem-list { display: flex; flex-direction: column; gap: 7px; }
+    .chem-row {
+      display: flex; align-items: center; gap: 10px;
+      background: #f5f8fc; border: 1.5px solid #dde3ea;
+      border-radius: 9px; padding: 10px 12px;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .chem-row.active { border-color: #0a6ebd; background: #e8f0fa; }
+    .chem-name { flex: 1; font-size: 0.88rem; font-weight: 500; color: #222; }
+    .stepper { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+    .step-btn {
+      width: 34px; height: 34px; border: 1.5px solid #c5d5e8;
+      background: white; color: #0a6ebd; font-size: 1.2rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s; line-height: 1; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .step-btn:first-child { border-radius: 8px 0 0 8px; }
+    .step-btn:last-child  { border-radius: 0 8px 8px 0; }
+    .step-btn:active { background: #e8f0fa; }
+    .step-count {
+      min-width: 36px; text-align: center; font-size: 1rem; font-weight: 700;
+      color: #222; border-top: 1.5px solid #c5d5e8; border-bottom: 1.5px solid #c5d5e8;
+      background: white; padding: 0 4px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chem-row.active .step-btn { border-color: #0a6ebd; }
+    .chem-row.active .step-count { border-color: #0a6ebd; color: #0a6ebd; }
     .photo-label {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       border: 2px dashed #c5d5e8; border-radius: 10px; padding: 18px;
@@ -219,10 +266,34 @@
       background: #0a6ebd; color: white; border-radius: 10px;
       font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer;
     }
+    /* Water readings */
+    .readings-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    @media (max-width: 380px) { .readings-grid { grid-template-columns: 1fr; } }
+    .reading-field { display: flex; flex-direction: column; gap: 5px; }
+    .reading-field label { font-size: 0.8rem; font-weight: 600; color: #333; margin-bottom: 0; }
+    .reading-field .ideal { font-size: 0.68rem; color: #888; font-weight: 400; }
+    .reading-field input[type="number"] {
+      width: 100%; padding: 11px 12px;
+      border: 1.5px solid #dde3ea; border-radius: 9px;
+      font-size: 1rem; color: #222; background: #fafbfc;
+      -webkit-appearance: none; appearance: none;
+    }
+    .reading-field input[type="number"]:focus {
+      outline: none; border-color: #0a6ebd;
+      box-shadow: 0 0 0 3px rgba(10,110,189,0.12); background: white;
+    }
+    .reading-divider {
+      grid-column: 1 / -1; font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px; color: #0a6ebd;
+      padding-top: 6px; border-top: 1.5px solid #e8f0fa; margin-top: 2px;
+    }
     .field-error { font-size: 0.75rem; color: #e53e3e; margin-top: 5px; display: none; }
-    .field.has-error input,
-    .field.has-error select,
-    .field.has-error textarea { border-color: #e53e3e; }
+    .field.has-error > input,
+    .field.has-error > select,
+    .field.has-error > textarea { border-color: #e53e3e; }
+    .field.has-error #svc-checklist { border: 1.5px solid #e53e3e; border-radius: 10px; padding: 8px; }
     .field.has-error .field-error { display: block; }
   </style>
 </head>
@@ -240,9 +311,29 @@
   <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
   <button class="submit-another" onclick="resetForm()">Submit Another Job</button>
 </div>
-<form id="serviceForm" action="https://script.google.com/macros/s/AKfycbxoD5z9ZjHTYrYr7ZslbThF4WQHTdIdyBJReQGTdhFZ0almK2Ypguw75Lo-PoZCG9BpSw/exec" method="POST">
+<form id="serviceForm" action="https://formspree.io/f/mgolblzq" method="POST">
   <input type="hidden" name="form_type" value="SERVICE_WORK" />
-  <input type="hidden" name="_subject" value="Service Work Submission - Aquamarine Pool" />
+  <input type="hidden" name="_subject" value="🔧 Service Work Submission — Aquamarine Pool" />
+  <input type="hidden" name="job_category" id="job_category" />
+
+  <!-- ── Job Type Toggle ── -->
+  <div class="job-type-card">
+    <span class="job-type-label">What kind of visit is this?</span>
+    <div class="job-type-toggle">
+      <button type="button" class="jt-btn weekly" id="jt-weekly" onclick="selectJobType('Weekly Maintenance')">
+        <span class="jt-icon">🔄</span>
+        <span class="jt-name">Weekly Client</span>
+        <span class="jt-sub">Regular maintenance visit</span>
+      </button>
+      <button type="button" class="jt-btn service" id="jt-service" onclick="selectJobType('Service Work')">
+        <span class="jt-icon">🔧</span>
+        <span class="jt-name">Service Work</span>
+        <span class="jt-sub">Repair, opening, install, etc.</span>
+      </button>
+    </div>
+    <div class="jt-error" id="jt-error">Please select a visit type.</div>
+  </div>
+
   <div class="card">
     <div class="card-title">Job Info</div>
     <div class="field" id="field-date">
@@ -261,174 +352,306 @@
       <div class="field-error">Please enter the customer name.</div>
     </div>
     <div class="field">
-      <label>Customer Address <span class="hint">(optional)</span></label>
+      <label>Customer Address <span class="hint">(optional — helps with Square lookup)</span></label>
       <input type="text" name="customer_address" placeholder="e.g. 123 Elm St, Mason OH" autocomplete="off" />
     </div>
   </div>
   <div class="card">
     <div class="card-title">Service Details</div>
     <div class="field" id="field-service-type">
-      <span class="service-label">What type of job? <span class="required-star">*</span></span>
-      <input type="hidden" name="service_type" id="service_type" />
-      <div class="service-grid" id="service-grid">
-        <button type="button" class="svc-btn" data-value="Pool Opening">
-          <span class="svc-icon">&#127774;</span><span class="svc-label">Pool Opening</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Pool Closing">
-          <span class="svc-icon">&#10052;&#65039;</span><span class="svc-label">Pool Closing</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Filter Replacement / Cleaning">
-          <span class="svc-icon">&#128309;</span><span class="svc-label">Filter Replacement / Cleaning</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Pump Repair / Replacement">
-          <span class="svc-icon">&#9881;&#65039;</span><span class="svc-label">Pump Repair / Replacement</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Salt Cell Replacement / Cleaning">
-          <span class="svc-icon">&#129538;</span><span class="svc-label">Salt Cell Replacement / Cleaning</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Heater Repair / Replacement">
-          <span class="svc-icon">&#128293;</span><span class="svc-label">Heater Repair / Replacement</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Spot Cleaning">
-          <span class="svc-icon">&#129529;</span><span class="svc-label">Spot Cleaning</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Algae Treatment">
-          <span class="svc-icon">&#128994;</span><span class="svc-label">Algae Treatment</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Plumbing Repair">
-          <span class="svc-icon">&#128295;</span><span class="svc-label">Plumbing Repair</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Liner Repair / Replacement">
-          <span class="svc-icon">&#127946;</span><span class="svc-label">Liner Repair / Replacement</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Pool Inspection">
-          <span class="svc-icon">&#128269;</span><span class="svc-label">Pool Inspection</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Service Call / Troubleshooting">
-          <span class="svc-icon">&#128222;</span><span class="svc-label">Service Call / Troubleshooting</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Equipment Install">
-          <span class="svc-icon">&#128736;&#65039;</span><span class="svc-label">Equipment Install</span>
-        </button>
-        <button type="button" class="svc-btn" data-value="Other">
-          <span class="svc-icon">&#128221;</span><span class="svc-label">Other (describe below)</span>
-        </button>
-        <div class="extra-fields" id="extra-equipment" style="display:none; grid-column:1/-1;">
-          <div class="extra-title">Equipment Details</div>
-          <div class="field">
-            <label>Equipment <span class="hint">(brand, model, HP, size)</span></label>
-            <div id="equip-list">
-              <div class="equip-row">
-                <input type="text" name="equipment_item[]" placeholder="e.g. Hayward 1.5 HP pump, Pentair C4030 filter" />
+      <label>What type of job? <span class="required-star">*</span> <span class="hint">(check all that apply)</span></label>
+      <div id="svc-checklist">
+
+        <div class="svc-group">
+          <span class="svc-group-label">Seasonal</span>
+          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Opening" /><span>Pool Opening</span></label>
+            <!-- ── Opening Checklist ── -->
+            <div class="extra-fields" id="extra-opening" style="display:none;">
+              <div class="extra-title">🌞 Opening Checklist</div>
+              <div class="open-check-grid">
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Cover removed & stored" /><span>Cover removed & stored</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Plugs removed" /><span>Plugs removed</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Baskets cleaned" /><span>Baskets cleaned</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Equipment started up" /><span>Equipment started up</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Filter backwashed / cleaned" /><span>Filter backwashed</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Chemicals added" /><span>Chemicals added</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Water tested" /><span>Water tested</span></label>
+                <label class="check-item"><input type="checkbox" name="opening[]" value="Returned equipment to normal operation" /><span>Equipment running normal</span></label>
+              </div>
+              <div class="field" style="margin-top:10px;">
+                <label>Issues Found at Opening <span class="hint">(optional)</span></label>
+                <textarea name="opening_issues" placeholder="e.g. Pump seal leaking, cracked return fitting, algae present…" style="min-height:72px;"></textarea>
               </div>
             </div>
-            <button type="button" class="add-equip-btn" id="addEquipBtn">
-              <span style="font-size:1.1rem;">+</span> Add another piece of equipment
-            </button>
-          </div>
-          <div class="field">
-            <label>Repair or Replace?</label>
-            <div style="display:flex; gap:10px;">
-              <label class="check-item" style="flex:1">
-                <input type="radio" name="repair_or_replace" value="Repair" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" />
-                <span>Repair</span>
-              </label>
-              <label class="check-item" style="flex:1">
-                <input type="radio" name="repair_or_replace" value="Replace" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" />
-                <span>Replace</span>
-              </label>
-              <label class="check-item" style="flex:1">
-                <input type="radio" name="repair_or_replace" value="Clean / Service" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" />
-                <span>Clean / Service</span>
-              </label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Closing" /><span>Pool Closing</span></label>
+            <!-- ── Closing Checklist ── -->
+            <div class="extra-fields" id="extra-closing" style="display:none;">
+              <div class="extra-title">❄️ Closing Checklist</div>
+              <div class="open-check-grid">
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Lines blown out" /><span>Lines blown out</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Plugs installed" /><span>Plugs installed</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Equipment winterized" /><span>Equipment winterized</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Filter drained & prepped" /><span>Filter drained & prepped</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Cover installed" /><span>Cover installed</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Closing chemicals added" /><span>Closing chemicals added</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Water level lowered" /><span>Water level lowered</span></label>
+                <label class="check-item"><input type="checkbox" name="closing[]" value="Accessories removed & stored" /><span>Accessories stored</span></label>
+              </div>
+              <div class="field" style="margin-top:10px;">
+                <label>Issues to Note at Closing <span class="hint">(optional)</span></label>
+                <textarea name="closing_issues" placeholder="e.g. Cover has a tear, needs new anchors, heater not draining well…" style="min-height:72px;"></textarea>
+              </div>
             </div>
           </div>
         </div>
-        <div class="extra-fields" id="extra-opening" style="display:none; grid-column:1/-1;">
-          <div class="extra-title">Opening Checklist</div>
-          <div class="open-check-grid">
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Cover removed and stored" /><span>Cover removed &amp; stored</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Plugs removed" /><span>Plugs removed</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Baskets cleaned" /><span>Baskets cleaned</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Equipment started up" /><span>Equipment started up</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Filter backwashed / cleaned" /><span>Filter backwashed</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Chemicals added" /><span>Chemicals added</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Water tested" /><span>Water tested</span></label>
-            <label class="check-item"><input type="checkbox" name="opening[]" value="Equipment running normal" /><span>Equipment running normal</span></label>
-          </div>
-          <div class="field">
-            <label>Issues Found at Opening <span class="hint">(optional)</span></label>
-            <textarea name="opening_issues" placeholder="e.g. Pump seal leaking, cracked return fitting, algae present..." style="min-height:72px;"></textarea>
-          </div>
-        </div>
-        <div class="extra-fields" id="extra-closing" style="display:none; grid-column:1/-1;">
-          <div class="extra-title">Closing Checklist</div>
-          <div class="open-check-grid">
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Lines blown out" /><span>Lines blown out</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Plugs installed" /><span>Plugs installed</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Equipment winterized" /><span>Equipment winterized</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Filter drained and prepped" /><span>Filter drained &amp; prepped</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Cover installed" /><span>Cover installed</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Closing chemicals added" /><span>Closing chemicals added</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Water level lowered" /><span>Water level lowered</span></label>
-            <label class="check-item"><input type="checkbox" name="closing[]" value="Accessories stored" /><span>Accessories stored</span></label>
-          </div>
-          <div class="field">
-            <label>Issues to Note at Closing <span class="hint">(optional)</span></label>
-            <textarea name="closing_issues" placeholder="e.g. Cover has a tear, heater not draining well..." style="min-height:72px;"></textarea>
+
+        <div class="svc-group">
+          <span class="svc-group-label">Equipment</span>
+          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Equipment Repair / Install" /><span>Equipment Repair / Install</span></label>
+            <!-- ── Equipment Details ── -->
+            <div class="extra-fields" id="extra-equipment" style="display:none;">
+              <div class="extra-title">⚙️ Equipment Details</div>
+              <div class="field">
+                <label>Equipment <span class="hint">(brand, model, HP, size — be specific)</span></label>
+                <div id="equip-list">
+                  <div class="equip-row">
+                    <input type="text" name="equipment_item[]" placeholder="e.g. Hayward 1.5 HP pump, Pentair C4030 filter…" />
+                  </div>
+                </div>
+                <button type="button" class="add-equip-btn" id="addEquipBtn">
+                  <span style="font-size:1.1rem;">+</span> Add another piece of equipment
+                </button>
+              </div>
+              <div class="field">
+                <label>Repair, Replace, or Install?</label>
+                <div style="display:flex; gap:10px;">
+                  <label class="check-item" style="flex:1"><input type="radio" name="repair_or_replace" value="Repair" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" /><span>Repair</span></label>
+                  <label class="check-item" style="flex:1"><input type="radio" name="repair_or_replace" value="Replace" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" /><span>Replace</span></label>
+                  <label class="check-item" style="flex:1"><input type="radio" name="repair_or_replace" value="Install" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" /><span>Install</span></label>
+                  <label class="check-item" style="flex:1"><input type="radio" name="repair_or_replace" value="Clean / Service" style="width:17px;height:17px;accent-color:#0a6ebd;flex-shrink:0;" /><span>Clean</span></label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <div class="svc-group">
+          <span class="svc-group-label">Repairs &amp; Plumbing</span>
+          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Plumbing Repair" /><span>Plumbing Repair</span></label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Liner Repair / Replacement" /><span>Liner Repair / Replacement</span></label>
+          </div>
+        </div>
+
+        <div class="svc-group">
+          <span class="svc-group-label">Cleaning &amp; Chemicals</span>
+          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Spot Cleaning" /><span>Spot Cleaning</span></label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Algae Treatment" /><span>Algae Treatment</span></label>
+          </div>
+        </div>
+
+        <div class="svc-group">
+          <span class="svc-group-label">Inspections &amp; Calls</span>
+          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Inspection" /><span>Pool Inspection</span></label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Service Call / Troubleshooting" /><span>Service Call / Troubleshooting</span></label>
+          </div>
+        </div>
+
+        <div class="svc-group">
+          <span class="svc-group-label">Other</span>
+          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Other" /><span>Other (describe below)</span></label>
+          </div>
+        </div>
+
       </div>
-      <div class="svc-error" id="svc-error">Please select a service type.</div>
+      <div class="svc-error" id="svc-error">Please select at least one service type.</div>
     </div>
     <div class="field">
       <label>Time on Job</label>
       <select name="time_on_job">
-        <option value="" disabled selected>Select...</option>
+        <option value="" disabled selected>Select…</option>
         <option>Under 30 min</option>
-        <option>30 - 60 min</option>
-        <option>1 - 1.5 hrs</option>
-        <option>1.5 - 2 hrs</option>
-        <option>2 - 3 hrs</option>
-        <option>3 - 4 hrs</option>
+        <option>30 – 60 min</option>
+        <option>1 – 1.5 hrs</option>
+        <option>1.5 – 2 hrs</option>
+        <option>2 – 3 hrs</option>
+        <option>3 – 4 hrs</option>
         <option>4+ hrs (full day)</option>
       </select>
     </div>
     <div class="field" id="field-description">
       <label>Description of Work Done <span class="required-star">*</span></label>
-      <textarea name="description" id="description" placeholder="What was done? Be specific - this becomes the invoice line item." required></textarea>
+      <textarea name="description" id="description" placeholder="What was done? Be specific — this becomes the invoice line item." required></textarea>
       <div class="field-error">Please describe the work.</div>
     </div>
     <div class="field">
       <label>Parts / Materials Used <span class="hint">(optional)</span></label>
-      <textarea name="parts_materials" placeholder="e.g. Pentair DE filter grid set, 1.5 inch PVC elbow, O-ring kit..." style="min-height: 72px;"></textarea>
+      <textarea name="parts_materials" placeholder="e.g. Pentair DE filter grid set, 1.5&quot; PVC elbow, O-ring kit…" style="min-height: 72px;"></textarea>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Chemicals Added</div>
-    <div class="field">
-      <div class="check-grid">
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Chlorine / Shock" /><span>Chlorine / Shock</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Algaecide" /><span>Algaecide</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Muriatic Acid" /><span>Muriatic Acid</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Alkalinity Up" /><span>Alkalinity Up</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="pH Up" /><span>pH Up</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="pH Down" /><span>pH Down</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Calcium Up" /><span>Calcium Up</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Stabilizer / CYA" /><span>Stabilizer / CYA</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Enzyme / Clarifier" /><span>Enzyme / Clarifier</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Salt" /><span>Salt</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Phosphate Remover" /><span>Phosphate Remover</span></label>
-        <label class="check-item"><input type="checkbox" name="chemicals[]" value="Winterizing Kit" /><span>Winterizing Kit</span></label>
+    <div class="card-title">Chemicals Added <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(tap + to set quantity)</span></div>
+    <input type="hidden" name="chemicals_used" id="chemicals_used" />
+    <div class="chem-list">
+      <div class="chem-row" data-chem="Chlorine / Shock">
+        <span class="chem-name">Chlorine / Shock</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Algaecide">
+        <span class="chem-name">Algaecide</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Muriatic Acid">
+        <span class="chem-name">Muriatic Acid</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Alkalinity Up">
+        <span class="chem-name">Alkalinity Up</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="pH Up">
+        <span class="chem-name">pH Up</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="pH Down">
+        <span class="chem-name">pH Down</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Calcium Hardness Up">
+        <span class="chem-name">Calcium Hardness Up</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Stabilizer / CYA">
+        <span class="chem-name">Stabilizer / CYA</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Enzyme / Clarifier">
+        <span class="chem-name">Enzyme / Clarifier</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Salt">
+        <span class="chem-name">Salt</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Phosphate Remover">
+        <span class="chem-name">Phosphate Remover</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Winterizing Kit">
+        <span class="chem-name">Winterizing Kit</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
       </div>
     </div>
-    <div class="field" style="margin-top: 12px;">
-      <label>Chemical Details / Amounts <span class="hint">(optional)</span></label>
-      <textarea name="chemical_details" placeholder="e.g. 2 lbs shock, 1 qt algaecide, 2 bags salt..." style="min-height: 60px;"></textarea>
+    <div class="field" style="margin-top: 14px;">
+      <label>Chemical Notes <span class="hint">(optional — units, amounts, specifics)</span></label>
+      <textarea name="chemical_details" placeholder="e.g. 2 lbs shock, 1 qt algaecide, 3 bags salt…" style="min-height: 60px;"></textarea>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Photos <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional)</span></div>
+    <div class="card-title">Water Chemistry Readings <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record before adding chemicals)</span></div>
+    <div class="readings-grid">
+      <div class="reading-field">
+        <label>pH <span class="ideal">ideal 7.4 – 7.6</span></label>
+        <input type="number" name="reading_ph" step="0.1" min="6" max="9" placeholder="e.g. 7.4" />
+      </div>
+      <div class="reading-field">
+        <label>Free Chlorine <span class="ideal">ideal 1 – 3 ppm</span></label>
+        <input type="number" name="reading_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Total Alkalinity <span class="ideal">ideal 80 – 120 ppm</span></label>
+        <input type="number" name="reading_alkalinity" step="1" min="0" max="500" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Calcium Hardness <span class="ideal">ideal 200 – 400 ppm</span></label>
+        <input type="number" name="reading_calcium" step="1" min="0" max="1000" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>CYA / Stabilizer <span class="ideal">ideal 30 – 50 ppm</span></label>
+        <input type="number" name="reading_cya" step="1" min="0" max="300" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Salt Level <span class="ideal">ideal 2700 – 3400 ppm</span></label>
+        <input type="number" name="reading_salt" step="10" min="0" max="6000" placeholder="ppm" />
+      </div>
+      <div class="reading-divider">Optional</div>
+      <div class="reading-field">
+        <label>Total Chlorine <span class="ideal">ppm</span></label>
+        <input type="number" name="reading_total_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Water Temp <span class="ideal">°F</span></label>
+        <input type="number" name="reading_temp" step="1" min="32" max="120" placeholder="°F" />
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label>Water Clarity</label>
+      <select name="water_clarity">
+        <option value="" disabled selected>Select…</option>
+        <option>Crystal clear</option>
+        <option>Slightly cloudy</option>
+        <option>Cloudy</option>
+        <option>Very cloudy / can't see bottom</option>
+        <option>Green / algae</option>
+        <option>Black algae present</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Photos <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional — before/after, parts, equipment)</span></div>
     <label class="photo-label" for="photoInput">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -443,7 +666,7 @@
     <div class="card-title">Notes</div>
     <div class="field">
       <label>Additional Notes <span class="hint">(anything Peter should know)</span></label>
-      <textarea name="notes" placeholder="e.g. Equipment making a grinding noise, customer wants a callback, gate code changed..."></textarea>
+      <textarea name="notes" placeholder="e.g. Equipment is making a grinding noise, customer wants a callback, gate code changed…"></textarea>
     </div>
   </div>
   <div class="card">
@@ -451,39 +674,207 @@
   </div>
 </form>
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoD5z9ZjHTYrYr7ZslbThF4WQHTdIdyBJReQGTdhFZ0almK2Ypguw75Lo-PoZCG9BpSw/exec';
+  function selectJobType(val) {
+    document.getElementById('job_category').value = val;
+    document.getElementById('jt-weekly').classList.toggle('selected',  val === 'Weekly Maintenance');
+    document.getElementById('jt-service').classList.toggle('selected', val === 'Service Work');
+    document.getElementById('jt-error').style.display = 'none';
+  }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.querySelector('form');
-  if (!form) return;
-  form.id = 'serviceForm';
+  var equipmentJobs = ['Equipment Repair / Install'];
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const params = new URLSearchParams();
-    formData.forEach(function(value, key) { params.append(key, value); });
+  function updateServicePanels(changedCb) {
+    var checked = Array.from(document.querySelectorAll('input[name="service_type[]"]:checked')).map(function(cb){ return cb.value; });
 
-    const btn = form.querySelector('[type="submit"]');
-    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+    // ── Opening / Closing: already positioned right after their checkbox, just show/hide ──
+    document.getElementById('extra-opening').style.display = checked.indexOf('Pool Opening') > -1 ? 'block' : 'none';
+    document.getElementById('extra-closing').style.display = checked.indexOf('Pool Closing') > -1 ? 'block' : 'none';
 
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString()
-    }).then(function() {
-      form.style.display = 'none';
-      const msg = document.createElement('div');
-      msg.style = 'text-align:center;padding:40px;font-size:1.3rem;color:#0a6ebd;font-weight:bold;';
-      msg.textContent = '✅ Service record submitted successfully!';
-      form.parentNode.insertBefore(msg, form.nextSibling);
-    }).catch(function() {
-      if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
-      alert('Submission failed. Please check your connection and try again.');
+    // ── Equipment: move the panel to sit directly after whichever row was just checked ──
+    var equipPanel = document.getElementById('extra-equipment');
+    var anyEquip   = checked.some(function(v){ return equipmentJobs.indexOf(v) > -1; });
+    if (!anyEquip) {
+      equipPanel.style.display = 'none';
+    } else {
+      // Find the anchor: the checked equipment label that was just changed, or first checked one
+      var anchorCb = (changedCb && equipmentJobs.indexOf(changedCb.value) > -1 && changedCb.checked)
+        ? changedCb
+        : document.querySelector(equipmentJobs.map(function(v){ return 'input[name="service_type[]"][value="'+v+'"]:checked'; }).join(','));
+      if (anchorCb) {
+        var anchorLabel = anchorCb.closest('label.svc-check-item');
+        anchorLabel.insertAdjacentElement('afterend', equipPanel);
+      }
+      equipPanel.style.display = 'block';
+    }
+
+    if (checked.length > 0) {
+      document.getElementById('svc-error').style.display = 'none';
+      document.getElementById('field-service-type').classList.remove('has-error');
+    }
+  }
+
+  document.querySelectorAll('input[name="service_type[]"]').forEach(function(cb) {
+    cb.addEventListener('change', function(){ updateServicePanels(cb); });
+  });
+  function updateRemoveBtns() {
+    const rows = document.querySelectorAll('.equip-row');
+    rows.forEach((row, i) => {
+      const existing = row.querySelector('.equip-remove');
+      if (rows.length > 1 && !existing) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'equip-remove';
+        btn.innerHTML = '&times;';
+        btn.addEventListener('click', () => { row.remove(); updateRemoveBtns(); });
+        row.appendChild(btn);
+      } else if (rows.length === 1 && existing) {
+        existing.remove();
+      }
+    });
+  }
+  var addEquipBtn = document.getElementById('addEquipBtn');
+  if (addEquipBtn) {
+    addEquipBtn.addEventListener('click', function () {
+      var list = document.getElementById('equip-list');
+      var row = document.createElement('div');
+      row.className = 'equip-row';
+      row.innerHTML = '<input type="text" name="equipment_item[]" placeholder="e.g. Pentair VS pump 2 HP, Jandy salt cell…" />';
+      list.appendChild(row);
+      updateRemoveBtns();
+      row.querySelector('input').focus();
+    });
+  }
+  const dateField = document.getElementById('date_of_service');
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  dateField.value = `${yyyy}-${mm}-${dd}`;
+  document.getElementById('photoInput').addEventListener('change', function () {
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    Array.from(this.files).slice(0, 5).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
     });
   });
-});
+  const form = document.getElementById('serviceForm');
+  const submitBtn = document.getElementById('submitBtn');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const required = [
+      { id: 'date_of_service', fieldId: 'field-date' },
+      { id: 'crew_member',     fieldId: 'field-crew' },
+      { id: 'customer_name',  fieldId: 'field-customer' },
+      { id: 'description',    fieldId: 'field-description' },
+    ];
+    let valid = true;
+    required.forEach(({ id, fieldId }) => {
+      const el = document.getElementById(id);
+      const fieldEl = document.getElementById(fieldId);
+      if (!el.value.trim()) {
+        fieldEl.classList.add('has-error');
+        valid = false;
+      } else {
+        fieldEl.classList.remove('has-error');
+      }
+    });
+    if (!document.getElementById('job_category').value) {
+      document.getElementById('jt-error').style.display = 'block';
+      document.getElementById('jt-weekly').style.borderColor = '#e53e3e';
+      document.getElementById('jt-service').style.borderColor = '#e53e3e';
+      valid = false;
+    } else {
+      document.getElementById('jt-weekly').style.borderColor = '';
+      document.getElementById('jt-service').style.borderColor = '';
+    }
+    if (!document.querySelector('input[name="service_type[]"]:checked')) {
+      document.getElementById('svc-error').style.display = 'block';
+      document.getElementById('field-service-type').classList.add('has-error');
+      valid = false;
+    }
+    if (!valid) {
+      document.querySelector('.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+    try {
+      const data = new FormData(form);
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (resp.ok) {
+        form.style.display = 'none';
+        const success = document.getElementById('successScreen');
+        success.style.display = 'block';
+        success.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        alert('Submission failed. Please check your connection and try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Service Record';
+      }
+    } catch (err) {
+      alert('Network error — check your connection and try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Service Record';
+    }
+  });
+  // ── Chemical steppers ──
+  function buildChemSummary() {
+    var parts = [];
+    document.querySelectorAll('.chem-row').forEach(function(row) {
+      var qty = parseInt(row.querySelector('.step-count').textContent, 10);
+      if (qty > 0) parts.push(row.getAttribute('data-chem') + ' ×' + qty);
+    });
+    document.getElementById('chemicals_used').value = parts.join(', ');
+  }
+  document.querySelectorAll('.chem-row').forEach(function(row) {
+    var countEl = row.querySelector('.step-count');
+    row.querySelector('.step-plus').addEventListener('click', function() {
+      var n = parseInt(countEl.textContent, 10) + 1;
+      countEl.textContent = n;
+      row.classList.toggle('active', n > 0);
+      buildChemSummary();
+    });
+    row.querySelector('.step-minus').addEventListener('click', function() {
+      var n = Math.max(0, parseInt(countEl.textContent, 10) - 1);
+      countEl.textContent = n;
+      row.classList.toggle('active', n > 0);
+      buildChemSummary();
+    });
+  });
+
+  function resetForm() {
+    form.reset();
+    dateField.value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('photoPreview').innerHTML = '';
+    document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+    document.getElementById('job_category').value = '';
+    document.getElementById('jt-weekly').classList.remove('selected');
+    document.getElementById('jt-service').classList.remove('selected');
+    document.getElementById('jt-error').style.display = 'none';
+    document.querySelectorAll('input[name="service_type[]"]').forEach(function(cb){ cb.checked = false; });
+    ['extra-equipment','extra-opening','extra-closing'].forEach(id => {
+      var p = document.getElementById(id);
+      if (p) p.style.display = 'none';
+    });
+    document.querySelectorAll('.chem-row').forEach(function(row) {
+      row.querySelector('.step-count').textContent = '0';
+      row.classList.remove('active');
+    });
+    document.getElementById('chemicals_used').value = '';
+    document.getElementById('successScreen').style.display = 'none';
+    form.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 </script>
 </body>
 </html>
