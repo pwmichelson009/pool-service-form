@@ -172,14 +172,16 @@
       padding-bottom: 8px; border-bottom: 2px solid #e8f0fa; display: block;
     }
     .job-type-toggle {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      display: flex; gap: 10px; align-items: flex-start;
     }
+    .jt-left-col  { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .jt-right-col { flex: 1; }
     .jt-btn {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; gap: 6px;
       border: 2.5px solid #dde3ea; border-radius: 12px;
       padding: 16px 10px; cursor: pointer; background: #f5f8fc;
-      transition: all 0.15s; text-align: center;
+      transition: all 0.15s; text-align: center; width: 100%;
       -webkit-tap-highlight-color: transparent;
     }
     .jt-btn .jt-icon { font-size: 1.8rem; line-height: 1; }
@@ -190,16 +192,43 @@
     .jt-btn.service.selected { background: #fff4e5; border-color: #e07b00; }
     .jt-btn.service.selected .jt-name { color: #e07b00; }
     .jt-error { font-size: 0.75rem; color: #e53e3e; margin-top: 8px; display: none; }
+    /* Spa sub-toggle — stacks below Weekly button in left column */
+    .spa-row { display: none; flex-direction: column; gap: 6px; }
+    .spa-opt {
+      width: 100%; display: flex; align-items: center; gap: 8px;
+      border: 2px solid #dde3ea; border-radius: 10px; padding: 10px 14px;
+      background: #f5f8fc; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+      color: #444; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+    }
+    .spa-opt .spa-icon { font-size: 1.1rem; }
+    .spa-opt.selected { background: #e8f0fa; border-color: #0a6ebd; color: #0a6ebd; }
+    .spa-opt.spa-plus.selected { background: #f0f8f5; border-color: #1a9a5c; color: #1a9a5c; }
+    /* Other Services expandable */
+    .other-svc-btn {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      background: #f5f8fc; border: 1.5px solid #dde3ea; border-radius: 9px;
+      padding: 12px 14px; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+      color: #444; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+      margin-top: 4px;
+    }
+    .other-svc-btn.open { border-color: #e07b00; background: #fff4e5; color: #e07b00; }
+    .other-svc-arrow { font-size: 0.8rem; transition: transform 0.2s; display: inline-block; }
+    .other-svc-btn.open .other-svc-arrow { transform: rotate(180deg); }
+    .other-svc-panel {
+      margin-top: 6px; padding: 10px; background: #f9fafb;
+      border: 1.5px solid #dde3ea; border-radius: 10px;
+    }
     /* Chemical steppers */
-    .chem-list { display: flex; flex-direction: column; gap: 7px; }
+    .chem-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    @media (max-width: 360px) { .chem-list { grid-template-columns: 1fr; } }
     .chem-row {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
       background: #f5f8fc; border: 1.5px solid #dde3ea;
       border-radius: 9px; padding: 10px 12px;
       transition: border-color 0.12s, background 0.12s;
     }
     .chem-row.active { border-color: #0a6ebd; background: #e8f0fa; }
-    .chem-name { flex: 1; font-size: 0.88rem; font-weight: 500; color: #222; }
+    .chem-name { font-size: 0.88rem; font-weight: 500; color: #222; }
     .stepper { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
     .step-btn {
       width: 34px; height: 34px; border: 1.5px solid #c5d5e8;
@@ -294,6 +323,26 @@
       outline: none; border-color: #0a6ebd;
       box-shadow: 0 0 0 3px rgba(10,110,189,0.12); background: white;
     }
+    .chem-unit {
+      font-size: 0.78rem;
+      padding: 0 6px;
+      border: none;
+      border-left: 1.5px solid #c5d5e8;
+      border-right: 1.5px solid #c5d5e8;
+      border-top: 1.5px solid #c5d5e8;
+      border-bottom: 1.5px solid #c5d5e8;
+      border-radius: 0;
+      background: white;
+      color: #333;
+      flex-shrink: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      min-width: 62px;
+      height: 34px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .chem-row.active .chem-unit { border-color: #0a6ebd; }
     .reading-divider {
       grid-column: 1 / -1; font-size: 0.68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 1px; color: #0a6ebd;
@@ -331,20 +380,35 @@
   <div class="job-type-card">
     <span class="job-type-label">What kind of visit is this?</span>
     <div class="job-type-toggle">
-      <button type="button" class="jt-btn weekly" id="jt-weekly" onclick="selectJobType('Weekly Maintenance')">
-        <span class="jt-icon">🔄</span>
-        <span class="jt-name">Weekly Client</span>
-        <span class="jt-sub">Regular maintenance visit</span>
-      </button>
-      <button type="button" class="jt-btn service" id="jt-service" onclick="selectJobType('Service Work')">
-        <span class="jt-icon">🔧</span>
-        <span class="jt-name">Service Work</span>
-        <span class="jt-sub">Repair, opening, install, etc.</span>
-      </button>
+      <div class="jt-left-col">
+        <button type="button" class="jt-btn weekly" id="jt-weekly" onclick="selectJobType('Weekly Maintenance')">
+          <span class="jt-icon">🔄</span>
+          <span class="jt-name">Weekly Client</span>
+          <span class="jt-sub">Regular maintenance visit</span>
+        </button>
+        <!-- Pool / Spa options stack below Weekly button -->
+        <div class="spa-row" id="spa-row">
+          <button type="button" class="spa-opt" id="spa-pool-only" onclick="selectWeeklySpa('Pool only')">
+            <span class="spa-icon">🏊</span> Pool only
+          </button>
+          <button type="button" class="spa-opt spa-plus" id="spa-pool-spa" onclick="selectWeeklySpa('Pool + Spa')">
+            <span class="spa-icon">🛁</span> Pool + Spa
+          </button>
+        </div>
+      </div>
+      <div class="jt-right-col">
+        <button type="button" class="jt-btn service" id="jt-service" onclick="selectJobType('Service Work')">
+          <span class="jt-icon">🔧</span>
+          <span class="jt-name">Service Work</span>
+          <span class="jt-sub">Repair, opening, install, etc.</span>
+        </button>
+      </div>
     </div>
+    <input type="hidden" name="weekly_service_includes" id="weekly_service_includes" />
     <div class="jt-error" id="jt-error">Please select a visit type.</div>
   </div>
 
+  <!-- ── Job Info ── -->
   <div class="card">
     <div class="card-title">Job Info</div>
     <div class="field" id="field-date">
@@ -373,11 +437,33 @@
       <label>What type of job? <span class="required-star">*</span> <span class="hint">(check all that apply)</span></label>
       <div id="svc-checklist">
 
-        <div class="svc-group">
-          <span class="svc-group-label">Seasonal</span>
+        <!-- ── Cleaning — always visible ── -->
+        <div class="svc-check-list">
+          <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Cleaning" /><span>🧹 Cleaning</span></label>
+          <div class="extra-fields" id="extra-cleaning" style="display:none;">
+            <div class="extra-title">🧹 Cleaning Checklist</div>
+            <div class="open-check-grid">
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Vacuumed" /><span>Vacuumed</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Backwash / Filter cleaned" /><span>Backwash / Filter cleaned</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Skimmer baskets cleaned" /><span>Skimmer baskets cleaned</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Pump basket cleaned" /><span>Pump basket cleaned</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Brush walls &amp; floor" /><span>Brush walls &amp; floor</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Leaf raked / debris removed" /><span>Leaf raked / debris removed</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Algae brushed" /><span>Algae brushed</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Water level checked" /><span>Water level checked</span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Other Services — collapsible ── -->
+        <button type="button" class="other-svc-btn" id="other-svc-btn" onclick="toggleOtherServices()">
+          <span>🔧 Other Services</span>
+          <span class="other-svc-arrow" id="other-svc-arrow">▼</span>
+        </button>
+        <div class="other-svc-panel" id="other-svc-panel" style="display:none;">
           <div class="svc-check-list">
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Opening" /><span>Pool Opening</span></label>
-            <!-- ── Opening Checklist ── -->
+
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Opening" /><span>🌞 Pool Opening</span></label>
             <div class="extra-fields" id="extra-opening" style="display:none;">
               <div class="extra-title">🌞 Opening Checklist</div>
               <div class="open-check-grid">
@@ -395,8 +481,8 @@
                 <textarea name="opening_issues" placeholder="e.g. Pump seal leaking, cracked return fitting, algae present…" style="min-height:72px;"></textarea>
               </div>
             </div>
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Closing" /><span>Pool Closing</span></label>
-            <!-- ── Closing Checklist ── -->
+
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Closing" /><span>❄️ Pool Closing</span></label>
             <div class="extra-fields" id="extra-closing" style="display:none;">
               <div class="extra-title">❄️ Closing Checklist</div>
               <div class="open-check-grid">
@@ -414,14 +500,10 @@
                 <textarea name="closing_issues" placeholder="e.g. Cover has a tear, needs new anchors, heater not draining well…" style="min-height:72px;"></textarea>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="svc-group">
-          <span class="svc-group-label">Equipment</span>
-          <div class="svc-check-list">
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Equipment Repair / Install" /><span>Equipment Repair / Install</span></label>
-            <!-- ── Equipment Details ── -->
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Spa Opening" /><span>🛁 Spa Opening</span></label>
+
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Equipment Repair / Install" /><span>⚙️ Equipment Repair / Install</span></label>
             <div class="extra-fields" id="extra-equipment" style="display:none;">
               <div class="extra-title">⚙️ Equipment Details</div>
               <div class="field">
@@ -445,36 +527,13 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="svc-group">
-          <span class="svc-group-label">Repairs &amp; Plumbing</span>
-          <div class="svc-check-list">
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Plumbing Repair" /><span>Plumbing Repair</span></label>
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Liner Repair / Replacement" /><span>Liner Repair / Replacement</span></label>
-          </div>
-        </div>
-
-        <div class="svc-group">
-          <span class="svc-group-label">Cleaning &amp; Chemicals</span>
-          <div class="svc-check-list">
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Spot Cleaning" /><span>Spot Cleaning</span></label>
-          </div>
-        </div>
-
-        <div class="svc-group">
-          <span class="svc-group-label">Inspections &amp; Calls</span>
-          <div class="svc-check-list">
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Inspection" /><span>Pool Inspection</span></label>
-            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Service Call / Troubleshooting" /><span>Service Call / Troubleshooting</span></label>
-          </div>
-        </div>
-
-        <div class="svc-group">
-          <span class="svc-group-label">Other</span>
-          <div class="svc-check-list">
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Plumbing Repair" /><span>🔩 Plumbing Repair</span></label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Liner Repair / Replacement" /><span>🏊 Liner Repair / Replacement</span></label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Pool Inspection" /><span>🔍 Pool Inspection</span></label>
+            <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Service Call / Troubleshooting" /><span>📞 Service Call / Troubleshooting</span></label>
             <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Other" /><span>Other (describe below)</span></label>
+
           </div>
         </div>
 
@@ -487,6 +546,26 @@
       <div class="field-error">Please describe the work.</div>
     </div>
   </div>
+
+  <!-- ── Weekly Maintenance Checklist ── -->
+  <div class="card" id="weekly-checklist-card" style="display:none;">
+    <div class="card-title">🔄 Weekly Maintenance Checklist</div>
+    <div class="check-grid">
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Vacuumed" /><span>Vacuumed</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Waste vacuum" /><span>Waste vacuum</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Backwash / Filter cleaned" /><span>Backwash / Filter cleaned</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Chemicals added" /><span>Chemicals added</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Chemicals checked / tested" /><span>Chemicals checked / tested</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Skimmer baskets cleaned" /><span>Skimmer baskets cleaned</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Pump basket cleaned" /><span>Pump basket cleaned</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Leaf net" /><span>Leaf net</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Leaf raked" /><span>Leaf raked</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Brush walls &amp; floor" /><span>Brush walls &amp; floor</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Water level checked" /><span>Water level checked</span></label>
+      <label class="check-item"><input type="checkbox" name="weekly_checklist[]" value="Equipment running properly" /><span>Equipment running properly</span></label>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">Chemicals Added <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(tap + to set quantity)</span></div>
     <input type="hidden" name="chemicals_used" id="chemicals_used" />
@@ -496,6 +575,16 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>gallons</option><option>lbs</option><option>bags</option><option>oz</option><option>tablets</option></select>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Muriatic Acid" data-step="0.5">
+        <span class="chem-name">Muriatic Acid</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <select class="chem-unit"><option>gallons</option><option>quarts</option><option>oz</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -504,6 +593,7 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>lbs</option><option>oz</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -512,6 +602,7 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>lbs</option><option>oz</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -520,6 +611,7 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>lbs</option><option>oz</option><option>gallons</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -528,6 +620,7 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>lbs</option><option>oz</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -536,6 +629,7 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>bags</option><option>lbs</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -544,6 +638,16 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
+          <select class="chem-unit"><option>oz</option><option>quarts</option><option>bottles</option></select>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Calcium Hardness" data-step="0.5">
+        <span class="chem-name">Calcium Hardness</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <select class="chem-unit"><option>lbs</option><option>oz</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -605,7 +709,7 @@
       </svg>
       Tap to add photos
     </label>
-    <input type="file" id="photoInput" name="photos" accept="image/*" multiple capture="environment" />
+    <input type="file" id="photoInput" name="photos" accept="image/*" multiple />
     <div id="photoPreview"></div>
   </div>
   <div class="card">
@@ -625,6 +729,25 @@
     document.getElementById('jt-weekly').classList.toggle('selected',  val === 'Weekly Maintenance');
     document.getElementById('jt-service').classList.toggle('selected', val === 'Service Work');
     document.getElementById('jt-error').style.display = 'none';
+    document.getElementById('weekly-checklist-card').style.display = (val === 'Weekly Maintenance') ? 'block' : 'none';
+    document.getElementById('spa-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
+    if (val !== 'Weekly Maintenance') {
+      document.getElementById('weekly_service_includes').value = '';
+      document.getElementById('spa-pool-only').classList.remove('selected');
+      document.getElementById('spa-pool-spa').classList.remove('selected');
+    }
+  }
+  function toggleOtherServices() {
+    var panel = document.getElementById('other-svc-panel');
+    var btn   = document.getElementById('other-svc-btn');
+    var isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('open', !isOpen);
+  }
+  function selectWeeklySpa(val) {
+    document.getElementById('weekly_service_includes').value = val;
+    document.getElementById('spa-pool-only').classList.toggle('selected', val === 'Pool only');
+    document.getElementById('spa-pool-spa').classList.toggle('selected', val === 'Pool + Spa');
   }
 
   var equipmentJobs = ['Equipment Repair / Install'];
@@ -635,6 +758,7 @@
     // ── Opening / Closing: already positioned right after their checkbox, just show/hide ──
     document.getElementById('extra-opening').style.display = checked.indexOf('Pool Opening') > -1 ? 'block' : 'none';
     document.getElementById('extra-closing').style.display = checked.indexOf('Pool Closing') > -1 ? 'block' : 'none';
+    document.getElementById('extra-cleaning').style.display = checked.indexOf('Cleaning') > -1 ? 'block' : 'none';
 
     // ── Equipment: move the panel to sit directly after whichever row was just checked ──
     var equipPanel = document.getElementById('extra-equipment');
@@ -762,21 +886,26 @@
   function buildChemSummary() {
     var parts = [];
     document.querySelectorAll('.chem-row').forEach(function(row) {
-      var qty = parseInt(row.querySelector('.step-count').textContent, 10);
-      if (qty > 0) parts.push(row.getAttribute('data-chem') + ' ×' + qty);
+      var qty = parseFloat(row.querySelector('.step-count').textContent);
+      if (qty > 0) {
+        var unitEl = row.querySelector('.chem-unit');
+        var unit = unitEl ? unitEl.value : '';
+        parts.push(row.getAttribute('data-chem') + ' ×' + qty + (unit ? ' ' + unit : ''));
+      }
     });
     document.getElementById('chemicals_used').value = parts.join(', ');
   }
   document.querySelectorAll('.chem-row').forEach(function(row) {
     var countEl = row.querySelector('.step-count');
+    var step = parseFloat(row.getAttribute('data-step') || '1');
     row.querySelector('.step-plus').addEventListener('click', function() {
-      var n = parseInt(countEl.textContent, 10) + 1;
+      var n = Math.round((parseFloat(countEl.textContent) + step) * 10) / 10;
       countEl.textContent = n;
       row.classList.toggle('active', n > 0);
       buildChemSummary();
     });
     row.querySelector('.step-minus').addEventListener('click', function() {
-      var n = Math.max(0, parseInt(countEl.textContent, 10) - 1);
+      var n = Math.max(0, Math.round((parseFloat(countEl.textContent) - step) * 10) / 10);
       countEl.textContent = n;
       row.classList.toggle('active', n > 0);
       buildChemSummary();
@@ -793,10 +922,19 @@
     document.getElementById('jt-service').classList.remove('selected');
     document.getElementById('jt-error').style.display = 'none';
     document.querySelectorAll('input[name="service_type[]"]').forEach(function(cb){ cb.checked = false; });
-    ['extra-equipment','extra-opening','extra-closing'].forEach(id => {
+    ['extra-equipment','extra-opening','extra-closing','extra-cleaning'].forEach(id => {
       var p = document.getElementById(id);
       if (p) p.style.display = 'none';
     });
+    document.getElementById('weekly-checklist-card').style.display = 'none';
+    document.getElementById('spa-row').style.display = 'none';
+    document.getElementById('other-svc-panel').style.display = 'none';
+    document.getElementById('other-svc-btn').classList.remove('open');
+    document.getElementById('weekly_service_includes').value = '';
+    document.getElementById('spa-pool-only').classList.remove('selected');
+    document.getElementById('spa-pool-spa').classList.remove('selected');
+    document.querySelectorAll('input[name="weekly_checklist[]"]').forEach(function(cb){ cb.checked = false; });
+    document.querySelectorAll('input[name="cleaning[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('.chem-row').forEach(function(row) {
       row.querySelector('.step-count').textContent = '0';
       row.classList.remove('active');
