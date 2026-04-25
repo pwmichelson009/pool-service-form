@@ -220,7 +220,7 @@
     }
     /* Chemical steppers */
     .chem-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-    @media (max-width: 360px) { .chem-list { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .chem-list { grid-template-columns: 1fr; } }
     .chem-row {
       display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
       background: #f5f8fc; border: 1.5px solid #dde3ea;
@@ -386,6 +386,15 @@
           <span class="jt-name">Weekly Client</span>
           <span class="jt-sub">Regular maintenance visit</span>
         </button>
+        <!-- Frequency (Weekly / Biweekly) stacks below Weekly button -->
+        <div class="spa-row" id="freq-row">
+          <button type="button" class="spa-opt" id="freq-weekly" onclick="selectFrequency('Weekly')">
+            <span class="spa-icon">🗓️</span> Weekly
+          </button>
+          <button type="button" class="spa-opt spa-plus" id="freq-biweekly" onclick="selectFrequency('Biweekly')">
+            <span class="spa-icon">📆</span> Biweekly
+          </button>
+        </div>
         <!-- Pool / Spa options stack below Weekly button -->
         <div class="spa-row" id="spa-row">
           <button type="button" class="spa-opt" id="spa-pool-only" onclick="selectWeeklySpa('Pool only')">
@@ -405,6 +414,7 @@
       </div>
     </div>
     <input type="hidden" name="weekly_service_includes" id="weekly_service_includes" />
+    <input type="hidden" name="visit_frequency" id="visit_frequency" />
     <div class="jt-error" id="jt-error">Please select a visit type.</div>
   </div>
 
@@ -575,7 +585,16 @@
         <div class="stepper">
           <button type="button" class="step-btn step-minus">−</button>
           <span class="step-count">0</span>
-          <select class="chem-unit"><option>gallons</option><option>lbs</option><option>bags</option><option>oz</option><option>tablets</option></select>
+          <select class="chem-unit"><option>gallons</option><option>lbs</option><option>bags</option><option>oz</option></select>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Chlorine Tablets">
+        <span class="chem-name">Chlorine Tablets</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <select class="chem-unit"><option>tablets</option><option>lbs</option><option>bucket</option></select>
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
@@ -731,11 +750,25 @@
     document.getElementById('jt-error').style.display = 'none';
     document.getElementById('weekly-checklist-card').style.display = (val === 'Weekly Maintenance') ? 'block' : 'none';
     document.getElementById('spa-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
-    if (val !== 'Weekly Maintenance') {
+    document.getElementById('freq-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
+    if (val === 'Weekly Maintenance') {
+      // Default to Weekly if no frequency picked yet
+      if (!document.getElementById('visit_frequency').value) {
+        selectFrequency('Weekly');
+      }
+    } else {
       document.getElementById('weekly_service_includes').value = '';
       document.getElementById('spa-pool-only').classList.remove('selected');
       document.getElementById('spa-pool-spa').classList.remove('selected');
+      document.getElementById('visit_frequency').value = '';
+      document.getElementById('freq-weekly').classList.remove('selected');
+      document.getElementById('freq-biweekly').classList.remove('selected');
     }
+  }
+  function selectFrequency(val) {
+    document.getElementById('visit_frequency').value = val;
+    document.getElementById('freq-weekly').classList.toggle('selected',  val === 'Weekly');
+    document.getElementById('freq-biweekly').classList.toggle('selected', val === 'Biweekly');
   }
   function toggleOtherServices() {
     var panel = document.getElementById('other-svc-panel');
@@ -928,11 +961,15 @@
     });
     document.getElementById('weekly-checklist-card').style.display = 'none';
     document.getElementById('spa-row').style.display = 'none';
+    document.getElementById('freq-row').style.display = 'none';
     document.getElementById('other-svc-panel').style.display = 'none';
     document.getElementById('other-svc-btn').classList.remove('open');
     document.getElementById('weekly_service_includes').value = '';
     document.getElementById('spa-pool-only').classList.remove('selected');
     document.getElementById('spa-pool-spa').classList.remove('selected');
+    document.getElementById('visit_frequency').value = '';
+    document.getElementById('freq-weekly').classList.remove('selected');
+    document.getElementById('freq-biweekly').classList.remove('selected');
     document.querySelectorAll('input[name="weekly_checklist[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('input[name="cleaning[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('.chem-row').forEach(function(row) {
