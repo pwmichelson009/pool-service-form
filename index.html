@@ -550,11 +550,6 @@
       </div>
       <div class="svc-error" id="svc-error">Please select at least one service type.</div>
     </div>
-    <div class="field" id="field-description">
-      <label>Description of Work Done <span class="required-star">*</span></label>
-      <textarea name="description" id="description" placeholder="What was done? Be specific — this becomes the invoice line item." required></textarea>
-      <div class="field-error">Please describe the work.</div>
-    </div>
   </div>
 
   <!-- ── Weekly Maintenance Checklist ── -->
@@ -874,7 +869,6 @@
       { id: 'date_of_service', fieldId: 'field-date' },
       { id: 'crew_member',     fieldId: 'field-crew' },
       { id: 'customer_name',  fieldId: 'field-customer' },
-      { id: 'description',    fieldId: 'field-description' },
     ];
     let valid = true;
     required.forEach(({ id, fieldId }) => {
