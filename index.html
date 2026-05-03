@@ -440,6 +440,10 @@
       <label>Customer Address <span class="hint">(optional — helps with Square lookup)</span></label>
       <input type="text" name="customer_address" placeholder="e.g. 123 Elm St, Mason OH" autocomplete="off" />
     </div>
+    <div class="field">
+      <label>Time on Job <span class="hint">(minutes, optional)</span></label>
+      <input type="number" name="time_on_job" min="5" max="480" step="5" placeholder="e.g. 45" />
+    </div>
   </div>
   <div class="card">
     <div class="card-title">Service Details</div>
@@ -725,6 +729,13 @@
     </label>
     <input type="file" id="photoInput" name="photos" accept="image/*" multiple />
     <div id="photoPreview"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Parts &amp; Materials <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional)</span></div>
+    <div class="field">
+      <label>Parts / Materials Used <span class="hint">(gaskets, fittings, filters, PVC, etc.)</span></label>
+      <textarea name="parts_materials" placeholder="e.g. 2&quot; PVC union, Hayward gasket kit, 1 bag DE…" style="min-height:72px;"></textarea>
+    </div>
   </div>
   <div class="card">
     <div class="card-title">Notes</div>
