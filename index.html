@@ -248,21 +248,6 @@
     }
     .chem-row.active .step-btn { border-color: #0a6ebd; }
     .chem-row.active .step-count { border-color: #0a6ebd; color: #0a6ebd; }
-    .photo-label {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      border: 2px dashed #c5d5e8; border-radius: 10px; padding: 18px;
-      color: #6b8cae; font-size: 0.88rem; font-weight: 500;
-      cursor: pointer; transition: border-color 0.15s, background 0.15s;
-      text-align: center;
-    }
-    .photo-label:hover { border-color: #0a6ebd; background: #f0f7ff; }
-    .photo-label svg { flex-shrink: 0; }
-    #photoInput { display: none; }
-    #photoPreview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    #photoPreview img {
-      width: 80px; height: 80px; object-fit: cover;
-      border-radius: 8px; border: 2px solid #dde3ea;
-    }
     .submit-btn {
       display: block; width: 100%; padding: 16px;
       background: #0a6ebd; color: white;
@@ -436,14 +421,6 @@
       <input type="text" name="customer_name" id="customer_name" placeholder="e.g. Scott Mitchell" required autocomplete="off" />
       <div class="field-error">Please enter the customer name.</div>
     </div>
-    <div class="field">
-      <label>Customer Address <span class="hint">(optional — helps with Square lookup)</span></label>
-      <input type="text" name="customer_address" placeholder="e.g. 123 Elm St, Mason OH" autocomplete="off" />
-    </div>
-    <div class="field">
-      <label>Time on Job <span class="hint">(minutes, optional)</span></label>
-      <input type="number" name="time_on_job" min="5" max="480" step="5" placeholder="e.g. 45" />
-    </div>
   </div>
   <div class="card">
     <div class="card-title">Service Details</div>
@@ -588,6 +565,15 @@
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
+      <div class="chem-row" data-chem="Non-Chlorinated Shock" data-step="0.5">
+        <span class="chem-name">Non-Chlorinated Shock</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <select class="chem-unit"><option>lbs</option><option>oz</option><option>bags</option></select>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
       <div class="chem-row" data-chem="Chlorine Tablets">
         <span class="chem-name">Chlorine Tablets</span>
         <div class="stepper">
@@ -719,25 +705,6 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Photos <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional — before/after, parts, equipment)</span></div>
-    <label class="photo-label" for="photoInput">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-        <circle cx="12" cy="13" r="4"/>
-      </svg>
-      Tap to add photos
-    </label>
-    <input type="file" id="photoInput" name="photos" accept="image/*" multiple />
-    <div id="photoPreview"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Parts &amp; Materials <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional)</span></div>
-    <div class="field">
-      <label>Parts / Materials Used <span class="hint">(gaskets, fittings, filters, PVC, etc.)</span></label>
-      <textarea name="parts_materials" placeholder="e.g. 2&quot; PVC union, Hayward gasket kit, 1 bag DE…" style="min-height:72px;"></textarea>
-    </div>
-  </div>
-  <div class="card">
     <div class="card-title">Notes</div>
     <div class="field">
       <label>Additional Notes <span class="hint">(anything Peter should know)</span></label>
@@ -859,19 +826,6 @@
   const mm = String(today.getMonth() + 1).padStart(2, '0');
   const dd = String(today.getDate()).padStart(2, '0');
   dateField.value = `${yyyy}-${mm}-${dd}`;
-  document.getElementById('photoInput').addEventListener('change', function () {
-    const preview = document.getElementById('photoPreview');
-    preview.innerHTML = '';
-    Array.from(this.files).slice(0, 5).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
   const form = document.getElementById('serviceForm');
   const submitBtn = document.getElementById('submitBtn');
   form.addEventListener('submit', async function (e) {
@@ -910,15 +864,57 @@
       document.querySelector('.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+
+    // Stamp a client-side submission ID so we can trace this row in the sheet later.
+    let subIdEl = document.getElementById('submission_id');
+    if (!subIdEl) {
+      subIdEl = document.createElement('input');
+      subIdEl.type = 'hidden';
+      subIdEl.name = 'submission_id';
+      subIdEl.id = 'submission_id';
+      form.appendChild(subIdEl);
+    }
+    subIdEl.value = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting…';
-    form.submit();
-    setTimeout(function() {
+
+    // Real submit: fetch with no-cors (Apps Script web apps don't return CORS headers,
+    // so we can't read the response body — but a network failure DOES throw, which is
+    // the most common failure mode (offline phone, dropped connection, DNS hiccup).
+    // 15s timeout via AbortController catches stalled connections.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    try {
+      const formData = new FormData(form);
+      await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
       form.style.display = 'none';
       const success = document.getElementById('successScreen');
       success.style.display = 'block';
       success.scrollIntoView({ behavior: 'smooth' });
-    }, 1500);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Service Record';
+      const reason = (err && err.name === 'AbortError') ? 'connection timed out' : (err.message || 'network error');
+      const msg = 'Submission did NOT land (' + reason + '). Check your signal and tap Submit again. If this keeps happening, text Peter the customer name + what you did so the job is logged.';
+      // Use a styled error banner if there's not one already
+      let errBanner = document.getElementById('submit-error-banner');
+      if (!errBanner) {
+        errBanner = document.createElement('div');
+        errBanner.id = 'submit-error-banner';
+        errBanner.style.cssText = 'background:#fff1f0; border:2px solid #e53e3e; color:#9b2c2c; padding:14px 16px; border-radius:10px; margin:12px 0; font-weight:500; line-height:1.4;';
+        submitBtn.parentNode.insertBefore(errBanner, submitBtn);
+      }
+      errBanner.textContent = msg;
+      errBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   });
   // ── Chemical steppers ──
   function buildChemSummary() {
@@ -953,8 +949,11 @@
   function resetForm() {
     form.reset();
     dateField.value = `${yyyy}-${mm}-${dd}`;
-    document.getElementById('photoPreview').innerHTML = '';
     document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+    const errBanner = document.getElementById('submit-error-banner');
+    if (errBanner) errBanner.remove();
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Service Record';
     document.getElementById('job_category').value = '';
     document.getElementById('jt-weekly').classList.remove('selected');
     document.getElementById('jt-service').classList.remove('selected');
