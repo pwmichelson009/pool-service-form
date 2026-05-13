@@ -347,14 +347,6 @@
   <h1>Aquamarine Pool Company</h1>
   <p>Record a service job for invoicing</p>
 </div>
-<div id="successScreen" class="card">
-  <div class="check-circle">
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-  </div>
-  <h2>Job Logged!</h2>
-  <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
-  <button class="submit-another" onclick="resetForm()">Submit Another Job</button>
-</div>
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 <form id="serviceForm" action="https://script.google.com/macros/s/AKfycbxsX43q3n05_IEtOMPMdZnWNW3gXXtIebxuuSQXxOs3KQtLmF3ldjRNBBeZFAQw3CdPtA/exec" method="POST" target="hidden_iframe">
   <input type="hidden" name="form_type" value="SERVICE_WORK" />
@@ -714,6 +706,15 @@
   <div class="card">
     <button type="submit" class="submit-btn" id="submitBtn">Submit Service Record</button>
   </div>
+  <div id="successScreen" class="card">
+    <div class="check-circle">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Job Logged!</h2>
+    <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
+    <button class="submit-another" onclick="resetForm()">Log Another Job</button>
+    <p style="margin-top:14px; font-size:0.82rem; color:#aaa;">Only had one job? You're done — close this tab.</p>
+  </div>
 </form>
 <script>
   function selectJobType(val) {
@@ -884,7 +885,7 @@
     // the most common failure mode (offline phone, dropped connection, DNS hiccup).
     // 15s timeout via AbortController catches stalled connections.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
     try {
       const formData = new FormData(form);
       await fetch(form.action, {
@@ -903,7 +904,7 @@
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Service Record';
       const reason = (err && err.name === 'AbortError') ? 'connection timed out' : (err.message || 'network error');
-      const msg = 'Submission did NOT land (' + reason + '). Check your signal and tap Submit again. If this keeps happening, text Peter the customer name + what you did so the job is logged.';
+      const msg = 'Submission did NOT land (' + reason + '). Do NOT refresh this page — your entries are still here. Check your signal and tap Submit again. If it keeps failing, text Peter the customer name + what you did.';
       // Use a styled error banner if there's not one already
       let errBanner = document.getElementById('submit-error-banner');
       if (!errBanner) {
