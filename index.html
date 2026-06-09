@@ -650,7 +650,7 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Water Chemistry Readings <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record before adding chemicals)</span></div>
+    <div class="card-title"><span id="chem-card-title">Water Chemistry Readings</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record before adding chemicals)</span></div>
     <div class="readings-grid">
       <div class="reading-field">
         <label>pH <span class="ideal">ideal 7.4 – 7.6</span></label>
@@ -685,6 +685,53 @@
       <div class="reading-field">
         <label>Water Clarity</label>
         <select name="water_clarity" class="reading-select">
+          <option value="" disabled selected>Select…</option>
+          <option>Crystal clear</option>
+          <option>Slightly cloudy</option>
+          <option>Cloudy</option>
+          <option>Very cloudy / can't see bottom</option>
+          <option>Green / algae</option>
+          <option>Black algae present</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="spa-chem-card" style="display:none;">
+    <div class="card-title">🛁 Spa — Water Chemistry Readings <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record the spa separately)</span></div>
+    <div class="readings-grid">
+      <div class="reading-field">
+        <label>pH <span class="ideal">ideal 7.4 – 7.6</span></label>
+        <input type="number" name="spa_reading_ph" step="0.1" min="6" max="9" placeholder="e.g. 7.4" />
+      </div>
+      <div class="reading-field chlorine-combined">
+        <label>Chlorine <span class="ideal">Free ideal 1 – 3 ppm</span></label>
+        <div class="chlorine-inputs">
+          <div class="chlorine-sub">
+            <span class="chlorine-sub-label">Free</span>
+            <input type="number" name="spa_reading_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+          </div>
+          <div class="chlorine-divider-line"></div>
+          <div class="chlorine-sub">
+            <span class="chlorine-sub-label">Total</span>
+            <input type="number" name="spa_reading_total_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+          </div>
+        </div>
+      </div>
+      <div class="reading-field">
+        <label>Total Alkalinity <span class="ideal">ideal 80 – 120 ppm</span></label>
+        <input type="number" name="spa_reading_alkalinity" step="1" min="0" max="500" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>CYA / Stabilizer <span class="ideal">ideal 30 – 50 ppm</span></label>
+        <input type="number" name="spa_reading_cya" step="1" min="0" max="300" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Salt Level <span class="ideal">ideal 2700 – 3400 ppm</span></label>
+        <input type="number" name="spa_reading_salt" step="10" min="0" max="6000" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Water Clarity</label>
+        <select name="spa_water_clarity" class="reading-select">
           <option value="" disabled selected>Select…</option>
           <option>Crystal clear</option>
           <option>Slightly cloudy</option>
@@ -738,6 +785,7 @@
       document.getElementById('freq-weekly').classList.remove('selected');
       document.getElementById('freq-biweekly').classList.remove('selected');
     }
+    updateSpaChem();
   }
   function selectFrequency(val) {
     document.getElementById('visit_frequency').value = val;
@@ -755,6 +803,40 @@
     document.getElementById('weekly_service_includes').value = val;
     document.getElementById('spa-pool-only').classList.toggle('selected', val === 'Pool only');
     document.getElementById('spa-pool-spa').classList.toggle('selected', val === 'Pool + Spa');
+    updateSpaChem();
+  }
+  // Show the spa water-chemistry chart only on a Weekly Client + Pool + Spa visit.
+  function updateSpaChem() {
+    var isWeekly  = document.getElementById('job_category').value === 'Weekly Maintenance';
+    var isPoolSpa = document.getElementById('weekly_service_includes').value === 'Pool + Spa';
+    var show = isWeekly && isPoolSpa;
+    document.getElementById('spa-chem-card').style.display = show ? 'block' : 'none';
+    document.getElementById('chem-card-title').textContent = show ? 'Pool — Water Chemistry Readings' : 'Water Chemistry Readings';
+  }
+  // On a Pool + Spa weekly, gather the spa readings into one line appended to Notes,
+  // so they land in the log even though the backend only stores the pool reading fields.
+  function foldSpaReadingsIntoNotes() {
+    var card = document.getElementById('spa-chem-card');
+    if (!card || card.style.display === 'none') return;
+    function v(name) { var el = document.querySelector('[name="' + name + '"]'); return el && el.value.trim() ? el.value.trim() : ''; }
+    var ph    = v('spa_reading_ph');
+    var clF   = v('spa_reading_chlorine');
+    var clT   = v('spa_reading_total_chlorine');
+    var alk   = v('spa_reading_alkalinity');
+    var cya   = v('spa_reading_cya');
+    var salt  = v('spa_reading_salt');
+    var clar  = v('spa_water_clarity');
+    var parts = [];
+    if (ph)   parts.push('pH ' + ph);
+    if (clF || clT) parts.push('Cl ' + (clF || '–') + '/' + (clT || '–'));
+    if (alk)  parts.push('Alk ' + alk);
+    if (cya)  parts.push('CYA ' + cya);
+    if (salt) parts.push('Salt ' + salt);
+    if (clar) parts.push('Clarity ' + clar);
+    if (!parts.length) return;
+    var line = 'Spa readings — ' + parts.join(', ');
+    var notes = document.querySelector('[name="notes"]');
+    if (notes) notes.value = notes.value.trim() ? (notes.value.trim() + '\n' + line) : line;
   }
 
   var equipmentJobs = ['Equipment Repair / Install'];
@@ -877,6 +959,10 @@
     }
     subIdEl.value = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
+    // ── Spa readings: the Google script only stores the 7 POOL reading fields, so on a
+    // Pool + Spa weekly we fold any spa readings into the Notes field so they're captured. ──
+    foldSpaReadingsIntoNotes();
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting…';
 
@@ -982,6 +1068,8 @@
       row.classList.remove('active');
     });
     document.getElementById('chemicals_used').value = '';
+    document.getElementById('job_category').value = '';
+    updateSpaChem();
     document.getElementById('successScreen').style.display = 'none';
     form.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
