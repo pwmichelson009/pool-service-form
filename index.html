@@ -706,16 +706,16 @@
   <div class="card">
     <button type="submit" class="submit-btn" id="submitBtn">Submit Service Record</button>
   </div>
-  <div id="successScreen" class="card">
-    <div class="check-circle">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <h2>Job Logged!</h2>
-    <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
-    <button class="submit-another" onclick="resetForm()">Log Another Job</button>
-    <p style="margin-top:14px; font-size:0.82rem; color:#aaa;">Only had one job? You're done — close this tab.</p>
-  </div>
 </form>
+<div id="successScreen" class="card">
+  <div class="check-circle">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Job Logged!</h2>
+  <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
+  <button class="submit-another" onclick="resetForm()">Log Another Job</button>
+  <p style="margin-top:14px; font-size:0.82rem; color:#aaa;">Only had one job? You're done — close this tab.</p>
+</div>
 <script>
   function selectJobType(val) {
     document.getElementById('job_category').value = val;
