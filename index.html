@@ -833,10 +833,14 @@
     if (cya)  parts.push('CYA ' + cya);
     if (salt) parts.push('Salt ' + salt);
     if (clar) parts.push('Clarity ' + clar);
-    if (!parts.length) return;
-    var line = 'Spa readings — ' + parts.join(', ');
     var notes = document.querySelector('[name="notes"]');
-    if (notes) notes.value = notes.value.trim() ? (notes.value.trim() + '\n' + line) : line;
+    if (!notes) return;
+    // Drop any previously folded spa line first, so a retried submit (failed
+    // network → tap Submit again) doesn't stack duplicate lines.
+    var kept = notes.value.split('\n').filter(function(l){ return l.indexOf('Spa readings — ') !== 0; }).join('\n').trim();
+    if (!parts.length) { notes.value = kept; return; }
+    var line = 'Spa readings — ' + parts.join(', ');
+    notes.value = kept ? (kept + '\n' + line) : line;
   }
 
   var equipmentJobs = ['Equipment Repair / Install'];
@@ -969,7 +973,7 @@
     // Real submit: fetch with no-cors (Apps Script web apps don't return CORS headers,
     // so we can't read the response body — but a network failure DOES throw, which is
     // the most common failure mode (offline phone, dropped connection, DNS hiccup).
-    // 15s timeout via AbortController catches stalled connections.
+    // 45s timeout via AbortController catches stalled connections.
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 45000);
     try {
@@ -1036,6 +1040,9 @@
   function resetForm() {
     form.reset();
     dateField.value = `${yyyy}-${mm}-${dd}`;
+    // Drop any extra equipment rows added on the previous job, keeping the first.
+    document.querySelectorAll('.equip-row').forEach(function(row, i){ if (i > 0) row.remove(); });
+    updateRemoveBtns();
     document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
     const errBanner = document.getElementById('submit-error-banner');
     if (errBanner) errBanner.remove();
