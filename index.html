@@ -371,6 +371,9 @@
           <button type="button" class="spa-opt spa-plus" id="freq-biweekly" onclick="selectFrequency('Biweekly')">
             <span class="spa-icon">📆</span> Biweekly
           </button>
+          <button type="button" class="spa-opt spa-plus" id="freq-monthly" onclick="selectFrequency('Monthly')">
+            <span class="spa-icon">📅</span> Monthly
+          </button>
         </div>
         <!-- Pool / Spa options stack below Weekly button -->
         <div class="spa-row" id="spa-row">
@@ -638,6 +641,15 @@
           <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
+      <div class="chem-row" data-chem="Commercial Phosphate" data-step="0.25">
+        <span class="chem-name">Commercial Phosphate</span>
+        <div class="stepper">
+          <button type="button" class="step-btn step-minus">−</button>
+          <span class="step-count">0</span>
+          <select class="chem-unit"><option>bottles</option></select>
+          <button type="button" class="step-btn step-plus">+</button>
+        </div>
+      </div>
       <div class="chem-row" data-chem="Calcium Hardness" data-step="0.5">
         <span class="chem-name">Calcium Hardness</span>
         <div class="stepper">
@@ -784,6 +796,7 @@
       document.getElementById('visit_frequency').value = '';
       document.getElementById('freq-weekly').classList.remove('selected');
       document.getElementById('freq-biweekly').classList.remove('selected');
+      document.getElementById('freq-monthly').classList.remove('selected');
     }
     updateSpaChem();
   }
@@ -791,6 +804,7 @@
     document.getElementById('visit_frequency').value = val;
     document.getElementById('freq-weekly').classList.toggle('selected',  val === 'Weekly');
     document.getElementById('freq-biweekly').classList.toggle('selected', val === 'Biweekly');
+    document.getElementById('freq-monthly').classList.toggle('selected',  val === 'Monthly');
   }
   function toggleOtherServices() {
     var panel = document.getElementById('other-svc-panel');
@@ -1068,6 +1082,7 @@
     document.getElementById('visit_frequency').value = '';
     document.getElementById('freq-weekly').classList.remove('selected');
     document.getElementById('freq-biweekly').classList.remove('selected');
+    document.getElementById('freq-monthly').classList.remove('selected');
     document.querySelectorAll('input[name="weekly_checklist[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('input[name="cleaning[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('.chem-row').forEach(function(row) {
