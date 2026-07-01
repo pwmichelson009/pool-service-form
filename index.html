@@ -339,6 +339,7 @@
     .field.has-error > textarea { border-color: #e53e3e; }
     .field.has-error #svc-checklist { border: 1.5px solid #e53e3e; border-radius: 10px; padding: 8px; }
     .field.has-error .field-error { display: block; }
+    .reading-field.has-error input { border-color: #e53e3e; }
   </style>
 </head>
 <body>
@@ -662,17 +663,17 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-title"><span id="chem-card-title">Water Chemistry Readings</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record before adding chemicals)</span></div>
+    <div class="card-title"><span id="chem-card-title">Water Chemistry Readings</span> <span id="chem-optional-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record before adding chemicals)</span><span id="chem-required-note" style="display:none;font-weight:600;text-transform:none;letter-spacing:0;color:#e53e3e;font-size:0.75rem;">(pH &amp; Free Chlorine required)</span></div>
     <div class="readings-grid">
       <div class="reading-field">
-        <label>pH <span class="ideal">ideal 7.4 – 7.6</span></label>
+        <label>pH <span class="required-star" id="ph-req" style="display:none">*</span> <span class="ideal">ideal 7.4 – 7.6</span></label>
         <input type="number" name="reading_ph" step="0.1" min="6" max="9" placeholder="e.g. 7.4" />
       </div>
       <div class="reading-field chlorine-combined">
         <label>Chlorine <span class="ideal">Free ideal 1 – 3 ppm</span></label>
         <div class="chlorine-inputs">
           <div class="chlorine-sub">
-            <span class="chlorine-sub-label">Free</span>
+            <span class="chlorine-sub-label">Free <span class="required-star" id="cl-req" style="display:none">*</span></span>
             <input type="number" name="reading_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
           </div>
           <div class="chlorine-divider-line"></div>
@@ -707,6 +708,7 @@
         </select>
       </div>
     </div>
+    <div class="svc-error" id="chem-error" style="display:none;">On a Weekly Client visit, pH and Free Chlorine are required before you can submit.</div>
   </div>
   <div class="card" id="spa-chem-card" style="display:none;">
     <div class="card-title">🛁 Spa — Water Chemistry Readings <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record the spa separately)</span></div>
@@ -784,6 +786,12 @@
     document.getElementById('weekly-checklist-card').style.display = (val === 'Weekly Maintenance') ? 'block' : 'none';
     document.getElementById('spa-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
     document.getElementById('freq-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
+    var _wk = (val === 'Weekly Maintenance');
+    document.getElementById('ph-req').style.display = _wk ? 'inline' : 'none';
+    document.getElementById('cl-req').style.display = _wk ? 'inline' : 'none';
+    document.getElementById('chem-optional-note').style.display = _wk ? 'none' : 'inline';
+    document.getElementById('chem-required-note').style.display = _wk ? 'inline' : 'none';
+    if (!_wk) { document.getElementById('chem-error').style.display = 'none'; }
     if (val === 'Weekly Maintenance') {
       // Default to Weekly if no frequency picked yet
       if (!document.getElementById('visit_frequency').value) {
@@ -961,6 +969,22 @@
       document.getElementById('field-service-type').classList.add('has-error');
       valid = false;
     }
+    if (document.getElementById('job_category').value === 'Weekly Maintenance') {
+      var _ph = document.querySelector('input[name="reading_ph"]');
+      var _cl = document.querySelector('input[name="reading_chlorine"]');
+      var _phMiss = !_ph.value.trim();
+      var _clMiss = !_cl.value.trim();
+      if (_phMiss || _clMiss) {
+        document.getElementById('chem-error').style.display = 'block';
+        if (_phMiss) _ph.closest('.reading-field').classList.add('has-error');
+        if (_clMiss) _cl.closest('.reading-field').classList.add('has-error');
+        valid = false;
+      } else {
+        document.getElementById('chem-error').style.display = 'none';
+        _ph.closest('.reading-field').classList.remove('has-error');
+        _cl.closest('.reading-field').classList.remove('has-error');
+      }
+    }
     if (!valid) {
       document.querySelector('.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
@@ -1066,6 +1090,11 @@
     document.getElementById('jt-weekly').classList.remove('selected');
     document.getElementById('jt-service').classList.remove('selected');
     document.getElementById('jt-error').style.display = 'none';
+    document.getElementById('chem-error').style.display = 'none';
+    document.getElementById('ph-req').style.display = 'none';
+    document.getElementById('cl-req').style.display = 'none';
+    document.getElementById('chem-optional-note').style.display = 'inline';
+    document.getElementById('chem-required-note').style.display = 'none';
     document.querySelectorAll('input[name="service_type[]"]').forEach(function(cb){ cb.checked = false; });
     ['extra-equipment','extra-opening','extra-closing','extra-cleaning'].forEach(id => {
       var p = document.getElementById(id);
