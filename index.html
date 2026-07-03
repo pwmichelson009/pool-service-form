@@ -873,7 +873,7 @@
     // ── Opening / Closing: already positioned right after their checkbox, just show/hide ──
     document.getElementById('extra-opening').style.display = checked.indexOf('Pool Opening') > -1 ? 'block' : 'none';
     document.getElementById('extra-closing').style.display = checked.indexOf('Pool Closing') > -1 ? 'block' : 'none';
-    document.getElementById('extra-cleaning').style.display = checked.indexOf('Cleaning') > -1 ? 'block' : 'none';
+    document.getElementById('extra-cleaning').style.display = (checked.indexOf('Cleaning') > -1 || checked.indexOf('Waste Cleaning') > -1) ? 'block' : 'none';
 
     // ── Equipment: move the panel to sit directly after whichever row was just checked ──
     var equipPanel = document.getElementById('extra-equipment');
