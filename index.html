@@ -229,25 +229,21 @@
     }
     .chem-row.active { border-color: #0a6ebd; background: #e8f0fa; }
     .chem-name { font-size: 0.88rem; font-weight: 500; color: #222; }
-    .stepper { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
-    .step-btn {
-      width: 34px; height: 34px; border: 1.5px solid #c5d5e8;
-      background: white; color: #0a6ebd; font-size: 1.2rem; font-weight: 700;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: background 0.1s; line-height: 1; user-select: none;
+    .stepper { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .chem-qty {
+      width: 60px; height: 38px; text-align: center;
+      font-size: 1.05rem; font-weight: 700; color: #222;
+      border: 1.5px solid #c5d5e8; border-radius: 8px;
+      background: white; padding: 0 4px;
+      -webkit-appearance: none; appearance: none;
       -webkit-tap-highlight-color: transparent;
     }
-    .step-btn:first-child { border-radius: 8px 0 0 8px; }
-    .step-btn:last-child  { border-radius: 0 8px 8px 0; }
-    .step-btn:active { background: #e8f0fa; }
-    .step-count {
-      min-width: 36px; text-align: center; font-size: 1rem; font-weight: 700;
-      color: #222; border-top: 1.5px solid #c5d5e8; border-bottom: 1.5px solid #c5d5e8;
-      background: white; padding: 0 4px; height: 34px;
-      display: flex; align-items: center; justify-content: center;
+    .chem-qty::placeholder { color: #b7c2d0; font-weight: 500; }
+    .chem-qty:focus {
+      outline: none; border-color: #0a6ebd;
+      box-shadow: 0 0 0 3px rgba(10,110,189,0.12);
     }
-    .chem-row.active .step-btn { border-color: #0a6ebd; }
-    .chem-row.active .step-count { border-color: #0a6ebd; color: #0a6ebd; }
+    .chem-row.active .chem-qty { border-color: #0a6ebd; color: #0a6ebd; }
     .submit-btn {
       display: block; width: 100%; padding: 16px;
       background: #0a6ebd; color: white;
@@ -311,19 +307,15 @@
     .chem-unit {
       font-size: 0.78rem;
       padding: 0 6px;
-      border: none;
-      border-left: 1.5px solid #c5d5e8;
-      border-right: 1.5px solid #c5d5e8;
-      border-top: 1.5px solid #c5d5e8;
-      border-bottom: 1.5px solid #c5d5e8;
-      border-radius: 0;
+      border: 1.5px solid #c5d5e8;
+      border-radius: 8px;
       background: white;
       color: #333;
       flex-shrink: 0;
       -webkit-appearance: none;
       appearance: none;
       min-width: 62px;
-      height: 34px;
+      height: 38px;
       text-align: center;
       cursor: pointer;
     }
@@ -549,115 +541,91 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Chemicals Added <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(tap + to set quantity)</span></div>
+    <div class="card-title">Chemicals Added <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(type the amount)</span></div>
     <input type="hidden" name="chemicals_used" id="chemicals_used" />
     <div class="chem-list">
       <div class="chem-row" data-chem="Chlorine / Shock">
         <span class="chem-name">Chlorine / Shock</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>gallons</option><option>lbs</option><option>bags</option><option>oz</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Non-Chlorinated Shock" data-step="0.5">
         <span class="chem-name">Non-Chlorinated Shock</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>lbs</option><option>oz</option><option>bags</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Chlorine Tablets">
         <span class="chem-name">Chlorine Tablets</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>tablets</option><option>lbs</option><option>bucket</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Muriatic Acid" data-step="0.5">
         <span class="chem-name">Muriatic Acid</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>gallons</option><option>quarts</option><option>oz</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Alkalinity Up">
         <span class="chem-name">Alkalinity Up</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>lbs</option><option>oz</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="pH Up">
         <span class="chem-name">pH Up</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>lbs</option><option>oz</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="pH Down">
         <span class="chem-name">pH Down</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>lbs</option><option>oz</option><option>gallons</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Stabilizer / CYA">
         <span class="chem-name">Stabilizer / CYA</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>lbs</option><option>oz</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Salt">
         <span class="chem-name">Salt</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>bags</option><option>lbs</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Phosphate Remover">
         <span class="chem-name">Phosphate Remover</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>oz</option><option>quarts</option><option>bottles</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Commercial Phosphate" data-step="0.25">
         <span class="chem-name">Commercial Phosphate</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>bottles</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
       <div class="chem-row" data-chem="Calcium Hardness" data-step="0.5">
         <span class="chem-name">Calcium Hardness</span>
         <div class="stepper">
-          <button type="button" class="step-btn step-minus">−</button>
-          <span class="step-count">0</span>
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>lbs</option><option>oz</option></select>
-          <button type="button" class="step-btn step-plus">+</button>
         </div>
       </div>
     </div>
@@ -1049,7 +1017,7 @@
   function buildChemSummary() {
     var parts = [];
     document.querySelectorAll('.chem-row').forEach(function(row) {
-      var qty = parseFloat(row.querySelector('.step-count').textContent);
+      var qty = parseFloat(row.querySelector('.chem-qty').value);
       if (qty > 0) {
         var unitEl = row.querySelector('.chem-unit');
         var unit = unitEl ? unitEl.value : '';
@@ -1059,20 +1027,13 @@
     document.getElementById('chemicals_used').value = parts.join(', ');
   }
   document.querySelectorAll('.chem-row').forEach(function(row) {
-    var countEl = row.querySelector('.step-count');
-    var step = parseFloat(row.getAttribute('data-step') || '1');
-    row.querySelector('.step-plus').addEventListener('click', function() {
-      var n = Math.round((parseFloat(countEl.textContent) + step) * 10) / 10;
-      countEl.textContent = n;
+    var qtyEl = row.querySelector('.chem-qty');
+    qtyEl.addEventListener('input', function() {
+      var n = parseFloat(qtyEl.value);
       row.classList.toggle('active', n > 0);
       buildChemSummary();
     });
-    row.querySelector('.step-minus').addEventListener('click', function() {
-      var n = Math.max(0, Math.round((parseFloat(countEl.textContent) - step) * 10) / 10);
-      countEl.textContent = n;
-      row.classList.toggle('active', n > 0);
-      buildChemSummary();
-    });
+    row.querySelector('.chem-unit').addEventListener('change', buildChemSummary);
   });
 
   function resetForm() {
@@ -1115,7 +1076,7 @@
     document.querySelectorAll('input[name="weekly_checklist[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('input[name="cleaning[]"]').forEach(function(cb){ cb.checked = false; });
     document.querySelectorAll('.chem-row').forEach(function(row) {
-      row.querySelector('.step-count').textContent = '0';
+      row.querySelector('.chem-qty').value = '';
       row.classList.remove('active');
     });
     document.getElementById('chemicals_used').value = '';
