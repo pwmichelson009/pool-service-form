@@ -92,6 +92,26 @@
     }
     textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    /* ── Customer last-name typeahead ── */
+    .typeahead { position: relative; }
+    .typeahead-list {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid #dde3ea; border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      max-height: 264px; overflow-y: auto; z-index: 50; display: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .typeahead-list.open { display: block; }
+    .ta-item {
+      padding: 12px 14px; cursor: pointer; display: flex; align-items: baseline;
+      gap: 9px; border-bottom: 1px solid #f0f2f5;
+    }
+    .ta-item:last-child { border-bottom: none; }
+    .ta-item.active, .ta-item:hover { background: #eaf4fc; }
+    .ta-last { font-weight: 700; color: #0a6ebd; font-size: 1.02rem; }
+    .ta-full { font-size: 0.8rem; color: #8a919b; }
+    .ta-add-txt { color: #1a9a5c; }
+    .ta-empty { padding: 12px 14px; color: #9aa0a8; font-size: 0.85rem; }
     @media (max-width: 380px) { .row-2 { grid-template-columns: 1fr; } }
     .svc-error { font-size: 0.75rem; color: #e53e3e; margin-top: 6px; display: none; }
     .svc-error.show { display: block; }
@@ -328,7 +348,8 @@
     .field-error { font-size: 0.75rem; color: #e53e3e; margin-top: 5px; display: none; }
     .field.has-error > input,
     .field.has-error > select,
-    .field.has-error > textarea { border-color: #e53e3e; }
+    .field.has-error > textarea,
+    .field.has-error > .typeahead > input { border-color: #e53e3e; }
     .field.has-error #svc-checklist { border: 1.5px solid #e53e3e; border-radius: 10px; padding: 8px; }
     .field.has-error .field-error { display: block; }
     .reading-field.has-error input { border-color: #e53e3e; }
@@ -405,8 +426,11 @@
       <div class="field-error">Please enter your name.</div>
     </div>
     <div class="field" id="field-customer">
-      <label>Customer Name <span class="required-star">*</span></label>
-      <input type="text" name="customer_name" id="customer_name" placeholder="e.g. Scott Mitchell" required autocomplete="off" />
+      <label>Customer Name <span class="required-star">*</span> <span class="hint">(type the last name — weekly clients pop up)</span></label>
+      <div class="typeahead" id="customer-typeahead">
+        <input type="text" name="customer_name" id="customer_name" placeholder="Start typing a last name…" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="customer-suggest" />
+        <div class="typeahead-list" id="customer-suggest" role="listbox"></div>
+      </div>
       <div class="field-error">Please enter the customer name.</div>
     </div>
   </div>
@@ -1086,6 +1110,126 @@
     form.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  /* ──────────────────────────────────────────────────────────────
+     Customer last-name typeahead.
+     Recurring-service clients only (weekly / biweekly). Names only —
+     no addresses, phones, or emails live in this list. The box stays
+     free-type, so a one-off service-work customer can still be typed.
+     ────────────────────────────────────────────────────────────── */
+  var CUSTOMERS = [
+    {name:"Mark & Gina Andollina",last:"Andollina"},{name:"Argo",last:"Argo"},
+    {name:"Joe Brooks",last:"Brooks"},{name:"Jennifer Chaney",last:"Chaney"},
+    {name:"Judy Chessin",last:"Chessin"},{name:"Cicchinelli",last:"Cicchinelli"},
+    {name:"Ken & Starla Clark",last:"Clark"},{name:"Creme de la Creme",last:"Creme de la Creme"},
+    {name:"Frank Dupps",last:"Dupps"},{name:"Scott Dyer",last:"Dyer"},
+    {name:"Scott Eppert",last:"Eppert"},{name:"Kurt Finch",last:"Finch"},
+    {name:"Mona Foad",last:"Foad"},{name:"Jerry Gaulding",last:"Gaulding"},
+    {name:"Jessica Gilbert",last:"Gilbert"},{name:"Erin Growe",last:"Growe"},
+    {name:"Mike/Julie Guenther",last:"Guenther"},{name:"Harcum",last:"Harcum"},
+    {name:"Debbie Helmer",last:"Helmer"},{name:"Nick & Charlene Insco",last:"Insco"},
+    {name:"AJ Jones",last:"Jones"},{name:"Ali Kandil",last:"Kandil"},
+    {name:"Kathy Keeny",last:"Keeny"},{name:"Dr. Khan",last:"Khan"},
+    {name:"Kirkpatrick",last:"Kirkpatrick"},{name:"Kirk Koppenhoefer",last:"Koppenhoefer"},
+    {name:"Geoff Kuzio",last:"Kuzio"},{name:"Amy/Norm Lewis",last:"Lewis"},
+    {name:"Charlie Long",last:"Long"},{name:"Victoria / Joe McCauley",last:"McCauley"},
+    {name:"Karen McKenzie",last:"McKenzie"},{name:"Miami Rd",last:"Miami Rd"},
+    {name:"Sunil Misra",last:"Misra"},{name:"Musekamp",last:"Musekamp"},
+    {name:"Tim Perkins",last:"Perkins"},{name:"Judy Phillips",last:"Phillips"},
+    {name:"Phillips Edison",last:"Phillips Edison"},{name:"Steve Robison",last:"Robison"},
+    {name:"Mark & Anna Ruehlmann",last:"Ruehlmann"},{name:"Saeed",last:"Saeed"},
+    {name:"Tracy Sandquist",last:"Sandquist"},{name:"Brian Skale",last:"Skale"},
+    {name:"Len Texter",last:"Texter"},{name:"Thacker",last:"Thacker"},
+    {name:"Nick Voynovich",last:"Voynovich"}
+  ];
+  (function initCustomerTypeahead() {
+    var input = document.getElementById('customer_name');
+    var list  = document.getElementById('customer-suggest');
+    if (!input || !list) return;
+    var activeIdx = -1;
+    var matches = [];
+
+    function rank(q) {
+      q = q.trim().toLowerCase();
+      if (!q) return [];
+      var starts = [], contains = [];
+      CUSTOMERS.forEach(function(c) {
+        var last = c.last.toLowerCase(), full = c.name.toLowerCase();
+        if (last.indexOf(q) === 0) { starts.push(c); }
+        else if (q.length >= 2 && (last.indexOf(q) > 0 || full.indexOf(q) >= 0)) { contains.push(c); }
+      });
+      return starts.concat(contains);
+    }
+    function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function render() {
+      if (!matches.length) {
+        var typed = input.value.trim();
+        list.innerHTML = '<div class="ta-item ta-add" role="option">' +
+          '<span class="ta-last ta-add-txt">&#43; Use &ldquo;' + esc(typed) + '&rdquo;</span>' +
+          '<span class="ta-full">new or one-off customer &mdash; type the full name</span></div>';
+        list.classList.add('open'); input.setAttribute('aria-expanded','true');
+        return;
+      }
+      list.innerHTML = matches.map(function(c, i) {
+        var sub = (c.name.toLowerCase() !== c.last.toLowerCase())
+          ? '<span class="ta-full">' + esc(c.name) + '</span>' : '';
+        return '<div class="ta-item' + (i === activeIdx ? ' active' : '') +
+          '" role="option" data-i="' + i + '"><span class="ta-last">' +
+          esc(c.last) + '</span>' + sub + '</div>';
+      }).join('');
+      list.classList.add('open'); input.setAttribute('aria-expanded','true');
+    }
+    function close() {
+      list.classList.remove('open'); input.setAttribute('aria-expanded','false');
+      activeIdx = -1;
+    }
+    function choose(i) {
+      if (i < 0 || i >= matches.length) return;
+      input.value = matches[i].name;              // canonical name → your sheet/billing
+      document.getElementById('field-customer').classList.remove('has-error');
+      close();
+    }
+
+    input.addEventListener('input', function() {
+      matches = rank(input.value);
+      activeIdx = -1;
+      if (input.value.trim()) render(); else close();
+    });
+    input.addEventListener('focus', function() {
+      if (input.value.trim()) { matches = rank(input.value); render(); }
+    });
+    input.addEventListener('keydown', function(e) {
+      if (!list.classList.contains('open')) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault(); activeIdx = Math.min(activeIdx + 1, matches.length - 1); render();
+        scrollActive();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); render(); scrollActive();
+      } else if (e.key === 'Enter') {
+        if (activeIdx >= 0) { e.preventDefault(); choose(activeIdx); }
+      } else if (e.key === 'Escape') {
+        close();
+      }
+    });
+    function scrollActive() {
+      var el = list.querySelector('.ta-item.active');
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
+    list.addEventListener('mousedown', function(e) {
+      var item = e.target.closest('.ta-item');
+      if (!item) return;
+      e.preventDefault();
+      if (item.classList.contains('ta-add')) {   // keep whatever they typed
+        document.getElementById('field-customer').classList.remove('has-error');
+        close();
+      } else {
+        choose(parseInt(item.getAttribute('data-i'), 10));
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#customer-typeahead')) close();
+    });
+  })();
 </script>
 </body>
 </html>
