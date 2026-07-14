@@ -447,6 +447,7 @@
             <div class="extra-title">🧹 Cleaning Checklist</div>
             <div class="open-check-grid">
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Vacuumed" /><span>Vacuumed</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Waste vacuum" /><span>Waste vacuum</span></label>
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Backwash / Filter cleaned" /><span>Backwash / Filter cleaned</span></label>
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Skimmer baskets cleaned" /><span>Skimmer baskets cleaned</span></label>
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Pump basket cleaned" /><span>Pump basket cleaned</span></label>
@@ -454,6 +455,8 @@
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Leaf raked / debris removed" /><span>Leaf raked / debris removed</span></label>
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Algae brushed" /><span>Algae brushed</span></label>
               <label class="check-item"><input type="checkbox" name="cleaning[]" value="Water level checked" /><span>Water level checked</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Chemicals added" /><span>Chemicals added</span></label>
+              <label class="check-item"><input type="checkbox" name="cleaning[]" value="Chemicals checked" /><span>Chemicals checked</span></label>
             </div>
           </div>
           <label class="svc-check-item"><input type="checkbox" name="service_type[]" value="Waste Cleaning" /><span>🚿 Waste Cleaning</span></label>
@@ -659,6 +662,20 @@
           <select class="chem-unit"><option>lbs</option></select>
         </div>
       </div>
+      <div class="chem-row" data-chem="Metal Remover">
+        <span class="chem-name">Metal Remover</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>oz</option><option>bottles</option></select>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Chlorine Bucket">
+        <span class="chem-name">Chlorine Bucket</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>25 lb</option><option>50 lb</option></select>
+        </div>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -806,6 +823,7 @@
       document.getElementById('freq-monthly').classList.remove('selected');
     }
     updateSpaChem();
+    updateServicePanels();
   }
   function selectFrequency(val) {
     document.getElementById('visit_frequency').value = val;
@@ -872,7 +890,10 @@
     // ── Opening / Closing: already positioned right after their checkbox, just show/hide ──
     document.getElementById('extra-opening').style.display = checked.indexOf('Pool Opening') > -1 ? 'block' : 'none';
     document.getElementById('extra-closing').style.display = checked.indexOf('Pool Closing') > -1 ? 'block' : 'none';
-    document.getElementById('extra-cleaning').style.display = (checked.indexOf('Cleaning') > -1 || checked.indexOf('Waste Cleaning') > -1) ? 'block' : 'none';
+    // On a Weekly visit the Weekly Maintenance Checklist already covers cleaning,
+    // so suppress this second Cleaning Checklist to avoid two identical lists.
+    var isWeeklyMode = document.getElementById('job_category').value === 'Weekly Maintenance';
+    document.getElementById('extra-cleaning').style.display = (!isWeeklyMode && (checked.indexOf('Cleaning') > -1 || checked.indexOf('Waste Cleaning') > -1)) ? 'block' : 'none';
 
     // ── Equipment: move the panel to sit directly after whichever row was just checked ──
     var equipPanel = document.getElementById('extra-equipment');
