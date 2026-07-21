@@ -226,16 +226,14 @@
     /* Crew quick-pick chips — code name shown, real name logged */
     .crew-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
     .crew-chip {
-      flex: 1 1 30%; border: 2px solid #dde3ea; border-radius: 10px; padding: 9px 0;
+      flex: 1 1 30%; border: 2px solid #dde3ea; border-radius: 10px; padding: 12px 0;
       background: #f5f8fc; cursor: pointer; transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
-      display: flex; flex-direction: column; align-items: center; gap: 1px;
+      display: flex; flex-direction: column; align-items: center;
     }
     .crew-chip .cn-god  { font-size: 0.92rem; font-weight: 700; color: #444; line-height: 1.1; }
-    .crew-chip .cn-real { font-size: 0.66rem; font-weight: 500; color: #9aa0a8; line-height: 1.1; }
     .crew-chip.selected { background: #e8f0fa; border-color: #0a6ebd; }
     .crew-chip.selected .cn-god  { color: #0a6ebd; }
-    .crew-chip.selected .cn-real { color: #5f8fbf; }
     /* Other Services expandable */
     .other-svc-btn {
       width: 100%; display: flex; align-items: center; justify-content: space-between;
@@ -437,12 +435,12 @@
       <label>Your Name <span class="required-star">*</span> <span class="hint">(who did the work)</span></label>
       <input type="text" name="crew_member" id="crew_member" placeholder="e.g. Jake" required autocomplete="given-name" />
       <div class="crew-chips">
-        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Cronus</span><span class="cn-real">Peter</span></button>
-        <button type="button" class="crew-chip" data-real="Tim" onclick="pickCrew('Tim')"><span class="cn-god">Prometheus</span><span class="cn-real">Tim</span></button>
-        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Atlas</span><span class="cn-real">Blake</span></button>
-        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Pallas</span><span class="cn-real">Tobey</span></button>
-        <button type="button" class="crew-chip" data-real="Logan" onclick="pickCrew('Logan')"><span class="cn-god">Hyperion</span><span class="cn-real">Logan</span></button>
-        <button type="button" class="crew-chip" data-real="Seth" onclick="pickCrew('Seth')"><span class="cn-god">Oceanus</span><span class="cn-real">Seth</span></button>
+        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Cronus</span></button>
+        <button type="button" class="crew-chip" data-real="Tim" onclick="pickCrew('Tim')"><span class="cn-god">Prometheus</span></button>
+        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Atlas</span></button>
+        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Pallas</span></button>
+        <button type="button" class="crew-chip" data-real="Logan" onclick="pickCrew('Logan')"><span class="cn-god">Hyperion</span></button>
+        <button type="button" class="crew-chip" data-real="Seth" onclick="pickCrew('Seth')"><span class="cn-god">Oceanus</span></button>
       </div>
       <div class="field-error">Please enter your name.</div>
     </div>
