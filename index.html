@@ -223,6 +223,19 @@
     .spa-opt .spa-icon { font-size: 1.1rem; }
     .spa-opt.selected { background: #e8f0fa; border-color: #0a6ebd; color: #0a6ebd; }
     .spa-opt.spa-plus.selected { background: #f0f8f5; border-color: #1a9a5c; color: #1a9a5c; }
+    /* Crew quick-pick chips — code name shown, real name logged */
+    .crew-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .crew-chip {
+      flex: 1 1 30%; border: 2px solid #dde3ea; border-radius: 10px; padding: 9px 0;
+      background: #f5f8fc; cursor: pointer; transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
+    }
+    .crew-chip .cn-god  { font-size: 0.92rem; font-weight: 700; color: #444; line-height: 1.1; }
+    .crew-chip .cn-real { font-size: 0.66rem; font-weight: 500; color: #9aa0a8; line-height: 1.1; }
+    .crew-chip.selected { background: #e8f0fa; border-color: #0a6ebd; }
+    .crew-chip.selected .cn-god  { color: #0a6ebd; }
+    .crew-chip.selected .cn-real { color: #5f8fbf; }
     /* Other Services expandable */
     .other-svc-btn {
       width: 100%; display: flex; align-items: center; justify-content: space-between;
@@ -423,6 +436,14 @@
     <div class="field" id="field-crew">
       <label>Your Name <span class="required-star">*</span> <span class="hint">(who did the work)</span></label>
       <input type="text" name="crew_member" id="crew_member" placeholder="e.g. Jake" required autocomplete="given-name" />
+      <div class="crew-chips">
+        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Cronus</span><span class="cn-real">Peter</span></button>
+        <button type="button" class="crew-chip" data-real="Tim" onclick="pickCrew('Tim')"><span class="cn-god">Prometheus</span><span class="cn-real">Tim</span></button>
+        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Atlas</span><span class="cn-real">Blake</span></button>
+        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Pallas</span><span class="cn-real">Tobey</span></button>
+        <button type="button" class="crew-chip" data-real="Logan" onclick="pickCrew('Logan')"><span class="cn-god">Hyperion</span><span class="cn-real">Logan</span></button>
+        <button type="button" class="crew-chip" data-real="Seth" onclick="pickCrew('Seth')"><span class="cn-god">Oceanus</span><span class="cn-real">Seth</span></button>
+      </div>
       <div class="field-error">Please enter your name.</div>
     </div>
     <div class="field" id="field-customer">
@@ -794,6 +815,45 @@
   <p style="margin-top:14px; font-size:0.82rem; color:#aaa;">Only had one job? You're done — close this tab.</p>
 </div>
 <script>
+  // ── Submission guards ──
+  var submitting = false;            // blocks a second fire while a submit is in flight
+  var currentSubmissionId = null;    // one ID per job, stable across retries — so a
+                                     // resend after bad signal can be spotted as a twin
+
+  function pickCrew(name) {
+    var inp = document.getElementById('crew_member');
+    inp.value = name;
+    document.getElementById('field-crew').classList.remove('has-error');
+    highlightCrewChips();
+    try { localStorage.setItem('aqm_crew_name', name); } catch (e) {}
+  }
+  function highlightCrewChips() {
+    var val = (document.getElementById('crew_member').value || '').trim().toLowerCase();
+    document.querySelectorAll('.crew-chip').forEach(function(ch){
+      // Match on the REAL name (data-real), not the code name shown on the button.
+      var real = (ch.getAttribute('data-real') || '').trim().toLowerCase();
+      ch.classList.toggle('selected', real === val);
+    });
+  }
+
+  // ── Submission journal: this phone keeps its own record of the last 25
+  //    submissions (sent or failed), so "did it go through?" can be settled
+  //    later. View it by opening the form URL with ?journal added. ──
+  function journalAdd(status) {
+    try {
+      var list = JSON.parse(localStorage.getItem('aqm_journal') || '[]');
+      list.unshift({
+        at: new Date().toLocaleString(),
+        id: currentSubmissionId,
+        customer: (document.getElementById('customer_name').value || '').trim(),
+        crew: (document.getElementById('crew_member').value || '').trim(),
+        type: document.getElementById('job_category').value,
+        status: status
+      });
+      localStorage.setItem('aqm_journal', JSON.stringify(list.slice(0, 25)));
+    } catch (e) {}
+  }
+
   function selectJobType(val) {
     document.getElementById('job_category').value = val;
     document.getElementById('jt-weekly').classList.toggle('selected',  val === 'Weekly Maintenance');
@@ -955,10 +1015,52 @@
   const mm = String(today.getMonth() + 1).padStart(2, '0');
   const dd = String(today.getDate()).padStart(2, '0');
   dateField.value = `${yyyy}-${mm}-${dd}`;
+
+  // Remember who was logging jobs on this phone last time, so the guys
+  // don't retype their name every visit.
+  try {
+    var savedCrew = localStorage.getItem('aqm_crew_name');
+    if (savedCrew && !document.getElementById('crew_member').value) {
+      document.getElementById('crew_member').value = savedCrew;
+    }
+  } catch (e) {}
+  highlightCrewChips();
+  document.getElementById('crew_member').addEventListener('input', highlightCrewChips);
+
+  // Journal view: open the form URL with ?journal on the end to see this
+  // phone's recent submissions (sent and failed), newest first.
+  if (window.location.search.indexOf('journal') > -1) {
+    try {
+      var escJ = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+      var jl = JSON.parse(localStorage.getItem('aqm_journal') || '[]');
+      var jc = document.createElement('div');
+      jc.className = 'card';
+      jc.innerHTML = '<div class="card-title">This phone — last ' + jl.length + ' submissions</div>' +
+        (jl.length ? jl.map(function (j) {
+          return '<div style="padding:8px 0;border-bottom:1px solid #eee;font-size:0.85rem;">' +
+            '<strong>' + escJ(j.customer || '?') + '</strong> — ' + escJ(j.type || '') + '<br>' +
+            '<span style="color:#666">' + escJ(j.at) + ' · ' + escJ(j.crew || '') + ' · ' + escJ(j.status) + '</span></div>';
+        }).join('') : '<p style="color:#888;font-size:0.85rem;">Nothing recorded on this phone yet.</p>');
+      document.querySelector('.header').insertAdjacentElement('afterend', jc);
+    } catch (e) {}
+  }
   const form = document.getElementById('serviceForm');
   const submitBtn = document.getElementById('submitBtn');
+  // One shared error banner for offline + failed submits.
+  function showSubmitError(msg) {
+    let errBanner = document.getElementById('submit-error-banner');
+    if (!errBanner) {
+      errBanner = document.createElement('div');
+      errBanner.id = 'submit-error-banner';
+      errBanner.style.cssText = 'background:#fff1f0; border:2px solid #e53e3e; color:#9b2c2c; padding:14px 16px; border-radius:10px; margin:12px 0; font-weight:500; line-height:1.4;';
+      submitBtn.parentNode.insertBefore(errBanner, submitBtn);
+    }
+    errBanner.textContent = msg;
+    errBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
+    if (submitting) return;   // second tap while the first is in flight: ignore
     const required = [
       { id: 'date_of_service', fieldId: 'field-date' },
       { id: 'crew_member',     fieldId: 'field-crew' },
@@ -1006,11 +1108,22 @@
       }
     }
     if (!valid) {
-      document.querySelector('.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Plain if-check (no "?." syntax) so the whole script still parses on older phones —
+      // if this script dies, the form falls back to a silent submit with no feedback.
+      var firstErr = document.querySelector('.has-error');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Phone says it has no connection: stop before burning the 45s timeout.
+    if (navigator.onLine === false) {
+      showSubmitError('No connection right now. Everything you typed is still on this page — find signal and tap Submit again.');
       return;
     }
 
     // Stamp a client-side submission ID so we can trace this row in the sheet later.
+    // Generated ONCE per job and reused on retries — if a resend ever lands twice,
+    // both rows carry the same ID and the twin is provable.
     let subIdEl = document.getElementById('submission_id');
     if (!subIdEl) {
       subIdEl = document.createElement('input');
@@ -1019,50 +1132,46 @@
       subIdEl.id = 'submission_id';
       form.appendChild(subIdEl);
     }
-    subIdEl.value = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    if (!currentSubmissionId) {
+      currentSubmissionId = Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    }
+    subIdEl.value = currentSubmissionId;
 
     // ── Spa readings: the Google script only stores the 7 POOL reading fields, so on a
     // Pool + Spa weekly we fold any spa readings into the Notes field so they're captured. ──
     foldSpaReadingsIntoNotes();
 
+    submitting = true;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting…';
 
     // Real submit: fetch with no-cors (Apps Script web apps don't return CORS headers,
     // so we can't read the response body — but a network failure DOES throw, which is
     // the most common failure mode (offline phone, dropped connection, DNS hiccup).
-    // 45s timeout via AbortController catches stalled connections.
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000);
+    // 45s timeout via AbortController catches stalled connections; guarded so ancient
+    // phones without AbortController still submit (just without the timeout).
+    const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 45000) : null;
     try {
       const formData = new FormData(form);
-      await fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors',
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
+      const opts = { method: 'POST', body: formData, mode: 'no-cors' };
+      if (controller) opts.signal = controller.signal;
+      await fetch(form.action, opts);
+      if (timeoutId) clearTimeout(timeoutId);
+      journalAdd('sent');
+      try { localStorage.setItem('aqm_crew_name', (document.getElementById('crew_member').value || '').trim()); } catch (e) {}
       form.style.display = 'none';
       const success = document.getElementById('successScreen');
       success.style.display = 'block';
       success.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
+      submitting = false;
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Service Record';
       const reason = (err && err.name === 'AbortError') ? 'connection timed out' : (err.message || 'network error');
-      const msg = 'Submission did NOT land (' + reason + '). Do NOT refresh this page — your entries are still here. Check your signal and tap Submit again. If it keeps failing, text Peter the customer name + what you did.';
-      // Use a styled error banner if there's not one already
-      let errBanner = document.getElementById('submit-error-banner');
-      if (!errBanner) {
-        errBanner = document.createElement('div');
-        errBanner.id = 'submit-error-banner';
-        errBanner.style.cssText = 'background:#fff1f0; border:2px solid #e53e3e; color:#9b2c2c; padding:14px 16px; border-radius:10px; margin:12px 0; font-weight:500; line-height:1.4;';
-        submitBtn.parentNode.insertBefore(errBanner, submitBtn);
-      }
-      errBanner.textContent = msg;
-      errBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      journalAdd('failed — ' + reason);
+      showSubmitError('Submission did NOT land (' + reason + '). Do NOT refresh this page — your entries are still here. Check your signal and tap Submit again. If it keeps failing, text Peter the customer name + what you did.');
     }
   });
   // ── Chemical steppers ──
@@ -1089,8 +1198,16 @@
   });
 
   function resetForm() {
+    var keepCrew = document.getElementById('crew_member').value;   // same guy, next pool
     form.reset();
     dateField.value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('crew_member').value = keepCrew;
+    highlightCrewChips();
+    // Fresh job = fresh guards: allow submitting again, mint a new ID next submit.
+    submitting = false;
+    currentSubmissionId = null;
+    var subIdEl = document.getElementById('submission_id');
+    if (subIdEl) subIdEl.value = '';
     // Drop any extra equipment rows added on the previous job, keeping the first.
     document.querySelectorAll('.equip-row').forEach(function(row, i){ if (i > 0) row.remove(); });
     updateRemoveBtns();
