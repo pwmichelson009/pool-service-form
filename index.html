@@ -438,13 +438,16 @@
            If you change any name here, ALSO update the matching key in the pool-logger skill
            (~/.claude/skills/aquamarine-pool-logger/SKILL.md → "Crew code-name key") or
            submissions won't decode and billing won't match. This live form is the source of truth. -->
+      <!-- Button ORDER is intentionally scrambled (not roster order) so a code name
+           can't be guessed from its position. The data-real↔cn-god pairing is what
+           matters and is unchanged; reorder these freely, it changes nothing else. -->
       <div class="crew-chips">
-        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Cronus</span></button>
-        <button type="button" class="crew-chip" data-real="Tim" onclick="pickCrew('Tim')"><span class="cn-god">Prometheus</span></button>
-        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Atlas</span></button>
-        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Pallas</span></button>
         <button type="button" class="crew-chip" data-real="Logan" onclick="pickCrew('Logan')"><span class="cn-god">Hyperion</span></button>
         <button type="button" class="crew-chip" data-real="Seth" onclick="pickCrew('Seth')"><span class="cn-god">Oceanus</span></button>
+        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Atlas</span></button>
+        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Cronus</span></button>
+        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Pallas</span></button>
+        <button type="button" class="crew-chip" data-real="Tim" onclick="pickCrew('Tim')"><span class="cn-god">Prometheus</span></button>
       </div>
       <div class="field-error">Please enter your name.</div>
     </div>
