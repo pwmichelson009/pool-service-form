@@ -438,19 +438,23 @@
     <div class="field" id="field-crew">
       <label>Your Name <span class="required-star">*</span> <span class="hint">(who did the work)</span></label>
       <input type="text" name="crew_member" id="crew_member" placeholder="e.g. Jake" required autocomplete="off" autocorrect="off" spellcheck="false" />
-      <!-- CREW CODE NAMES: button shows the Titan (cn-god), submits the REAL name (data-real).
+      <!-- CREW CODE NAMES: button shows the god name (cn-god), submits the REAL name (data-real).
            If you change any name here, ALSO update the matching key in the pool-logger skill
            (~/.claude/skills/aquamarine-pool-logger/SKILL.md → "Crew code-name key") or
-           submissions won't decode and billing won't match. This live form is the source of truth. -->
+           submissions won't decode and billing won't match. This live form is the source of truth.
+           Switched from Titans to Olympian gods 2026-07-22 (Tim keeps Prometheus). The retired
+           Titan names — Hyperion, Oceanus, Atlas, Cronus, Pallas, Menoetius — are kept as legacy
+           entries in that skill key, so a guy who free-types his OLD code name still decodes to
+           the right person. Never reassign a retired name to a different crew member. -->
       <!-- Button ORDER is intentionally scrambled (not roster order) so a code name
            can't be guessed from its position. The data-real↔cn-god pairing is what
            matters and is unchanged; reorder these freely, it changes nothing else. -->
       <div class="crew-chips">
-        <button type="button" class="crew-chip" data-real="Logan" onclick="pickCrew('Logan')"><span class="cn-god">Hyperion</span></button>
-        <button type="button" class="crew-chip" data-real="Seth" onclick="pickCrew('Seth')"><span class="cn-god">Oceanus</span></button>
-        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Atlas</span></button>
-        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Cronus</span></button>
-        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Pallas</span></button>
+        <button type="button" class="crew-chip" data-real="Logan" onclick="pickCrew('Logan')"><span class="cn-god">Hermes</span></button>
+        <button type="button" class="crew-chip" data-real="Seth" onclick="pickCrew('Seth')"><span class="cn-god">Ares</span></button>
+        <button type="button" class="crew-chip" data-real="Blake" onclick="pickCrew('Blake')"><span class="cn-god">Poseidon</span></button>
+        <button type="button" class="crew-chip" data-real="Peter" onclick="pickCrew('Peter')"><span class="cn-god">Zeus</span></button>
+        <button type="button" class="crew-chip" data-real="Tobey" onclick="pickCrew('Tobey')"><span class="cn-god">Apollo</span></button>
         <button type="button" class="crew-chip" data-real="Tim" onclick="pickCrew('Tim')"><span class="cn-god">Prometheus</span></button>
       </div>
       <div class="field-error">Please enter your name.</div>
