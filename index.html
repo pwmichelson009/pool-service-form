@@ -328,7 +328,8 @@
     .reading-select {
       width: 100%; padding: 11px 12px;
       border: 1.5px solid #dde3ea; border-radius: 9px;
-      font-size: 0.88rem; color: #222; background: #fafbfc;
+      /* 16px minimum — iOS Safari zooms the page when focusing a smaller control. */
+      font-size: 1rem; color: #222; background: #fafbfc;
       -webkit-appearance: none; appearance: none;
     }
     .reading-select:focus {
@@ -336,7 +337,8 @@
       box-shadow: 0 0 0 3px rgba(10,110,189,0.12); background: white;
     }
     .chem-unit {
-      font-size: 0.78rem;
+      /* 16px minimum — iOS Safari zooms the page when focusing a smaller control. */
+      font-size: 1rem;
       padding: 0 6px;
       border: 1.5px solid #c5d5e8;
       border-radius: 8px;
@@ -345,7 +347,7 @@
       flex-shrink: 0;
       -webkit-appearance: none;
       appearance: none;
-      min-width: 62px;
+      min-width: 78px;
       height: 38px;
       text-align: center;
       cursor: pointer;
@@ -421,6 +423,8 @@
     <input type="hidden" name="weekly_service_includes" id="weekly_service_includes" />
     <input type="hidden" name="visit_frequency" id="visit_frequency" />
     <div class="jt-error" id="jt-error">Please select a visit type.</div>
+    <!-- Pool only vs Pool + Spa changes what the visit bills, so it can't be left blank. -->
+    <div class="jt-error" id="spa-error">Tap Pool only or Pool + Spa — it changes what this visit bills.</div>
   </div>
 
   <!-- ── Job Info ── -->
@@ -433,7 +437,7 @@
     </div>
     <div class="field" id="field-crew">
       <label>Your Name <span class="required-star">*</span> <span class="hint">(who did the work)</span></label>
-      <input type="text" name="crew_member" id="crew_member" placeholder="e.g. Jake" required autocomplete="given-name" />
+      <input type="text" name="crew_member" id="crew_member" placeholder="e.g. Jake" required autocomplete="off" autocorrect="off" spellcheck="false" />
       <!-- CREW CODE NAMES: button shows the Titan (cn-god), submits the REAL name (data-real).
            If you change any name here, ALSO update the matching key in the pool-logger skill
            (~/.claude/skills/aquamarine-pool-logger/SKILL.md → "Crew code-name key") or
@@ -454,7 +458,7 @@
     <div class="field" id="field-customer">
       <label>Customer Name <span class="required-star">*</span> <span class="hint">(type the last name — weekly clients pop up)</span></label>
       <div class="typeahead" id="customer-typeahead">
-        <input type="text" name="customer_name" id="customer_name" placeholder="Start typing a last name…" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="customer-suggest" />
+        <input type="text" name="customer_name" id="customer_name" placeholder="Start typing a last name…" required autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="customer-suggest" />
         <div class="typeahead-list" id="customer-suggest" role="listbox"></div>
       </div>
       <div class="field-error">Please enter the customer name.</div>
@@ -572,6 +576,13 @@
 
       </div>
       <div class="svc-error" id="svc-error">Please select at least one service type.</div>
+    </div>
+    <!-- Parts / Materials (col P in the sheet) — Service Work jobs only; weeklies never
+         see it. Required there so parts actually get billed; crew types "none" if none. -->
+    <div class="field" id="field-parts" style="display:none;">
+      <label>Parts / Materials Used <span class="required-star">*</span> <span class="hint">(type "none" if you didn't use any)</span></label>
+      <textarea name="parts_materials" id="parts_materials" placeholder="e.g. 1 x Pentair 2 HP motor, 2 x 1.5&quot; unions, 1 tube silicone…" style="min-height:72px;"></textarea>
+      <div class="field-error">List the parts you used, or type "none".</div>
     </div>
   </div>
 
@@ -707,35 +718,40 @@
   <div class="card">
     <div class="card-title"><span id="chem-card-title">Water Chemistry Readings</span> <span id="chem-optional-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:#888;font-size:0.75rem;">(optional — record before adding chemicals)</span><span id="chem-required-note" style="display:none;font-weight:600;text-transform:none;letter-spacing:0;color:#e53e3e;font-size:0.75rem;">(pH &amp; Free Chlorine required)</span></div>
     <div class="readings-grid">
+      <!-- step="any" on every reading: a digital tester reads 7.45 / 1.25 / 3055, and a
+           step mismatch makes the browser block the submit BEFORE our own error UI runs —
+           the crew just sees a dead Submit button. Caps are wide on purpose too (post-shock
+           chlorine really does read past 20). Sanity-checking happens in the submit handler. -->
       <div class="reading-field">
         <label>pH <span class="required-star" id="ph-req" style="display:none">*</span> <span class="ideal">ideal 7.4 – 7.6</span></label>
-        <input type="number" name="reading_ph" step="0.1" min="6" max="9" placeholder="e.g. 7.4" />
+        <input type="number" name="reading_ph" step="any" min="0" max="14" placeholder="e.g. 7.4" />
       </div>
       <div class="reading-field chlorine-combined">
         <label>Chlorine <span class="ideal">Free ideal 1 – 3 ppm</span></label>
         <div class="chlorine-inputs">
           <div class="chlorine-sub">
             <span class="chlorine-sub-label">Free <span class="required-star" id="cl-req" style="display:none">*</span></span>
-            <input type="number" name="reading_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+            <input type="number" name="reading_chlorine" step="any" min="0" placeholder="ppm" />
           </div>
           <div class="chlorine-divider-line"></div>
           <div class="chlorine-sub">
             <span class="chlorine-sub-label">Total</span>
-            <input type="number" name="reading_total_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+            <input type="number" name="reading_total_chlorine" step="any" min="0" placeholder="ppm" />
           </div>
         </div>
+        <div class="svc-error" id="cl-warn">Total chlorine is usually the same or higher than Free — double-check those two.</div>
       </div>
       <div class="reading-field">
         <label>Total Alkalinity <span class="ideal">ideal 80 – 120 ppm</span></label>
-        <input type="number" name="reading_alkalinity" step="1" min="0" max="500" placeholder="ppm" />
+        <input type="number" name="reading_alkalinity" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>CYA / Stabilizer <span class="ideal">ideal 30 – 50 ppm</span></label>
-        <input type="number" name="reading_cya" step="1" min="0" max="300" placeholder="ppm" />
+        <input type="number" name="reading_cya" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>Salt Level <span class="ideal">ideal 2700 – 3400 ppm</span></label>
-        <input type="number" name="reading_salt" step="10" min="0" max="6000" placeholder="ppm" />
+        <input type="number" name="reading_salt" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>Water Clarity</label>
@@ -757,33 +773,33 @@
     <div class="readings-grid">
       <div class="reading-field">
         <label>pH <span class="ideal">ideal 7.4 – 7.6</span></label>
-        <input type="number" name="spa_reading_ph" step="0.1" min="6" max="9" placeholder="e.g. 7.4" />
+        <input type="number" name="spa_reading_ph" step="any" min="0" max="14" placeholder="e.g. 7.4" />
       </div>
       <div class="reading-field chlorine-combined">
         <label>Chlorine <span class="ideal">Free ideal 1 – 3 ppm</span></label>
         <div class="chlorine-inputs">
           <div class="chlorine-sub">
             <span class="chlorine-sub-label">Free</span>
-            <input type="number" name="spa_reading_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+            <input type="number" name="spa_reading_chlorine" step="any" min="0" placeholder="ppm" />
           </div>
           <div class="chlorine-divider-line"></div>
           <div class="chlorine-sub">
             <span class="chlorine-sub-label">Total</span>
-            <input type="number" name="spa_reading_total_chlorine" step="0.1" min="0" max="20" placeholder="ppm" />
+            <input type="number" name="spa_reading_total_chlorine" step="any" min="0" placeholder="ppm" />
           </div>
         </div>
       </div>
       <div class="reading-field">
         <label>Total Alkalinity <span class="ideal">ideal 80 – 120 ppm</span></label>
-        <input type="number" name="spa_reading_alkalinity" step="1" min="0" max="500" placeholder="ppm" />
+        <input type="number" name="spa_reading_alkalinity" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>CYA / Stabilizer <span class="ideal">ideal 30 – 50 ppm</span></label>
-        <input type="number" name="spa_reading_cya" step="1" min="0" max="300" placeholder="ppm" />
+        <input type="number" name="spa_reading_cya" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>Salt Level <span class="ideal">ideal 2700 – 3400 ppm</span></label>
-        <input type="number" name="spa_reading_salt" step="10" min="0" max="6000" placeholder="ppm" />
+        <input type="number" name="spa_reading_salt" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>Water Clarity</label>
@@ -824,6 +840,7 @@
   var submitting = false;            // blocks a second fire while a submit is in flight
   var currentSubmissionId = null;    // one ID per job, stable across retries — so a
                                      // resend after bad signal can be spotted as a twin
+  var clWarnAcked = false;           // chlorine Free/Total looks swapped — warn once, then allow
 
   function pickCrew(name) {
     var inp = document.getElementById('crew_member');
@@ -847,16 +864,118 @@
   function journalAdd(status) {
     try {
       var list = JSON.parse(localStorage.getItem('aqm_journal') || '[]');
-      list.unshift({
-        at: new Date().toLocaleString(),
-        id: currentSubmissionId,
-        customer: (document.getElementById('customer_name').value || '').trim(),
-        crew: (document.getElementById('crew_member').value || '').trim(),
-        type: document.getElementById('job_category').value,
-        status: status
-      });
+      // An entry for this job already exists (written just before the send) — update it
+      // in place rather than logging the same job twice.
+      var existing = currentSubmissionId
+        ? list.filter(function (j) { return j.id === currentSubmissionId; })[0]
+        : null;
+      if (existing) {
+        existing.status = status;
+        existing.at = new Date().toLocaleString();
+      } else {
+        list.unshift({
+          at: new Date().toLocaleString(),
+          id: currentSubmissionId,
+          customer: (document.getElementById('customer_name').value || '').trim(),
+          crew: (document.getElementById('crew_member').value || '').trim(),
+          type: document.getElementById('job_category').value,
+          status: status
+        });
+      }
       localStorage.setItem('aqm_journal', JSON.stringify(list.slice(0, 25)));
     } catch (e) {}
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Draft save. Everything the crew types is mirrored onto the phone itself as they
+     go, and restored if the page reloads. This matters because the form TELLS them to
+     go find signal after a failed send — and walking off with the phone is exactly
+     what makes iPhone Safari quietly reload the tab, which used to wipe the whole job.
+     Cleared once the job is sent, and on "Log Another Job".
+     ────────────────────────────────────────────────────────────── */
+  var DRAFT_KEY = 'aqm_draft';
+  var draftReady = false;   // don't save while we're still restoring
+
+  function saveDraft() {
+    if (!draftReady) return;
+    try {
+      var d = { v: 1, at: Date.now(), id: currentSubmissionId, fields: {}, checks: [], chems: [], equip: [] };
+      document.querySelectorAll('#serviceForm input, #serviceForm select, #serviceForm textarea').forEach(function (el) {
+        if (!el.name) return;
+        if (el.type === 'checkbox' || el.type === 'radio') {
+          if (el.checked) d.checks.push(el.name + '||' + el.value);
+        } else if (el.name === 'equipment_item[]') {
+          d.equip.push(el.value);
+        } else {
+          d.fields[el.name] = el.value;
+        }
+      });
+      // The chemical quantity boxes have no name, so grab them by their row.
+      document.querySelectorAll('.chem-row').forEach(function (row) {
+        var q = row.querySelector('.chem-qty').value;
+        var u = row.querySelector('.chem-unit');
+        if (q) d.chems.push({ c: row.getAttribute('data-chem'), q: q, u: u ? u.value : '' });
+      });
+      var anything = d.checks.length || d.chems.length ||
+        Object.keys(d.fields).some(function (k) { return d.fields[k] && k !== 'date_of_service' && k !== 'form_type' && k !== '_subject'; });
+      if (!anything) { localStorage.removeItem(DRAFT_KEY); return; }
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+    } catch (e) {}
+  }
+
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  }
+
+  function restoreDraft() {
+    var d;
+    try {
+      var raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return false;
+      d = JSON.parse(raw);
+    } catch (e) { return false; }
+    if (!d || d.v !== 1) return false;
+    try {
+      // Extra equipment rows have to exist again before we can fill them.
+      for (var i = 1; i < (d.equip || []).length; i++) addEquipRow();
+      var equipInputs = document.querySelectorAll('input[name="equipment_item[]"]');
+      (d.equip || []).forEach(function (val, idx) { if (equipInputs[idx]) equipInputs[idx].value = val; });
+
+      Object.keys(d.fields || {}).forEach(function (name) {
+        var el = document.querySelector('#serviceForm [name="' + name + '"]');
+        if (el && el.type !== 'checkbox' && el.type !== 'radio') el.value = d.fields[name];
+      });
+      (d.checks || []).forEach(function (key) {
+        var parts = key.split('||');
+        var el = document.querySelector('#serviceForm [name="' + parts[0] + '"][value="' + parts[1] + '"]');
+        if (el) el.checked = true;
+      });
+      (d.chems || []).forEach(function (c) {
+        var row = document.querySelector('.chem-row[data-chem="' + c.c + '"]');
+        if (!row) return;
+        row.querySelector('.chem-qty').value = c.q;
+        row.classList.add('active');
+        var u = row.querySelector('.chem-unit');
+        if (u && c.u) u.value = c.u;
+      });
+      currentSubmissionId = d.id || null;
+
+      // Re-run the show/hide logic so the panels match what was restored.
+      var cat = (d.fields || {}).job_category;
+      if (cat) selectJobType(cat);
+      var freq = (d.fields || {}).visit_frequency;
+      if (freq) selectFrequency(freq);
+      var inc = (d.fields || {}).weekly_service_includes;
+      if (inc) selectWeeklySpa(inc);
+      updateServicePanels();
+      updateSpaChem();
+      buildChemSummary();
+      highlightCrewChips();
+      updateRemoveBtns();
+      // A restored date was the crew's, not ours — don't auto-stamp over it.
+      if (dateField.value && dateField.value !== dateField.dataset.autofill) dateField.dataset.autofill = '';
+      return true;
+    } catch (e) { return false; }
   }
 
   function selectJobType(val) {
@@ -864,6 +983,12 @@
     document.getElementById('jt-weekly').classList.toggle('selected',  val === 'Weekly Maintenance');
     document.getElementById('jt-service').classList.toggle('selected', val === 'Service Work');
     document.getElementById('jt-error').style.display = 'none';
+    // Clear the red error outline a failed submit painted on, now that they've picked one.
+    document.getElementById('jt-weekly').style.borderColor = '';
+    document.getElementById('jt-service').style.borderColor = '';
+    // Parts / Materials is a Service Work question only.
+    document.getElementById('field-parts').style.display = (val === 'Service Work') ? 'block' : 'none';
+    if (val !== 'Service Work') document.getElementById('field-parts').classList.remove('has-error');
     document.getElementById('weekly-checklist-card').style.display = (val === 'Weekly Maintenance') ? 'block' : 'none';
     document.getElementById('spa-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
     document.getElementById('freq-row').style.display = (val === 'Weekly Maintenance') ? 'flex' : 'none';
@@ -907,6 +1032,9 @@
     document.getElementById('weekly_service_includes').value = val;
     document.getElementById('spa-pool-only').classList.toggle('selected', val === 'Pool only');
     document.getElementById('spa-pool-spa').classList.toggle('selected', val === 'Pool + Spa');
+    document.getElementById('spa-error').style.display = 'none';
+    document.getElementById('spa-pool-only').style.borderColor = '';
+    document.getElementById('spa-pool-spa').style.borderColor = '';
     updateSpaChem();
   }
   // Show the spa water-chemistry chart only on a Weekly Client + Pool + Spa visit.
@@ -920,8 +1048,15 @@
   // On a Pool + Spa weekly, gather the spa readings into one line appended to Notes,
   // so they land in the log even though the backend only stores the pool reading fields.
   function foldSpaReadingsIntoNotes() {
-    var card = document.getElementById('spa-chem-card');
-    if (!card || card.style.display === 'none') return;
+    var card  = document.getElementById('spa-chem-card');
+    var notes = document.querySelector('[name="notes"]');
+    if (!notes) return;
+    // Strip any spa line we folded in on an earlier attempt FIRST, before deciding whether
+    // to add a new one. If we bailed out early here (spa card now hidden because they
+    // switched to Pool only / Service Work after a failed send), a stale spa line from the
+    // abandoned attempt would ride along on the job that finally submits.
+    var kept = notes.value.split('\n').filter(function (l) { return l.indexOf('Spa readings — ') !== 0; }).join('\n').trim();
+    if (!card || card.style.display === 'none') { notes.value = kept; return; }
     function v(name) { var el = document.querySelector('[name="' + name + '"]'); return el && el.value.trim() ? el.value.trim() : ''; }
     var ph    = v('spa_reading_ph');
     var clF   = v('spa_reading_chlorine');
@@ -937,11 +1072,6 @@
     if (cya)  parts.push('CYA ' + cya);
     if (salt) parts.push('Salt ' + salt);
     if (clar) parts.push('Clarity ' + clar);
-    var notes = document.querySelector('[name="notes"]');
-    if (!notes) return;
-    // Drop any previously folded spa line first, so a retried submit (failed
-    // network → tap Submit again) doesn't stack duplicate lines.
-    var kept = notes.value.split('\n').filter(function(l){ return l.indexOf('Spa readings — ') !== 0; }).join('\n').trim();
     if (!parts.length) { notes.value = kept; return; }
     var line = 'Spa readings — ' + parts.join(', ');
     notes.value = kept ? (kept + '\n' + line) : line;
@@ -1002,24 +1132,45 @@
       }
     });
   }
+  function addEquipRow() {
+    var list = document.getElementById('equip-list');
+    var row = document.createElement('div');
+    row.className = 'equip-row';
+    row.innerHTML = '<input type="text" name="equipment_item[]" placeholder="e.g. Pentair VS pump 2 HP, Jandy salt cell…" />';
+    list.appendChild(row);
+    updateRemoveBtns();
+    return row;
+  }
   var addEquipBtn = document.getElementById('addEquipBtn');
   if (addEquipBtn) {
     addEquipBtn.addEventListener('click', function () {
-      var list = document.getElementById('equip-list');
-      var row = document.createElement('div');
-      row.className = 'equip-row';
-      row.innerHTML = '<input type="text" name="equipment_item[]" placeholder="e.g. Pentair VS pump 2 HP, Jandy salt cell…" />';
-      list.appendChild(row);
-      updateRemoveBtns();
-      row.querySelector('input').focus();
+      addEquipRow().querySelector('input').focus();
     });
   }
+  // Today's date is computed fresh EVERY time it is stamped, never captured once at
+  // page load — a crew phone keeps this tab open for days, and a stale date silently
+  // puts the wrong service date on the invoice.
   const dateField = document.getElementById('date_of_service');
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  dateField.value = `${yyyy}-${mm}-${dd}`;
+  function todayStr() {
+    var t = new Date();
+    return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  }
+  function stampToday() {
+    dateField.value = todayStr();
+    dateField.dataset.autofill = dateField.value;   // remember what WE put there
+  }
+  stampToday();
+  // If the crew picks a date by hand, dataset.autofill no longer matches and we never
+  // touch it again — a deliberately backdated job stays backdated.
+  // On returning to the tab (app switcher, next morning), re-stamp only an untouched date.
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && dateField.value === dateField.dataset.autofill && dateField.value !== todayStr()) {
+      stampToday();
+    }
+  });
+  window.addEventListener('pageshow', function () {
+    if (dateField.value === dateField.dataset.autofill && dateField.value !== todayStr()) stampToday();
+  });
 
   // Remember who was logging jobs on this phone last time, so the guys
   // don't retype their name every visit.
@@ -1031,6 +1182,14 @@
   } catch (e) {}
   highlightCrewChips();
   document.getElementById('crew_member').addEventListener('input', highlightCrewChips);
+
+
+  // If the crew gives up on a failed job and starts a DIFFERENT one on the same page,
+  // it must not inherit the old job's tracking ID — otherwise a genuinely separate job
+  // looks like a duplicate resend. Changing the customer or the date means a new job.
+  ['customer_name', 'date_of_service'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () { currentSubmissionId = null; });
+  });
 
   // Journal view: open the form URL with ?journal on the end to see this
   // phone's recent submissions (sent and failed), newest first.
@@ -1051,6 +1210,46 @@
   }
   const form = document.getElementById('serviceForm');
   const submitBtn = document.getElementById('submitBtn');
+
+  // ── Draft: restore anything left over from a reload, then keep saving as they work ──
+  var restoredDraft = restoreDraft();
+  draftReady = true;
+  if (restoredDraft) {
+    var draftNote = document.createElement('div');
+    draftNote.className = 'card';
+    draftNote.style.cssText = 'background:#e8f7f0; border:2px solid #1a9a5c; color:#16603c; font-weight:500; line-height:1.4;';
+    draftNote.textContent = 'Picked up where you left off — this job was still saved on your phone. Check it over, then submit.';
+    document.querySelector('.header').insertAdjacentElement('afterend', draftNote);
+  }
+  form.addEventListener('input',  saveDraft);
+  form.addEventListener('change', saveDraft);
+  // The job-type / frequency / spa / crew buttons aren't form inputs, so catch taps too.
+  document.querySelectorAll('.jt-btn, .spa-opt, .crew-chip').forEach(function (b) {
+    b.addEventListener('click', function () { setTimeout(saveDraft, 0); });
+  });
+
+  // Build the outgoing data, leaving out anything sitting inside a section that is
+  // currently hidden. Hiding a section never used to clear it, so ticking the Opening
+  // checklist and then un-ticking Pool Opening (or starting Weekly then switching to
+  // Service Work) still sent all that work along, describing a job that wasn't done.
+  // Temporarily disabling those inputs keeps them out of the submission without
+  // erasing anything the crew typed — they're switched straight back on after.
+  function buildFormData() {
+    var hiddenInputs = [];
+    document.querySelectorAll('.extra-fields, #weekly-checklist-card, #spa-chem-card, #field-parts').forEach(function (box) {
+      if (box.style.display !== 'none') return;
+      box.querySelectorAll('input, select, textarea').forEach(function (el) {
+        if (el.disabled) return;
+        el.disabled = true;
+        hiddenInputs.push(el);
+      });
+    });
+    try {
+      return new FormData(form);
+    } finally {
+      hiddenInputs.forEach(function (el) { el.disabled = false; });
+    }
+  }
   // One shared error banner for offline + failed submits.
   function showSubmitError(msg) {
     let errBanner = document.getElementById('submit-error-banner');
@@ -1096,6 +1295,24 @@
       document.getElementById('field-service-type').classList.add('has-error');
       valid = false;
     }
+    // Service Work: parts/materials must be answered (billing reads this column).
+    if (document.getElementById('job_category').value === 'Service Work') {
+      var _parts = document.getElementById('parts_materials');
+      if (!_parts.value.trim()) {
+        document.getElementById('field-parts').classList.add('has-error');
+        valid = false;
+      } else {
+        document.getElementById('field-parts').classList.remove('has-error');
+      }
+    }
+    // Weekly: Pool only vs Pool + Spa drives the price, so it can't be left unanswered.
+    if (document.getElementById('job_category').value === 'Weekly Maintenance' &&
+        !document.getElementById('weekly_service_includes').value) {
+      document.getElementById('spa-error').style.display = 'block';
+      document.getElementById('spa-pool-only').style.borderColor = '#e53e3e';
+      document.getElementById('spa-pool-spa').style.borderColor = '#e53e3e';
+      valid = false;
+    }
     if (document.getElementById('job_category').value === 'Weekly Maintenance') {
       var _ph = document.querySelector('input[name="reading_ph"]');
       var _cl = document.querySelector('input[name="reading_chlorine"]');
@@ -1112,6 +1329,23 @@
         _cl.closest('.reading-field').classList.remove('has-error');
       }
     }
+    // Total chlorine below Free is chemically impossible — almost always the two boxes
+    // got swapped. Warn once and let them look; a second tap submits anyway, because a
+    // crew member in the field must never be permanently stuck.
+    var _clFree  = document.querySelector('input[name="reading_chlorine"]').value.trim();
+    var _clTotal = document.querySelector('input[name="reading_total_chlorine"]').value.trim();
+    var _clWarnEl = document.getElementById('cl-warn');
+    if (valid && _clFree && _clTotal && parseFloat(_clTotal) < parseFloat(_clFree) && !clWarnAcked) {
+      _clWarnEl.classList.add('show');
+      clWarnAcked = true;   // next tap goes through
+      _clWarnEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (!(_clFree && _clTotal && parseFloat(_clTotal) < parseFloat(_clFree))) {
+      _clWarnEl.classList.remove('show');
+      clWarnAcked = false;
+    }
+
     if (!valid) {
       // Plain if-check (no "?." syntax) so the whole script still parses on older phones —
       // if this script dies, the form falls back to a silent submit with no feedback.
@@ -1120,15 +1354,10 @@
       return;
     }
 
-    // Phone says it has no connection: stop before burning the 45s timeout.
-    if (navigator.onLine === false) {
-      showSubmitError('No connection right now. Everything you typed is still on this page — find signal and tap Submit again.');
-      return;
-    }
-
     // Stamp a client-side submission ID so we can trace this row in the sheet later.
     // Generated ONCE per job and reused on retries — if a resend ever lands twice,
-    // both rows carry the same ID and the twin is provable.
+    // both rows carry the same ID and the twin is provable. Minted BEFORE the offline
+    // check so an offline attempt gets journalled against a real ID too.
     let subIdEl = document.getElementById('submission_id');
     if (!subIdEl) {
       subIdEl = document.createElement('input');
@@ -1142,13 +1371,32 @@
     }
     subIdEl.value = currentSubmissionId;
 
+    // Phone says it has no connection: stop before burning the 45s timeout.
+    if (navigator.onLine === false) {
+      saveDraft();   // so leaving the page to hunt for signal can't lose the job
+      journalAdd('blocked — phone offline');
+      showSubmitError('No connection right now. Nothing was lost — this job is saved on your phone, so it will still be here even if the page reloads. Find signal and tap Submit again.');
+      return;
+    }
+
     // ── Spa readings: the Google script only stores the 7 POOL reading fields, so on a
     // Pool + Spa weekly we fold any spa readings into the Notes field so they're captured. ──
     foldSpaReadingsIntoNotes();
 
+    // Rebuild the chemicals summary from what's actually in the boxes right now. It is
+    // normally kept current by typing, but iOS can restore a backgrounded tab's visible
+    // boxes WITHOUT firing those events — the numbers would still show while the hidden
+    // summary that actually gets sent sat empty, silently losing the chemicals.
+    buildChemSummary();
+
     submitting = true;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting…';
+    // Log the attempt BEFORE sending. If the phone dies or the tab gets reloaded during
+    // the send, the job still shows up in the ?journal list as "sending…" instead of
+    // vanishing without a trace — and it keeps its ID, so a duplicate row is provable.
+    journalAdd('sending…');
+    saveDraft();
 
     // Real submit: fetch with no-cors (Apps Script web apps don't return CORS headers,
     // so we can't read the response body — but a network failure DOES throw, which is
@@ -1158,12 +1406,13 @@
     const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     const timeoutId = controller ? setTimeout(() => controller.abort(), 45000) : null;
     try {
-      const formData = new FormData(form);
+      const formData = buildFormData();
       const opts = { method: 'POST', body: formData, mode: 'no-cors' };
       if (controller) opts.signal = controller.signal;
       await fetch(form.action, opts);
       if (timeoutId) clearTimeout(timeoutId);
       journalAdd('sent');
+      clearDraft();   // it's away — don't restore this job on a later reload
       try { localStorage.setItem('aqm_crew_name', (document.getElementById('crew_member').value || '').trim()); } catch (e) {}
       form.style.display = 'none';
       const success = document.getElementById('successScreen');
@@ -1176,7 +1425,8 @@
       submitBtn.textContent = 'Submit Service Record';
       const reason = (err && err.name === 'AbortError') ? 'connection timed out' : (err.message || 'network error');
       journalAdd('failed — ' + reason);
-      showSubmitError('Submission did NOT land (' + reason + '). Do NOT refresh this page — your entries are still here. Check your signal and tap Submit again. If it keeps failing, text Peter the customer name + what you did.');
+      saveDraft();
+      showSubmitError('Submission did NOT land (' + reason + '). Nothing was lost — this job is saved on your phone and will come back even if the page reloads. Check your signal and tap Submit again. If it keeps failing, text Peter the customer name + what you did.');
     }
   });
   // ── Chemical steppers ──
@@ -1205,12 +1455,22 @@
   function resetForm() {
     var keepCrew = document.getElementById('crew_member').value;   // same guy, next pool
     form.reset();
-    dateField.value = `${yyyy}-${mm}-${dd}`;
+    stampToday();   // fresh date, not the day this tab was opened
     document.getElementById('crew_member').value = keepCrew;
     highlightCrewChips();
     // Fresh job = fresh guards: allow submitting again, mint a new ID next submit.
     submitting = false;
     currentSubmissionId = null;
+    clWarnAcked = false;
+    document.getElementById('cl-warn').classList.remove('show');
+    document.getElementById('field-parts').style.display = 'none';
+    document.getElementById('field-parts').classList.remove('has-error');
+    document.getElementById('spa-error').style.display = 'none';
+    document.getElementById('spa-pool-only').style.borderColor = '';
+    document.getElementById('spa-pool-spa').style.borderColor = '';
+    document.getElementById('jt-weekly').style.borderColor = '';
+    document.getElementById('jt-service').style.borderColor = '';
+    clearDraft();
     var subIdEl = document.getElementById('submission_id');
     if (subIdEl) subIdEl.value = '';
     // Drop any extra equipment rows added on the previous job, keeping the first.
@@ -1266,6 +1526,12 @@
      Recurring-service clients only (weekly / biweekly). Names only —
      no addresses, phones, or emails live in this list. The box stays
      free-type, so a one-off service-work customer can still be typed.
+
+     Checked against ~/Desktop/Reference/Aquamarine_Customer_Directory.xlsx on
+     2026-07-21 (Shelby added, Whaley paired with its "Miami Rd" billing name).
+     When a recurring client is added or dropped, update this list in the same pass —
+     a name that's missing here gets free-typed, and a typo'd name splits the customer
+     in billing.
      ────────────────────────────────────────────────────────────── */
   var CUSTOMERS = [
     {name:"Mark & Gina Andollina",last:"Andollina"},{name:"Argo",last:"Argo"},
@@ -1288,9 +1554,11 @@
     {name:"Tim Perkins",last:"Perkins"},{name:"Judy Phillips",last:"Phillips"},
     {name:"Phillips Edison",last:"Phillips Edison"},{name:"Steve Robison",last:"Robison"},
     {name:"Mark & Anna Ruehlmann",last:"Ruehlmann"},{name:"Saeed",last:"Saeed"},
-    {name:"Tracy Sandquist",last:"Sandquist"},{name:"Brian Skale",last:"Skale"},
+    {name:"Tracy Sandquist",last:"Sandquist"},{name:"Brittany Shelby",last:"Shelby"},
+    {name:"Brian Skale",last:"Skale"},
     {name:"Len Texter",last:"Texter"},{name:"Thacker",last:"Thacker"},
-    {name:"Nick Voynovich",last:"Voynovich"}
+    {name:"Nick Voynovich",last:"Voynovich"},
+    {name:"Whaley / Miami Rd",last:"Whaley"}
   ];
   (function initCustomerTypeahead() {
     var input = document.getElementById('customer_name');
@@ -1356,7 +1624,11 @@
       } else if (e.key === 'ArrowUp') {
         e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); render(); scrollActive();
       } else if (e.key === 'Enter') {
-        if (activeIdx >= 0) { e.preventDefault(); choose(activeIdx); }
+        // Always swallow Enter/Go while the suggestion list is open. On a phone there are
+        // no arrow keys, so nothing is ever highlighted — Go used to fall through and fire
+        // the whole form off half-filled, with a partly-typed customer name.
+        e.preventDefault();
+        if (activeIdx >= 0) choose(activeIdx); else close();
       } else if (e.key === 'Escape') {
         close();
       }
