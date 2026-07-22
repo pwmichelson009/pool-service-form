@@ -578,11 +578,11 @@
       <div class="svc-error" id="svc-error">Please select at least one service type.</div>
     </div>
     <!-- Parts / Materials (col P in the sheet) — Service Work jobs only; weeklies never
-         see it. Required there so parts actually get billed; crew types "none" if none. -->
+         see it. Optional: never block a submit over it, an unlogged job costs more than
+         a blank parts line. -->
     <div class="field" id="field-parts" style="display:none;">
-      <label>Parts / Materials Used <span class="required-star">*</span> <span class="hint">(type "none" if you didn't use any)</span></label>
+      <label>Parts / Materials Used <span class="hint">(optional — helps get parts on the invoice)</span></label>
       <textarea name="parts_materials" id="parts_materials" placeholder="e.g. 1 x Pentair 2 HP motor, 2 x 1.5&quot; unions, 1 tube silicone…" style="min-height:72px;"></textarea>
-      <div class="field-error">List the parts you used, or type "none".</div>
     </div>
   </div>
 
@@ -1294,16 +1294,6 @@
       document.getElementById('svc-error').style.display = 'block';
       document.getElementById('field-service-type').classList.add('has-error');
       valid = false;
-    }
-    // Service Work: parts/materials must be answered (billing reads this column).
-    if (document.getElementById('job_category').value === 'Service Work') {
-      var _parts = document.getElementById('parts_materials');
-      if (!_parts.value.trim()) {
-        document.getElementById('field-parts').classList.add('has-error');
-        valid = false;
-      } else {
-        document.getElementById('field-parts').classList.remove('has-error');
-      }
     }
     // Weekly: Pool only vs Pool + Spa drives the price, so it can't be left unanswered.
     if (document.getElementById('job_category').value === 'Weekly Maintenance' &&
