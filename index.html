@@ -249,10 +249,15 @@
       margin-top: 6px; padding: 10px; background: #f9fafb;
       border: 1.5px solid #dde3ea; border-radius: 10px;
     }
-    /* Chemical steppers */
+    /* Chemical steppers — two-across at EVERY width. The crew fills this on phones;
+       collapsing to one column doubled the scroll. The phone-width control overrides
+       live BELOW the .chem-qty/.chem-unit base rules — same specificity, so they must
+       come later in the file to win the cascade. */
     .chem-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-    @media (max-width: 480px) { .chem-list { grid-template-columns: 1fr; } }
     .chem-row {
+      /* min-width:0 — else the number input's ~150px intrinsic width stops the grid
+         tracks from shrinking and the second column runs off a phone screen */
+      min-width: 0;
       display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
       background: #f5f8fc; border: 1.5px solid #dde3ea;
       border-radius: 9px; padding: 10px 12px;
@@ -262,8 +267,9 @@
     .chem-name { font-size: 0.88rem; font-weight: 500; color: #222; }
     .stepper { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     .chem-qty {
-      width: 60px; height: 38px; text-align: center;
-      font-size: 1.05rem; font-weight: 700; color: #222;
+      /* 46px tall — Apple's 44px minimum touch target; the crew taps this in gloves */
+      width: 68px; height: 46px; text-align: center;
+      font-size: 1.1rem; font-weight: 700; color: #222;
       border: 1.5px solid #c5d5e8; border-radius: 8px;
       background: white; padding: 0 4px;
       -webkit-appearance: none; appearance: none;
@@ -348,11 +354,41 @@
       -webkit-appearance: none;
       appearance: none;
       min-width: 78px;
-      height: 38px;
+      height: 46px; /* matches .chem-qty — one fat tap row */
       text-align: center;
       cursor: pointer;
     }
     .chem-row.active .chem-unit { border-color: #0a6ebd; }
+    /* Phone-width chem tuning — AFTER the base rules above so it wins the cascade
+       (an earlier copy of this block silently lost and pushed the grid off-screen). */
+    @media (max-width: 480px) {
+      .chem-list { gap: 6px; }
+      .chem-row { padding: 8px 9px; gap: 5px; }
+      .chem-name { font-size: 0.8rem; line-height: 1.25; }
+      .stepper { width: 100%; gap: 5px; }
+      /* widths flex to the half-screen cell; font sizes stay ≥16px so iOS doesn't zoom.
+         .chem-qty keeps a DEFINITE width (not auto) — auto revives the input's ~150px
+         intrinsic width and blows the grid out sideways again */
+      .chem-qty { width: 52px; flex: 1 1 52px; min-width: 0; }
+      .chem-unit { flex: 1 1 64px; min-width: 0; padding: 0 2px; }
+    }
+    @media (max-width: 359px) { .chem-list { grid-template-columns: 1fr; } }
+    /* "Extra chemicals" drawer — the rarely-used chems live behind this toggle so the
+       everyday list stays short. Hidden rows still submit fine: the summary builder
+       reads every .chem-row regardless of visibility. */
+    .chem-extra-toggle {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      margin-top: 8px; padding: 12px 14px; min-height: 46px;
+      background: #f9fafb; border: 1.5px dashed #c5d5e8; border-radius: 9px;
+      font-size: 0.88rem; font-weight: 600; color: #0a6ebd;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .chem-extra-toggle .chevron { transition: transform 0.15s; font-size: 0.8rem; }
+    .chem-extra-toggle.open .chevron { transform: rotate(90deg); }
+    .chem-extra-note { font-weight: 400; color: #888; font-size: 0.78rem; }
+    .chem-extra-count { margin-left: auto; font-weight: 700; color: #2e7d32; font-size: 0.8rem; }
+    .chem-extra { display: none; margin-top: 7px; }
+    .chem-extra.open { display: grid; }
     .reading-divider {
       grid-column: 1 / -1; font-size: 0.68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 1px; color: #0a6ebd;
@@ -619,13 +655,6 @@
           <select class="chem-unit"><option>gallons</option><option>lbs</option><option>bags</option><option>oz</option></select>
         </div>
       </div>
-      <div class="chem-row" data-chem="Non-Chlorinated Shock" data-step="0.5">
-        <span class="chem-name">Non-Chlorinated Shock</span>
-        <div class="stepper">
-          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
-          <select class="chem-unit"><option>lbs</option><option>oz</option><option>bags</option></select>
-        </div>
-      </div>
       <div class="chem-row" data-chem="Chlorine Tablets">
         <span class="chem-name">Chlorine Tablets</span>
         <div class="stepper">
@@ -675,6 +704,29 @@
           <select class="chem-unit"><option>bags</option><option>lbs</option></select>
         </div>
       </div>
+      <div class="chem-row" data-chem="Calcium Hardness" data-step="0.5">
+        <span class="chem-name">Calcium Hardness</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>lbs</option><option>oz</option></select>
+        </div>
+      </div>
+    </div>
+    <!-- Rarely-used chems live in this drawer (Peter, 2026-07-23) so the everyday
+         nine stay above the fold. Row markup is IDENTICAL to the main list — the
+         summary builder, draft restore, and reset all find these rows the same way. -->
+    <button type="button" class="chem-extra-toggle" id="chemExtraToggle" aria-expanded="false" aria-controls="chemExtra">
+      <span class="chevron">&#9656;</span> <span style="white-space:nowrap;">Extra chemicals</span> <span class="chem-extra-note">rarely used</span>
+      <span class="chem-extra-count" id="chemExtraCount"></span>
+    </button>
+    <div class="chem-list chem-extra" id="chemExtra">
+      <div class="chem-row" data-chem="Non-Chlorinated Shock" data-step="0.5">
+        <span class="chem-name">Non-Chlorinated Shock</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>lbs</option><option>oz</option><option>bags</option></select>
+        </div>
+      </div>
       <div class="chem-row" data-chem="Phosphate Remover">
         <span class="chem-name">Phosphate Remover</span>
         <div class="stepper">
@@ -687,13 +739,6 @@
         <div class="stepper">
           <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>bottles</option></select>
-        </div>
-      </div>
-      <div class="chem-row" data-chem="Calcium Hardness" data-step="0.5">
-        <span class="chem-name">Calcium Hardness</span>
-        <div class="stepper">
-          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
-          <select class="chem-unit"><option>lbs</option><option>oz</option></select>
         </div>
       </div>
       <div class="chem-row" data-chem="Refresh">
@@ -715,6 +760,34 @@
         <div class="stepper">
           <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
           <select class="chem-unit"><option>25 lb</option><option>50 lb</option></select>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Algaecide">
+        <span class="chem-name">Algaecide</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>oz</option><option>quarts</option><option>gallons</option></select>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Clarifier">
+        <span class="chem-name">Clarifier</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>oz</option><option>quarts</option></select>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="Flocculant">
+        <span class="chem-name">Flocculant</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>oz</option><option>quarts</option><option>gallons</option></select>
+        </div>
+      </div>
+      <div class="chem-row" data-chem="DE Powder">
+        <span class="chem-name">DE Powder</span>
+        <div class="stepper">
+          <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
+          <select class="chem-unit"><option>lbs</option><option>scoops</option></select>
         </div>
       </div>
     </div>
@@ -961,6 +1034,8 @@
         row.classList.add('active');
         var u = row.querySelector('.chem-unit');
         if (u && c.u) u.value = c.u;
+        // A restored draft with a drawer chem must come back visible, not hidden.
+        if (row.closest('#chemExtra')) { setExtraOpen(true); updateExtraCount(); }
       });
       currentSubmissionId = d.id || null;
 
@@ -1444,6 +1519,38 @@
       buildChemSummary();
     });
     row.querySelector('.chem-unit').addEventListener('change', buildChemSummary);
+    // The whole card is the tap target — gloved thumbs shouldn't have to hit the
+    // small box dead-on. Taps on the unit dropdown keep their normal behavior.
+    row.addEventListener('click', function(e) {
+      if (e.target === qtyEl || e.target.closest('.chem-unit')) return;
+      qtyEl.focus();
+      if (qtyEl.value) qtyEl.select();
+    });
+    if (row.closest('#chemExtra')) qtyEl.addEventListener('input', updateExtraCount);
+  });
+
+  /* "Extra chemicals" drawer: plain show/hide. A green "N filled" badge on the
+     collapsed toggle makes sure a dose typed in the drawer never disappears from
+     view — collapsed-but-filled is the one state that could hide money.
+     Both helpers look their elements up at CALL time: restoreDraft() runs higher in
+     this file than this block, and function declarations hoist but `var` values
+     don't — closing over vars here would crash a drawer-chem draft restore. */
+  function setExtraOpen(open) {
+    var t = document.getElementById('chemExtraToggle');
+    var l = document.getElementById('chemExtra');
+    l.classList.toggle('open', open);
+    t.classList.toggle('open', open);
+    t.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function updateExtraCount() {
+    var n = 0;
+    document.querySelectorAll('#chemExtra .chem-qty').forEach(function(q) {
+      if (parseFloat(q.value) > 0) n++;
+    });
+    document.getElementById('chemExtraCount').textContent = n > 0 ? n + ' filled' : '';
+  }
+  document.getElementById('chemExtraToggle').addEventListener('click', function() {
+    setExtraOpen(!document.getElementById('chemExtra').classList.contains('open'));
   });
 
   function resetForm() {
@@ -1508,6 +1615,8 @@
       row.classList.remove('active');
     });
     document.getElementById('chemicals_used').value = '';
+    setExtraOpen(false);
+    updateExtraCount();
     document.getElementById('job_category').value = '';
     updateSpaChem();
     document.getElementById('successScreen').style.display = 'none';
@@ -1526,33 +1635,66 @@
      When a recurring client is added or dropped, update this list in the same pass —
      a name that's missing here gets free-typed, and a typo'd name splits the customer
      in billing.
+
+     2026-07-22: added `alt` — the misspellings the crew actually types, mined from the
+     real form submissions in pool_log.json and the Aqua group chats (e.g. "Chessen" was
+     typed 21 times vs the canonical "Chessin"; "Koppenhaufer" 21 times). Typing an alt
+     surfaces the customer and inserts the CANONICAL name, so the split stops at the
+     source. Alts are match-only — never displayed. Canonical spellings verified against
+     Square. Rahe + Nguyen added (both were missing entirely, so both were free-typed).
+     Do NOT alias Robinson→Robison: those are two different customers.
      ────────────────────────────────────────────────────────────── */
   var CUSTOMERS = [
-    {name:"Mark & Gina Andollina",last:"Andollina"},{name:"Argo",last:"Argo"},
-    {name:"Joe Brooks",last:"Brooks"},{name:"Jennifer Chaney",last:"Chaney"},
-    {name:"Judy Chessin",last:"Chessin"},{name:"Cicchinelli",last:"Cicchinelli"},
-    {name:"Ken & Starla Clark",last:"Clark"},{name:"Creme de la Creme",last:"Creme de la Creme"},
-    {name:"Frank Dupps",last:"Dupps"},{name:"Scott Dyer",last:"Dyer"},
-    {name:"Scott Eppert",last:"Eppert"},{name:"Kurt Finch",last:"Finch"},
-    {name:"Mona Foad",last:"Foad"},{name:"Jerry Gaulding",last:"Gaulding"},
-    {name:"Jessica Gilbert",last:"Gilbert"},{name:"Erin Growe",last:"Growe"},
-    {name:"Mike/Julie Guenther",last:"Guenther"},{name:"Harcum",last:"Harcum"},
-    {name:"Debbie Helmer",last:"Helmer"},{name:"Nick & Charlene Insco",last:"Insco"},
-    {name:"AJ Jones",last:"Jones"},{name:"Ali Kandil",last:"Kandil"},
-    {name:"Kathy Keeny",last:"Keeny"},{name:"Dr. Khan",last:"Khan"},
-    {name:"Kirkpatrick",last:"Kirkpatrick"},{name:"Kirk Koppenhoefer",last:"Koppenhoefer"},
-    {name:"Geoff Kuzio",last:"Kuzio"},{name:"Amy/Norm Lewis",last:"Lewis"},
-    {name:"Charlie Long",last:"Long"},{name:"Victoria / Joe McCauley",last:"McCauley"},
-    {name:"Karen McKenzie",last:"McKenzie"},{name:"Miami Rd",last:"Miami Rd"},
-    {name:"Sunil Misra",last:"Misra"},{name:"Musekamp",last:"Musekamp"},
-    {name:"Tim Perkins",last:"Perkins"},{name:"Judy Phillips",last:"Phillips"},
-    {name:"Phillips Edison",last:"Phillips Edison"},{name:"Steve Robison",last:"Robison"},
-    {name:"Mark & Anna Ruehlmann",last:"Ruehlmann"},{name:"Saeed",last:"Saeed"},
-    {name:"Tracy Sandquist",last:"Sandquist"},{name:"Brittany Shelby",last:"Shelby"},
-    {name:"Brian Skale",last:"Skale"},
-    {name:"Len Texter",last:"Texter"},{name:"Thacker",last:"Thacker"},
-    {name:"Nick Voynovich",last:"Voynovich"},
-    {name:"Whaley / Miami Rd",last:"Whaley"}
+    {name:"Mark & Gina Andollina",last:"Andollina",alt:["andolina","andalina"]},
+    {name:"Argo",last:"Argo"},
+    {name:"Joe Brooks",last:"Brooks"},
+    {name:"Jennifer Chaney",last:"Chaney",alt:["cheney","chany"]},
+    {name:"Judy Chessin",last:"Chessin",alt:["chessen","cheson","chesin","chesen","cheshin","chessins"]},
+    {name:"Cicchinelli",last:"Cicchinelli",alt:["cichinelli","chicinelli","cicinelli","cicchinelly"]},
+    {name:"Ken & Starla Clark",last:"Clark"},
+    {name:"Creme de la Creme",last:"Creme de la Creme",alt:["crème","creme","cream of the crop"]},
+    {name:"Neil Dobrin",last:"Dobrin",alt:["dorbin","dobrins","dobryn"]},
+    {name:"Frank Dupps",last:"Dupps",alt:["dups","dupp"]},
+    {name:"Scott Dyer",last:"Dyer"},
+    {name:"Scott Eppert",last:"Eppert",alt:["epert","eppart"]},
+    {name:"Kurt Finch",last:"Finch"},
+    {name:"Mona Foad",last:"Foad",alt:["fod","foard"]},
+    {name:"Jerry Gaulding",last:"Gaulding",alt:["golding","gaulden"]},
+    {name:"Jessica Gilbert",last:"Gilbert"},
+    {name:"Erin Growe",last:"Growe",alt:["grow","groew"]},
+    {name:"Mike/Julie Guenther",last:"Guenther",alt:["gunther","guenter","genther"]},
+    {name:"Harcum",last:"Harcum",alt:["harcom","harcumb"]},
+    {name:"Debbie Helmer",last:"Helmer"},
+    {name:"Nick & Charlene Insco",last:"Insco",alt:["indco","insko","inscoe"]},
+    {name:"AJ Jones",last:"Jones"},
+    {name:"Ali Kandil",last:"Kandil",alt:["kandill","kandel","kandils"]},
+    {name:"Kathy Keeny",last:"Keeny",alt:["keeney","keenie","keney"]},
+    {name:"Dr. Khan",last:"Khan",alt:["kahn","kaun"]},
+    {name:"Kirkpatrick",last:"Kirkpatrick"},
+    {name:"Kirk Koppenhoefer",last:"Koppenhoefer",alt:["koppenhaufer","koppenhaueffer","koppenhoeffer","koppenhauffer","kopenhoefer","kopp"]},
+    {name:"Geoff Kuzio",last:"Kuzio",alt:["kizio","kuzzio","cuzio"]},
+    {name:"Amy/Norm Lewis",last:"Lewis"},
+    {name:"Charlie Long",last:"Long"},
+    {name:"Victoria / Joe McCauley",last:"McCauley",alt:["mccaully","mcauley","mccauly","macauley"]},
+    {name:"Karen McKenzie",last:"McKenzie",alt:["mkenzie","mackenzie","mckenzy","mckensie"]},
+    {name:"Miami Rd",last:"Miami Rd"},
+    {name:"Sunil Misra",last:"Misra",alt:["misrah","mistra"]},
+    {name:"Eric Musekamp",last:"Musekamp",alt:["musecamp","muse camp","musakamp","musecomp","musekampf"]},
+    {name:"Nathan Nguyen",last:"Nguyen",alt:["mcguin","mcguinn","maguin","mcgwin","nguyn","nathen","nguen"]},
+    {name:"Tim Perkins",last:"Perkins"},
+    {name:"Judy Phillips",last:"Phillips"},
+    {name:"Phillips Edison",last:"Phillips Edison",alt:["edison","phillip edison"]},
+    {name:"Nick Rahe",last:"Rahe",alt:["ray","rae","rahey","rah","raye"]},
+    {name:"Steve Robison",last:"Robison",alt:["robeson"]},
+    {name:"Mark & Anna Ruehlmann",last:"Ruehlmann",alt:["rhuelman","ruehlman","ruhlman","rhulman","reulman"]},
+    {name:"Saeed",last:"Saeed",alt:["saaed","saed","sayeed","fereshtehkhou"]},
+    {name:"Tracy Sandquist",last:"Sandquist",alt:["sandquest","sanquist"]},
+    {name:"Brittany Shelby",last:"Shelby"},
+    {name:"Brian Skale",last:"Skale",alt:["skales","skael"]},
+    {name:"Len Texter",last:"Texter",alt:["textor"]},
+    {name:"Thacker",last:"Thacker",alt:["thacher","thaker"]},
+    {name:"Nick Voynovich",last:"Voynovich",alt:["voynavich","voynovic","vonovich","voinovich","andrew","andrew voynovich"]},
+    {name:"Whaley / Miami Rd",last:"Whaley",alt:["whale","waley","whaily"]}
   ];
   (function initCustomerTypeahead() {
     var input = document.getElementById('customer_name');
@@ -1564,11 +1706,24 @@
     function rank(q) {
       q = q.trim().toLowerCase();
       if (!q) return [];
+      var hits = rankOne(q);
+      // "C Cheson", "Nick ray", "Judy cheson" — a first name or initial in front of the
+      // last name used to kill the match outright. If the whole string finds nothing,
+      // fall back to the last word the crew typed.
+      if (!hits.length && q.indexOf(' ') > 0) {
+        var tail = q.split(/\s+/).pop();
+        if (tail.length >= 2) hits = rankOne(tail);
+      }
+      return hits;
+    }
+    function rankOne(q) {
       var starts = [], contains = [];
       CUSTOMERS.forEach(function(c) {
         var last = c.last.toLowerCase(), full = c.name.toLowerCase();
-        if (last.indexOf(q) === 0) { starts.push(c); }
-        else if (q.length >= 2 && (last.indexOf(q) > 0 || full.indexOf(q) >= 0)) { contains.push(c); }
+        var alts = c.alt || [];
+        if (last.indexOf(q) === 0 || alts.some(function(a){ return a.indexOf(q) === 0; })) { starts.push(c); }
+        else if (q.length >= 2 && (last.indexOf(q) > 0 || full.indexOf(q) >= 0 ||
+                 alts.some(function(a){ return a.indexOf(q) >= 0; }))) { contains.push(c); }
       });
       return starts.concat(contains);
     }
