@@ -1332,6 +1332,23 @@
       hiddenInputs.forEach(function (el) { el.disabled = false; });
     }
   }
+  // Can this engine stop at a redirect on a no-cors POST? Chrome and Safari both allow it,
+  // but the rule has changed in the spec before and the crew is on whatever iOS their phone
+  // is running. If the combination is refused — by throwing, or by quietly forcing 'follow'
+  // back on — we must NOT send it, because a submit that throws here would show the crew a
+  // red "did NOT land" banner on a job that was fine. Probe once, at load, and fall back to
+  // the old behavior on anything unexpected. Costs nothing: no request is made.
+  var SKIP_REDIRECT_OK = (function () {
+    try {
+      var probe = new Request('https://probe.invalid/', {
+        method: 'POST', mode: 'no-cors', redirect: 'manual'
+      });
+      return probe.redirect === 'manual';
+    } catch (e) {
+      return false;
+    }
+  })();
+
   // One shared error banner for offline + failed submits.
   function showSubmitError(msg) {
     let errBanner = document.getElementById('submit-error-banner');
@@ -1480,6 +1497,16 @@
     try {
       const formData = buildFormData();
       const opts = { method: 'POST', body: formData, mode: 'no-cors' };
+      // Skip the wasted second trip when the engine allows it. Apps Script answers a good
+      // POST with a 302 pointing at script.googleusercontent.com — a DIFFERENT hostname,
+      // so following it costs a fresh DNS lookup and TLS handshake. We pay all of that to
+      // download a body that mode:'no-cors' throws away unread. Stopping at the 302 is
+      // safe because Apps Script only sends it AFTER doPost has finished and the row is
+      // written, so we still wait on a real, completed write — same guarantee as before.
+      // Measured 2026-08-24: that hop cost 0.2s warm and 2.7s cold, and a phone moving
+      // between job sites is cold most of the day. Guarded by SKIP_REDIRECT_OK so an
+      // engine that refuses the combination falls back instead of failing a submit.
+      if (SKIP_REDIRECT_OK) opts.redirect = 'manual';
       if (controller) opts.signal = controller.signal;
       await fetch(form.action, opts);
       if (timeoutId) clearTimeout(timeoutId);
