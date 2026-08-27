@@ -937,12 +937,18 @@
   // second roster to drift. Typing the real name passes through untouched.
   function decodeCrewName() {
     var inp = document.getElementById('crew_member');
-    var v = (inp.value || '').trim().toLowerCase();
+    var v = (inp.value || '').trim();
     if (!v) return;
+    inp.value = v;                       // stray spaces never reach the sheet
+    var lower = v.toLowerCase();
     document.querySelectorAll('.crew-chip').forEach(function (ch) {
       var cn = ch.querySelector('.cn-god');
-      if (cn && cn.textContent.trim().toLowerCase() === v) {
-        inp.value = ch.getAttribute('data-real');
+      var real = ch.getAttribute('data-real') || '';
+      // Typed callsign -> real name. Typed real name in odd case ("TIM", "tim")
+      // -> the button's exact spelling, so the roster never splits on caps.
+      if ((cn && cn.textContent.trim().toLowerCase() === lower) ||
+          real.toLowerCase() === lower) {
+        inp.value = real;
       }
     });
   }
@@ -975,7 +981,8 @@
       m = exact(function (c) { return c.last.toLowerCase() === tail; });
       if (!m.length) m = exact(function (c) { return (c.alt || []).indexOf(tail) > -1; });
     }
-    if (m.length === 1 && inp.value.trim() !== m[0].name) inp.value = m[0].name;
+    inp.value = typed;                   // trimmed, even when nothing matches
+    if (m.length === 1) inp.value = m[0].name;
   }
 
   // ── Submission journal: this phone keeps its own record of the last 25
