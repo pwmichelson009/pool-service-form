@@ -168,7 +168,7 @@
       gap: 8px; margin-bottom: 12px;
     }
     .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    @media (max-width: 340px) { .check-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 340px) { .check-grid, .open-check-grid { grid-template-columns: 1fr; } }
     .check-item {
       display: flex; align-items: center; gap: 8px;
       background: #f5f8fc; border: 1.5px solid #dde3ea;
@@ -538,7 +538,7 @@
 
         <!-- ── Other Services — collapsible ── -->
         <button type="button" class="other-svc-btn" id="other-svc-btn" onclick="toggleOtherServices()">
-          <span>🔧 Other Services</span>
+          <span>🔧 Other Services <span class="chem-extra-count" id="other-svc-count"></span></span>
           <span class="other-svc-arrow" id="other-svc-arrow">▼</span>
         </button>
         <div class="other-svc-panel" id="other-svc-panel" style="display:none;">
@@ -666,7 +666,7 @@
           <select class="chem-unit"><option>tablets</option><option>lbs</option><option>bucket</option></select>
         </div>
       </div>
-      <div class="chem-row" data-chem="Muriatic Acid" data-step="0.5">
+      <div class="chem-row" data-chem="Muriatic Acid">
         <span class="chem-name">Muriatic Acid</span>
         <div class="stepper">
           <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
@@ -708,7 +708,7 @@
           <select class="chem-unit"><option>bags</option><option>lbs</option></select>
         </div>
       </div>
-      <div class="chem-row" data-chem="Calcium Hardness" data-step="0.5">
+      <div class="chem-row" data-chem="Calcium Hardness">
         <span class="chem-name">Calcium Hardness</span>
         <div class="stepper">
           <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
@@ -724,7 +724,7 @@
       <span class="chem-extra-count" id="chemExtraCount"></span>
     </button>
     <div class="chem-list chem-extra" id="chemExtra">
-      <div class="chem-row" data-chem="Non-Chlorinated Shock" data-step="0.5">
+      <div class="chem-row" data-chem="Non-Chlorinated Shock">
         <span class="chem-name">Non-Chlorinated Shock</span>
         <div class="stepper">
           <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
@@ -738,7 +738,7 @@
           <select class="chem-unit"><option>oz</option><option>quarts</option><option>bottles</option></select>
         </div>
       </div>
-      <div class="chem-row" data-chem="Commercial Phosphate" data-step="0.25">
+      <div class="chem-row" data-chem="Commercial Phosphate">
         <span class="chem-name">Commercial Phosphate</span>
         <div class="stepper">
           <input type="number" class="chem-qty" inputmode="decimal" min="0" step="any" placeholder="0" aria-label="quantity" />
@@ -911,9 +911,10 @@
   <div class="check-circle">
     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
-  <h2>Job Logged!</h2>
-  <p>The service record has been submitted.<br>Peter will be notified and the invoice will be created.</p>
+  <h2>Job Sent!</h2>
+  <p>This job was sent from this phone.<br>Peter's system picks it up from here.</p>
   <button class="submit-another" onclick="resetForm()">Log Another Job</button>
+  <button class="submit-another" id="resend-last-btn" onclick="resendLastJob()" style="background:#fff; color:#0a6ebd; border:2px solid #0a6ebd; margin-top:10px;">Peter doesn't see this job? Resend</button>
   <p style="margin-top:14px; font-size:0.82rem; color:#aaa;">Only had one job? You're done — close this tab.</p>
 </div>
 <script>
@@ -930,6 +931,21 @@
     highlightCrewChips();
     try { localStorage.setItem('aqm_crew_name', name); } catch (e) {}
   }
+  // A guy might free-type his CODE NAME (the word on the button) instead of tapping.
+  // The sheet must always get the real name, so decode it right before send. The map
+  // comes from the live buttons themselves (data-real ↔ the visible callsign) — no
+  // second roster to drift. Typing the real name passes through untouched.
+  function decodeCrewName() {
+    var inp = document.getElementById('crew_member');
+    var v = (inp.value || '').trim().toLowerCase();
+    if (!v) return;
+    document.querySelectorAll('.crew-chip').forEach(function (ch) {
+      var cn = ch.querySelector('.cn-god');
+      if (cn && cn.textContent.trim().toLowerCase() === v) {
+        inp.value = ch.getAttribute('data-real');
+      }
+    });
+  }
   function highlightCrewChips() {
     var val = (document.getElementById('crew_member').value || '').trim().toLowerCase();
     document.querySelectorAll('.crew-chip').forEach(function(ch){
@@ -937,6 +953,29 @@
       var real = (ch.getAttribute('data-real') || '').trim().toLowerCase();
       ch.classList.toggle('selected', real === val);
     });
+  }
+
+  // The typeahead only fixes a misspelling if they TAP the row. Typed-and-submitted
+  // ("Chessen" + Go) used to reach billing as-is and split the customer. On submit,
+  // an EXACT match (case-insensitive) on a canonical name, a last name, or one alt —
+  // then the same on just the last word — rewrites to the canonical name, but only
+  // when exactly ONE customer matches. Never prefix-matches: "Phillips" is Judy
+  // Phillips, "Phillips Edison" is a different customer, Robinson stays free-typed.
+  function canonicalizeCustomerName() {
+    var inp = document.getElementById('customer_name');
+    var typed = (inp.value || '').trim();
+    if (!typed) return;
+    var q = typed.toLowerCase();
+    function exact(test) { return CUSTOMERS.filter(test); }
+    var m = exact(function (c) { return c.name.toLowerCase() === q; });
+    if (!m.length) m = exact(function (c) { return c.last.toLowerCase() === q; });
+    if (!m.length) m = exact(function (c) { return (c.alt || []).indexOf(q) > -1; });
+    if (!m.length && q.indexOf(' ') > 0) {
+      var tail = q.split(/\s+/).pop();
+      m = exact(function (c) { return c.last.toLowerCase() === tail; });
+      if (!m.length) m = exact(function (c) { return (c.alt || []).indexOf(tail) > -1; });
+    }
+    if (m.length === 1 && inp.value.trim() !== m[0].name) inp.value = m[0].name;
   }
 
   // ── Submission journal: this phone keeps its own record of the last 25
@@ -977,10 +1016,8 @@
   var DRAFT_KEY = 'aqm_draft';
   var draftReady = false;   // don't save while we're still restoring
 
-  function saveDraft() {
-    if (!draftReady) return;
-    try {
-      var d = { v: 1, at: Date.now(), id: currentSubmissionId, fields: {}, checks: [], chems: [], equip: [] };
+  function collectDraft() {
+    var d = { v: 1, at: Date.now(), id: currentSubmissionId, fields: {}, checks: [], chems: [], equip: [] };
       document.querySelectorAll('#serviceForm input, #serviceForm select, #serviceForm textarea').forEach(function (el) {
         if (!el.name) return;
         if (el.type === 'checkbox' || el.type === 'radio') {
@@ -997,6 +1034,12 @@
         var u = row.querySelector('.chem-unit');
         if (q) d.chems.push({ c: row.getAttribute('data-chem'), q: q, u: u ? u.value : '' });
       });
+    return d;
+  }
+  function saveDraft() {
+    if (!draftReady) return;
+    try {
+      var d = collectDraft();
       var anything = d.checks.length || d.chems.length ||
         Object.keys(d.fields).some(function (k) { return d.fields[k] && k !== 'date_of_service' && k !== 'form_type' && k !== '_subject'; });
       if (!anything) { localStorage.removeItem(DRAFT_KEY); return; }
@@ -1057,6 +1100,15 @@
       updateRemoveBtns();
       // A restored date was the crew's, not ours — don't auto-stamp over it.
       if (dateField.value && dateField.value !== dateField.dataset.autofill) dateField.dataset.autofill = '';
+      // Opening/Closing/Equipment live inside the collapsed Other Services panel.
+      // Restore checks their boxes but the panel stayed display:none — the tech
+      // reloads and thinks the opening checklist vanished. Restore is the one
+      // place we force it open; a mid-job collapse on purpose is respected.
+      if (document.querySelector('#other-svc-panel input[name="service_type[]"]:checked')) {
+        document.getElementById('other-svc-panel').style.display = 'block';
+        document.getElementById('other-svc-btn').classList.add('open');
+        updateOtherSvcCount();
+      }
       return true;
     } catch (e) { return false; }
   }
@@ -1086,6 +1138,13 @@
       if (!document.getElementById('visit_frequency').value) {
         selectFrequency('Weekly');
       }
+      // Weekly has its own checklist, but submit still requires a service type.
+      // Auto-check Cleaning so a fully-filled weekly can't die on that error;
+      // anything else they already checked stays checked.
+      if (!document.querySelector('input[name="service_type[]"]:checked')) {
+        var _cleanCb = document.querySelector('input[name="service_type[]"][value="Cleaning"]');
+        if (_cleanCb) _cleanCb.checked = true;
+      }
     } else {
       document.getElementById('weekly_service_includes').value = '';
       document.getElementById('spa-pool-only').classList.remove('selected');
@@ -1110,6 +1169,16 @@
     var isOpen = panel.style.display !== 'none';
     panel.style.display = isOpen ? 'none' : 'block';
     btn.classList.toggle('open', !isOpen);
+    updateOtherSvcCount();
+  }
+  // Collapsed panel + checked boxes inside = invisible work. Same idea as the
+  // extra-chemicals "N filled" badge: show a count on the toggle while collapsed.
+  function updateOtherSvcCount() {
+    var badge = document.getElementById('other-svc-count');
+    if (!badge) return;
+    var collapsed = document.getElementById('other-svc-panel').style.display === 'none';
+    var n = document.querySelectorAll('#other-svc-panel input[name="service_type[]"]:checked').length;
+    badge.textContent = (collapsed && n > 0) ? n + ' selected' : '';
   }
   function selectWeeklySpa(val) {
     document.getElementById('weekly_service_includes').value = val;
@@ -1190,6 +1259,7 @@
       equipPanel.style.display = 'block';
     }
 
+    updateOtherSvcCount();
     if (checked.length > 0) {
       document.getElementById('svc-error').style.display = 'none';
       document.getElementById('field-service-type').classList.remove('has-error');
@@ -1271,7 +1341,10 @@
   // it must not inherit the old job's tracking ID — otherwise a genuinely separate job
   // looks like a duplicate resend. Changing the customer or the date means a new job.
   ['customer_name', 'date_of_service'].forEach(function (id) {
-    document.getElementById(id).addEventListener('input', function () { currentSubmissionId = null; });
+    // iOS's date picker often fires 'change' without 'input' — listen to both.
+    ['input', 'change'].forEach(function (ev) {
+      document.getElementById(id).addEventListener(ev, function () { currentSubmissionId = null; });
+    });
   });
 
   // Journal view: open the form URL with ?journal on the end to see this
@@ -1299,6 +1372,7 @@
   draftReady = true;
   if (restoredDraft) {
     var draftNote = document.createElement('div');
+    draftNote.id = 'draft-restore-banner';
     draftNote.className = 'card';
     draftNote.style.cssText = 'background:#e8f7f0; border:2px solid #1a9a5c; color:#16603c; font-weight:500; line-height:1.4;';
     draftNote.textContent = 'Picked up where you left off — this job was still saved on your phone. Check it over, then submit.';
@@ -1327,6 +1401,16 @@
         hiddenInputs.push(el);
       });
     });
+    // Blank extra equipment rows used to POST as empty strings. Drop them —
+    // but only when at least one filled row exists, so a job with no equipment
+    // still posts the exact same shape the Apps Script has always received.
+    var equipEls = Array.prototype.slice.call(document.querySelectorAll('input[name="equipment_item[]"]'));
+    var anyFilled = equipEls.some(function (el) { return el.value.trim() && !el.disabled; });
+    if (anyFilled) {
+      equipEls.forEach(function (el) {
+        if (!el.value.trim() && !el.disabled) { el.disabled = true; hiddenInputs.push(el); }
+      });
+    }
     try {
       return new FormData(form);
     } finally {
@@ -1348,6 +1432,12 @@
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     if (submitting) return;   // second tap while the first is in flight: ignore
+    // Fix names BEFORE anything reads them: a typed callsign becomes the real
+    // crew name, a typed misspelling becomes the canonical customer name — so
+    // validation, the journal, the draft and the POST all see the same fixed value.
+    decodeCrewName();
+    highlightCrewChips();
+    canonicalizeCustomerName();
     const required = [
       { id: 'date_of_service', fieldId: 'field-date' },
       { id: 'crew_member',     fieldId: 'field-crew' },
@@ -1485,8 +1575,15 @@
       await fetch(form.action, opts);
       if (timeoutId) clearTimeout(timeoutId);
       journalAdd('sent');
+      // "Sent" here means HANDED TO THE NETWORK — no-cors can't read the response,
+      // so a dead Apps Script URL would look identical. Snapshot the whole job
+      // (same shape as the draft, same submission_id) so the success screen's
+      // Resend can bring it back if Peter never sees it. Survives Log Another Job.
+      try { localStorage.setItem('aqm_last_sent', JSON.stringify(collectDraft())); } catch (e) {}
       clearDraft();   // it's away — don't restore this job on a later reload
       try { localStorage.setItem('aqm_crew_name', (document.getElementById('crew_member').value || '').trim()); } catch (e) {}
+      var _rb = document.getElementById('draft-restore-banner');
+      if (_rb) _rb.remove();
       form.style.display = 'none';
       const success = document.getElementById('successScreen');
       success.style.display = 'block';
@@ -1557,6 +1654,27 @@
     setExtraOpen(!document.getElementById('chemExtra').classList.contains('open'));
   });
 
+  // Success screen's "Peter doesn't see this job? Resend". The form still holds the
+  // job (success only hides it), so normally this just re-arms Submit with the SAME
+  // submission_id — a landed twin is provable, never double-billed. If the form was
+  // reset first, the aqm_last_sent snapshot is restored instead. Never mints a new id.
+  function resendLastJob() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('aqm_last_sent') || 'null'); } catch (e) {}
+    var boxCustomer = (document.getElementById('customer_name').value || '').trim();
+    if (!boxCustomer && saved && saved.v === 1) {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(saved)); } catch (e) {}
+      restoreDraft();
+    }
+    if (saved && saved.id) currentSubmissionId = saved.id;
+    submitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Service Record';
+    document.getElementById('successScreen').style.display = 'none';
+    form.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   function resetForm() {
     var keepCrew = document.getElementById('crew_member').value;   // same guy, next pool
     form.reset();
@@ -1584,6 +1702,8 @@
     document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
     const errBanner = document.getElementById('submit-error-banner');
     if (errBanner) errBanner.remove();
+    var restoreBanner = document.getElementById('draft-restore-banner');
+    if (restoreBanner) restoreBanner.remove();
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit Service Record';
     document.getElementById('job_category').value = '';
@@ -1605,6 +1725,7 @@
     document.getElementById('freq-row').style.display = 'none';
     document.getElementById('other-svc-panel').style.display = 'none';
     document.getElementById('other-svc-btn').classList.remove('open');
+    updateOtherSvcCount();
     document.getElementById('weekly_service_includes').value = '';
     document.getElementById('spa-pool-only').classList.remove('selected');
     document.getElementById('spa-pool-spa').classList.remove('selected');
