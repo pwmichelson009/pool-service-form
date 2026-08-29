@@ -827,6 +827,10 @@
         <input type="number" name="reading_alkalinity" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
+        <label>Calcium Hardness <span class="ideal">ideal 200 – 400 ppm</span></label>
+        <input type="number" name="reading_calcium" step="any" min="0" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
         <label>CYA / Stabilizer <span class="ideal">ideal 30 – 50 ppm</span></label>
         <input type="number" name="reading_cya" step="any" min="0" placeholder="ppm" />
       </div>
@@ -873,6 +877,10 @@
       <div class="reading-field">
         <label>Total Alkalinity <span class="ideal">ideal 80 – 120 ppm</span></label>
         <input type="number" name="spa_reading_alkalinity" step="any" min="0" placeholder="ppm" />
+      </div>
+      <div class="reading-field">
+        <label>Calcium Hardness <span class="ideal">ideal 200 – 400 ppm</span></label>
+        <input type="number" name="spa_reading_calcium" step="any" min="0" placeholder="ppm" />
       </div>
       <div class="reading-field">
         <label>CYA / Stabilizer <span class="ideal">ideal 30 – 50 ppm</span></label>
@@ -1221,6 +1229,7 @@
     var clF   = v('spa_reading_chlorine');
     var clT   = v('spa_reading_total_chlorine');
     var alk   = v('spa_reading_alkalinity');
+    var cal   = v('spa_reading_calcium');
     var cya   = v('spa_reading_cya');
     var salt  = v('spa_reading_salt');
     var clar  = v('spa_water_clarity');
@@ -1228,6 +1237,7 @@
     if (ph)   parts.push('pH ' + ph);
     if (clF || clT) parts.push('Cl ' + (clF || '–') + '/' + (clT || '–'));
     if (alk)  parts.push('Alk ' + alk);
+    if (cal)  parts.push('CH ' + cal);
     if (cya)  parts.push('CYA ' + cya);
     if (salt) parts.push('Salt ' + salt);
     if (clar) parts.push('Clarity ' + clar);
