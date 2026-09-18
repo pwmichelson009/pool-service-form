@@ -163,7 +163,8 @@
     .af-chip.selected { background: #0a6ebd; border-color: #0a6ebd; color: #fff; }
     /* ID selector on purpose: the generic `input { width: 100% }` rule sits further down
        the stylesheet and would otherwise stretch the gallons box across the row. */
-    #antifreeze_gal { width: 84px; flex: 0 0 84px; }
+    #antifreeze_gal, #plugs_qty, #gizzmo_qty { width: 84px; flex: 0 0 84px; }
+    .af-name { font-size: 0.84rem; font-weight: 600; color: #333; min-width: 86px; }
     .af-where { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
     @media (max-width: 340px) { .af-where { grid-template-columns: 1fr; } .af-chips { margin-left: 0; } }
     .extra-fields {
@@ -579,11 +580,11 @@
               <div class="af-row">
                 <input type="number" inputmode="decimal" step="0.5" min="0" max="99" id="antifreeze_gal" name="antifreeze_gal" class="chem-qty" placeholder="0" />
                 <span class="af-unit">gal</span>
-                <div class="af-chips">
-                  <button type="button" class="af-chip" data-af="1" onclick="pickAntifreeze(1)">1</button>
-                  <button type="button" class="af-chip" data-af="2" onclick="pickAntifreeze(2)">2</button>
-                  <button type="button" class="af-chip" data-af="3" onclick="pickAntifreeze(3)">3</button>
-                  <button type="button" class="af-chip" data-af="4" onclick="pickAntifreeze(4)">4</button>
+                <div class="af-chips" data-target="antifreeze_gal">
+                  <button type="button" class="af-chip" data-qty="1" onclick="pickClosingQty('antifreeze_gal',1)">1</button>
+                  <button type="button" class="af-chip" data-qty="2" onclick="pickClosingQty('antifreeze_gal',2)">2</button>
+                  <button type="button" class="af-chip" data-qty="3" onclick="pickClosingQty('antifreeze_gal',3)">3</button>
+                  <button type="button" class="af-chip" data-qty="4" onclick="pickClosingQty('antifreeze_gal',4)">4</button>
                 </div>
               </div>
               <div class="af-where">
@@ -591,6 +592,29 @@
                 <label class="check-item"><input type="checkbox" name="closing[]" value="Antifreeze in return lines" /><span>Return lines</span></label>
                 <label class="check-item"><input type="checkbox" name="closing[]" value="Antifreeze in main drain" /><span>Main drain</span></label>
                 <label class="check-item"><input type="checkbox" name="closing[]" value="Antifreeze in pump / heater" /><span>Pump / heater</span></label>
+              </div>
+            </div>
+            <div class="af-block" id="plug-block">
+              <div class="af-label">🔌 Plugs &amp; Gizzmos Used <span class="hint" style="font-weight:500;">(how many went in — leave blank if none)</span></div>
+              <div class="af-row">
+                <span class="af-name">Winter plugs</span>
+                <input type="number" inputmode="numeric" step="1" min="0" max="99" id="plugs_qty" name="plugs_qty" class="chem-qty" placeholder="0" />
+                <div class="af-chips" data-target="plugs_qty">
+                  <button type="button" class="af-chip" data-qty="1" onclick="pickClosingQty('plugs_qty',1)">1</button>
+                  <button type="button" class="af-chip" data-qty="2" onclick="pickClosingQty('plugs_qty',2)">2</button>
+                  <button type="button" class="af-chip" data-qty="3" onclick="pickClosingQty('plugs_qty',3)">3</button>
+                  <button type="button" class="af-chip" data-qty="4" onclick="pickClosingQty('plugs_qty',4)">4</button>
+                </div>
+              </div>
+              <div class="af-row" style="margin-top:8px;">
+                <span class="af-name">Gizzmos</span>
+                <input type="number" inputmode="numeric" step="1" min="0" max="99" id="gizzmo_qty" name="gizzmo_qty" class="chem-qty" placeholder="0" />
+                <div class="af-chips" data-target="gizzmo_qty">
+                  <button type="button" class="af-chip" data-qty="1" onclick="pickClosingQty('gizzmo_qty',1)">1</button>
+                  <button type="button" class="af-chip" data-qty="2" onclick="pickClosingQty('gizzmo_qty',2)">2</button>
+                  <button type="button" class="af-chip" data-qty="3" onclick="pickClosingQty('gizzmo_qty',3)">3</button>
+                  <button type="button" class="af-chip" data-qty="4" onclick="pickClosingQty('gizzmo_qty',4)">4</button>
+                </div>
               </div>
             </div>
             <div class="field" style="margin-top:10px;">
@@ -1173,7 +1197,7 @@
       var inc = (d.fields || {}).weekly_service_includes;
       if (inc) selectWeeklySpa(inc);
       updateServicePanels();
-      syncAntifreeze();
+      syncClosingCounts();
       updateSpaChem();
       buildChemSummary();
       highlightCrewChips();
@@ -1312,27 +1336,38 @@
     notes.value = kept ? (kept + '\n' + line) : line;
   }
 
-  // ── Antifreeze (closing checklist) ──────────────────────────────────────
-  // The gallons box has no column of its own in the Google Sheet, and the Apps
-  // Script receiver drops any param it doesn't know about. So at submit time the
+  // ── Closing counts: antifreeze, winter plugs, Gizzmos ───────────────────
+  // None of these have a column of their own in the Google Sheet, and the Apps
+  // Script receiver drops any param it doesn't know about. So at submit time each
   // number is folded into the Closing Checklist column as one more closing[] item
-  // ("Antifreeze added — 2 gal"), which is why it never needs a receiver redeploy.
-  function syncAntifreeze() {
-    var el = document.getElementById('antifreeze_gal');
-    var block = document.getElementById('af-block');
-    if (!el || !block) return;
-    var v = el.value.trim();
-    block.classList.toggle('active', !!v && parseFloat(v) > 0);
-    document.querySelectorAll('.af-chip').forEach(function (c) {
-      c.classList.toggle('selected', v !== '' && parseFloat(c.getAttribute('data-af')) === parseFloat(v));
+  // ("Antifreeze added — 2 gal", "Winter plugs used — 4", "Gizzmos used — 2"),
+  // which is why none of them ever needs a receiver redeploy.
+  var CLOSING_COUNTS = [
+    { id: 'antifreeze_gal', line: function (v) { return 'Antifreeze added — ' + v + ' gal'; } },
+    { id: 'plugs_qty',      line: function (v) { return 'Winter plugs used — ' + v; } },
+    { id: 'gizzmo_qty',     line: function (v) { return 'Gizzmos used — ' + v; } }
+  ];
+  function syncClosingCounts() {
+    document.querySelectorAll('.af-chips').forEach(function (grp) {
+      var el = document.getElementById(grp.getAttribute('data-target'));
+      var v = el ? el.value.trim() : '';
+      grp.querySelectorAll('.af-chip').forEach(function (c) {
+        c.classList.toggle('selected', v !== '' && parseFloat(c.getAttribute('data-qty')) === parseFloat(v));
+      });
+    });
+    document.querySelectorAll('.af-block').forEach(function (b) {
+      var any = Array.prototype.some.call(b.querySelectorAll('input[type="number"]'), function (el) {
+        return el.value.trim() && parseFloat(el.value) > 0;
+      });
+      b.classList.toggle('active', any);
     });
   }
-  function pickAntifreeze(n) {
-    var el = document.getElementById('antifreeze_gal');
+  function pickClosingQty(id, n) {
+    var el = document.getElementById(id);
     if (!el) return;
     // Tapping the chip you already picked clears it — a mis-tap shouldn't need a keyboard.
     el.value = (parseFloat(el.value) === n) ? '' : n;
-    syncAntifreeze();
+    syncClosingCounts();
     saveDraft();
   }
 
@@ -1376,10 +1411,10 @@
   document.querySelectorAll('input[name="service_type[]"]').forEach(function(cb) {
     cb.addEventListener('change', function(){ updateServicePanels(cb); });
   });
-  (function () {
-    var af = document.getElementById('antifreeze_gal');
-    if (af) af.addEventListener('input', syncAntifreeze);
-  })();
+  CLOSING_COUNTS.forEach(function (c) {
+    var el = document.getElementById(c.id);
+    if (el) el.addEventListener('input', syncClosingCounts);
+  });
   function updateRemoveBtns() {
     const rows = document.querySelectorAll('.equip-row');
     rows.forEach((row, i) => {
@@ -1522,24 +1557,27 @@
         if (!el.value.trim() && !el.disabled) { el.disabled = true; hiddenInputs.push(el); }
       });
     }
-    // Antifreeze gallons ride along as one more Closing Checklist entry (see syncAntifreeze).
-    // Only when the closing panel is actually showing — an un-ticked Pool Closing must not
-    // send antifreeze for a job that wasn't a closing.
-    var afHidden = null;
-    var afEl = document.getElementById('antifreeze_gal');
-    var afOpen = document.getElementById('extra-closing').style.display !== 'none';
-    if (afOpen && afEl && afEl.value.trim() && parseFloat(afEl.value) > 0) {
-      afHidden = document.createElement('input');
-      afHidden.type = 'hidden';
-      afHidden.name = 'closing[]';
-      afHidden.value = 'Antifreeze added — ' + afEl.value.trim() + ' gal';
-      form.appendChild(afHidden);
+    // Antifreeze / plugs / Gizzmos ride along as extra Closing Checklist entries
+    // (see CLOSING_COUNTS). Only when the closing panel is actually showing — an
+    // un-ticked Pool Closing must not send them for a job that wasn't a closing.
+    var countHidden = [];
+    if (document.getElementById('extra-closing').style.display !== 'none') {
+      CLOSING_COUNTS.forEach(function (c) {
+        var el = document.getElementById(c.id);
+        if (!el || !el.value.trim() || !(parseFloat(el.value) > 0)) return;
+        var h = document.createElement('input');
+        h.type = 'hidden';
+        h.name = 'closing[]';
+        h.value = c.line(el.value.trim());
+        form.appendChild(h);
+        countHidden.push(h);
+      });
     }
     try {
       return new FormData(form);
     } finally {
       hiddenInputs.forEach(function (el) { el.disabled = false; });
-      if (afHidden) afHidden.remove();
+      countHidden.forEach(function (h) { h.remove(); });
     }
   }
   // One shared error banner for offline + failed submits.
@@ -1848,9 +1886,11 @@
     document.getElementById('weekly-checklist-card').style.display = 'none';
     document.getElementById('spa-row').style.display = 'none';
     document.getElementById('freq-row').style.display = 'none';
-    var _af = document.getElementById('antifreeze_gal');
-    if (_af) _af.value = '';
-    syncAntifreeze();
+    CLOSING_COUNTS.forEach(function (c) {
+      var el = document.getElementById(c.id);
+      if (el) el.value = '';
+    });
+    syncClosingCounts();
     document.getElementById('other-svc-panel').style.display = 'none';
     document.getElementById('other-svc-btn').classList.remove('open');
     updateOtherSvcCount();
