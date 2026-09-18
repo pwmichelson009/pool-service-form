@@ -154,19 +154,25 @@
     .af-label { font-size: 0.85rem; font-weight: 700; color: #0a4d84; margin-bottom: 9px; }
     .af-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .af-unit { font-size: 0.85rem; font-weight: 600; color: #555; }
-    .af-chips { display: flex; gap: 6px; margin-left: auto; }
+    /* flex: 1 0 100% drops the chips onto their own full-width line under the box, so
+       five equal buttons sit in one tidy row instead of wrapping one chip at a time. */
+    .af-chips { display: flex; gap: 6px; flex: 1 0 100%; margin-top: 2px; }
     .af-chip {
-      min-width: 44px; height: 46px; border: 1.5px solid #c5d5e8; background: #f5f8fc;
+      flex: 1 1 0; min-width: 0; height: 46px; border: 1.5px solid #c5d5e8; background: #f5f8fc;
       border-radius: 8px; font-size: 1rem; font-weight: 700; color: #0a6ebd;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
     .af-chip.selected { background: #0a6ebd; border-color: #0a6ebd; color: #fff; }
+    /* "+" keeps counting past the last chip — 5, 6, 8 gallons of antifreeze on a big
+       pool shouldn't need the keyboard. The box itself still takes a typed number. */
+    .af-chip.af-plus { background: #e8f0fa; border-color: #9dc2e4; color: #0a4d84; font-size: 1.25rem; }
     /* ID selector on purpose: the generic `input { width: 100% }` rule sits further down
        the stylesheet and would otherwise stretch the gallons box across the row. */
     #antifreeze_gal, #plugs_qty, #gizzmo_qty { width: 84px; flex: 0 0 84px; }
     .af-name { font-size: 0.84rem; font-weight: 600; color: #333; min-width: 86px; }
-    .af-where { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-    @media (max-width: 340px) { .af-where { grid-template-columns: 1fr; } .af-chips { margin-left: 0; } }
+    .af-sub { font-size: 0.76rem; font-weight: 600; color: #667; margin-top: 12px; }
+    .af-where { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+    @media (max-width: 340px) { .af-where { grid-template-columns: 1fr; } }
     .extra-fields {
       margin-top: 8px;
       padding: 14px 14px 14px 16px;
@@ -489,7 +495,7 @@
         <button type="button" class="jt-btn service" id="jt-service" onclick="selectJobType('Service Work')">
           <span class="jt-icon">🔧</span>
           <span class="jt-name">Service Work</span>
-          <span class="jt-sub">Repair, opening, install, etc.</span>
+          <span class="jt-sub">Closing, repair, opening, install</span>
         </button>
       </div>
     </div>
@@ -576,7 +582,7 @@
               <label class="check-item"><input type="checkbox" name="closing[]" value="Accessories removed & stored" /><span>Accessories stored</span></label>
             </div>
             <div class="af-block" id="af-block">
-              <div class="af-label">🧊 Antifreeze Added <span class="hint" style="font-weight:500;">(gallons — leave blank if none)</span></div>
+              <div class="af-label">🧊 Antifreeze Added <span class="hint" style="font-weight:500;">(gallons — tap or type, + for more)</span></div>
               <div class="af-row">
                 <input type="number" inputmode="decimal" step="0.5" min="0" max="99" id="antifreeze_gal" name="antifreeze_gal" class="chem-qty" placeholder="0" />
                 <span class="af-unit">gal</span>
@@ -585,8 +591,10 @@
                   <button type="button" class="af-chip" data-qty="2" onclick="pickClosingQty('antifreeze_gal',2)">2</button>
                   <button type="button" class="af-chip" data-qty="3" onclick="pickClosingQty('antifreeze_gal',3)">3</button>
                   <button type="button" class="af-chip" data-qty="4" onclick="pickClosingQty('antifreeze_gal',4)">4</button>
+                  <button type="button" class="af-chip af-plus" onclick="bumpClosingQty('antifreeze_gal',1)" aria-label="one more">+</button>
                 </div>
               </div>
+              <div class="af-sub">Where it went</div>
               <div class="af-where">
                 <label class="check-item"><input type="checkbox" name="closing[]" value="Antifreeze in skimmers" /><span>Skimmers</span></label>
                 <label class="check-item"><input type="checkbox" name="closing[]" value="Antifreeze in return lines" /><span>Return lines</span></label>
@@ -595,7 +603,7 @@
               </div>
             </div>
             <div class="af-block" id="plug-block">
-              <div class="af-label">🔌 Plugs &amp; Gizzmos Used <span class="hint" style="font-weight:500;">(how many went in — leave blank if none)</span></div>
+              <div class="af-label">🔌 Plugs &amp; Gizzmos Used <span class="hint" style="font-weight:500;">(how many went in — blank if none)</span></div>
               <div class="af-row">
                 <span class="af-name">Winter plugs</span>
                 <input type="number" inputmode="numeric" step="1" min="0" max="99" id="plugs_qty" name="plugs_qty" class="chem-qty" placeholder="0" />
@@ -604,6 +612,7 @@
                   <button type="button" class="af-chip" data-qty="2" onclick="pickClosingQty('plugs_qty',2)">2</button>
                   <button type="button" class="af-chip" data-qty="3" onclick="pickClosingQty('plugs_qty',3)">3</button>
                   <button type="button" class="af-chip" data-qty="4" onclick="pickClosingQty('plugs_qty',4)">4</button>
+                  <button type="button" class="af-chip af-plus" onclick="bumpClosingQty('plugs_qty',1)" aria-label="one more">+</button>
                 </div>
               </div>
               <div class="af-row" style="margin-top:8px;">
@@ -614,6 +623,7 @@
                   <button type="button" class="af-chip" data-qty="2" onclick="pickClosingQty('gizzmo_qty',2)">2</button>
                   <button type="button" class="af-chip" data-qty="3" onclick="pickClosingQty('gizzmo_qty',3)">3</button>
                   <button type="button" class="af-chip" data-qty="4" onclick="pickClosingQty('gizzmo_qty',4)">4</button>
+                  <button type="button" class="af-chip af-plus" onclick="bumpClosingQty('gizzmo_qty',1)" aria-label="one more">+</button>
                 </div>
               </div>
             </div>
@@ -1361,6 +1371,19 @@
       });
       b.classList.toggle('active', any);
     });
+  }
+  // "+" counts past the last chip (5, 6, 8 gallons...) without opening the keyboard.
+  function bumpClosingQty(id, d) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = parseFloat(el.value);
+    if (isNaN(cur)) cur = 0;
+    var next = cur + d;
+    if (next < 0) next = 0;
+    if (next > 99) next = 99;
+    el.value = next > 0 ? next : '';
+    syncClosingCounts();
+    saveDraft();
   }
   function pickClosingQty(id, n) {
     var el = document.getElementById(id);
